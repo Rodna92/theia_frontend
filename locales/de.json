@@ -1,0 +1,319 @@
+{
+  "processes": {
+    "hero": {
+      "title": "Automatisierte Prozesse",
+      "subtitle": "Wählen Sie einen Prozess zum Starten"
+    },
+    "cards": {
+      "leakDetection": {
+        "title": "Leckerkennung",
+        "description": "Automatische Leckerkennung mit Computer Vision und robotergestützter Inspektion"
+      },
+      "fluidDoser": {
+        "title": "Automatische Fluiddosierung",
+        "description": "Automatische Fluidabgabe mit Präzisionsdosierungssystem"
+      },
+      "sequenceOfProcess": {
+        "title": "Prozesssequenz",
+        "description": "Erstellen und Verwalten einer Pipeline von Prozessen für die automatisierte Maschinenausführung"
+      }
+    }
+  },
+  "leakDetection": {
+    "title": "Leckerkennung",
+    "headings": {
+      "actions": "Aktionen",
+      "processFlow": "Prozessablauf"
+    },
+    "actions": {
+      "start": "Starten",
+      "test": "Testen",
+      "configure": "Konfigurieren",
+      "running": "Verarbeitung läuft...",
+      "stop": "Stoppen",
+      "reset": "Prozess zurücksetzen",
+      "cancel": "Abbrechen",
+      "retry": "Wiederholen"
+    },
+    "configure": {
+      "selectTitle": "Wählen Sie aus, was konfiguriert werden soll",
+      "selectDescription": "Wählen Sie eine Komponente aus, um ihre Einstellungen zu konfigurieren",
+      "clickToConfig": "Klicken Sie zum Konfigurieren",
+      "configurationTitle": "Konfiguration",
+      "basicSettings": "Grundeinstellungen",
+      "advancedSettings": "Erweiterte Einstellungen",
+      "calibration": "Kalibrierung",
+      "comingSoon": "Konfigurationsoptionen folgen in Kürze",
+      "back": "Zurück",
+      "save": "Speichern",
+      "process": {
+        "title": "Konfiguration",
+        "searchingSetup": {
+          "title": "Suchkonfiguration",
+          "description": "Definieren Sie Zielparameter, Bewegungsmuster und Routinelogik."
+        },
+        "automations": {
+          "title": "Workflow-Automatisierung",
+          "description": "Legen Sie Trigger für Prozessstarts, -abschlüsse und Statusanzeigen fest."
+        },
+        "errorHandling": {
+          "title": "Fehlermanagement",
+          "description": "Definieren Sie das Systemverhalten und Wiederherstellungsprotokolle bei Störungen."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Punktwolken-Konfiguration",
+          "description": "Untersuchen Sie die Registrierungs-Pipeline in 3D — laden Sie die Punktwolken eines erfassten Frames und überprüfen Sie die ICP-Ausrichtungsstufen.",
+          "openViewer": "3D-Punktwolken-Viewer öffnen"
+        },
+        "replay": {
+          "title": "Prozess-Wiedergabe",
+          "description": "Durchlaufen oder spielen Sie eine erfasste Sequenz von Frames in 3D ab, um die Registrierungs-Pipeline im zeitlichen Verlauf zu überprüfen.",
+          "openReplay": "Prozess-Wiedergabe öffnen"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Sichtprüfung",
+      "robot": "Roboter",
+      "endeffector": "Endeffektor",
+      "leakEquipment": "Leckererkennungsausrüstung"
+    },
+    "pointCloud": {
+      "fitView": "Ansicht anpassen",
+      "pointSize": "Punktgröße",
+      "transformsTitle": "Transformationen & Fitness"
+    },
+    "cloudPointConfiguration": {
+      "title": "Punktwolken-Konfiguration",
+      "subtitle": "Laden Sie einen Frame-Ordner, um die Registrierungs-Pipeline in 3D zu untersuchen",
+      "uploadFrame": "Frame hochladen",
+      "emptyViewer": "Laden Sie einen Frame-Ordner hoch, um Punktwolken zu visualisieren",
+      "noFrameLoaded": "Noch kein Frame geladen. Klicken Sie auf \"Frame hochladen\" und wählen Sie den Ordner mit den .ply-Dateien aus.",
+      "missingFiles": "Im ausgewählten Ordner nicht gefunden:",
+      "uploadCad": "CAD hochladen",
+      "cadEmptyViewer": "Laden Sie eine .stl-CAD-Datei hoch, um das Modell in der Vorschau anzuzeigen",
+      "convertToPointCloud": "In Punktwolke umwandeln",
+      "voxelSizeLabel": "Voxelgröße (Modelleinheiten)",
+      "pointsGenerated": "Punkte erzeugt",
+      "exportPly": "PLY exportieren",
+      "exportScaleLabel": "Skalierungsfaktor beim Export (z. B. 0,001 oder 10)",
+      "clipTitle": "Schnittebenen (Bereich pro Achse)",
+      "clipMin": "Min",
+      "clipMax": "Max",
+      "cadViewMesh": "Netzansicht",
+      "cadViewPoints": "Punktwolkenansicht",
+      "done": "Fertig",
+      "insertInScene": "In Szene einfügen",
+      "removeFromScene": "Aus Szene entfernen",
+      "addPointCloud": "Punktwolke hinzufügen",
+      "userAddedPointCloud": "Vom Benutzer hinzugefügte Punktwolke",
+      "pointCloudFusion": "Punktwolken-Fusion",
+      "fusionModalTitle": "Punktwolken-Fusion",
+      "fusionModalDescription": "Wählen Sie die zu kombinierenden Punktwolken aus und fügen Sie sie zu einer einzigen Punktwolke zusammen.",
+      "fusePointClouds": "Punktwolken fusionieren",
+      "export": "Exportieren",
+      "fusedPointsSummary": "fusionierte Punkte",
+      "noPointCloudsAvailable": "Keine Punktwolken zum Fusionieren verfügbar.",
+      "selectAtLeastOnePointCloud": "Wählen Sie mindestens eine Punktwolke zum Fusionieren aus.",
+      "cadPointCloud": "CAD-Punktwolke",
+      "fusionPreviewEmpty": "Fusionieren Sie die ausgewählten Punktwolken, um das Ergebnis anzuzeigen"
+    },
+    "cloudPointReplay": {
+      "title": "Prozess-Wiedergabe",
+      "subtitle": "Laden Sie einen Sequenzordner, um die Registrierungs-Pipeline in 3D zu durchlaufen oder abzuspielen",
+      "uploadSequence": "Sequenz hochladen",
+      "emptyViewer": "Laden Sie einen Sequenzordner hoch, um die Frame-Sequenz zu visualisieren",
+      "noSequenceLoaded": "Noch keine Sequenz geladen. Klicken Sie auf \"Sequenz hochladen\" und wählen Sie den Ordner mit den Frame-Unterordnern aus.",
+      "notAvailableInFrame": "In diesem Frame nicht verfügbar",
+      "invalidFolder": "Im ausgewählten Ordner wurden keine Frame-Unterordner (z. B. \"frame_000123\") gefunden.",
+      "loadingFrame": "Frame wird geladen…",
+      "play": "Abspielen",
+      "pause": "Pause",
+      "previousFrame": "Vorheriger Frame",
+      "nextFrame": "Nächster Frame",
+      "frameLabel": "{frameId} · {current} von {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Initialisieren",
+        "checkDevices": "Geräte prüfen",
+        "startStream": "Stream starten",
+        "moveToPoints": "Zu Inspektionspunkten bewegen",
+        "detectLeaks": "Lecks erkennen",
+        "confirmReport": "Bestätigen und Bericht",
+        "complete": "Abgeschlossen"
+      }
+    },
+    "status": {
+      "live": "LIVE",
+      "idle": "UNTÄTIG",
+      "connecting": "VERBINDUNG WIRD HERGESTELLT",
+      "error": "FEHLER",
+      "systemStatus": "Systemstatus",
+      "latency": "Latenz",
+      "ms": "ms",
+      "overlay": "Objekterkennungsüberlagerung aktiviert",
+      "metadataNotPresent": "Metadaten der Vision-Inferenz nicht vorhanden"
+    }
+  },
+  "fluidDoser": {
+    "title": "Automatische Fluiddosierung",
+    "headings": {
+      "actions": "Aktionen",
+      "processFlow": "Prozessablauf"
+    },
+    "actions": {
+      "start": "Starten",
+      "test": "Testen",
+      "configure": "Konfigurieren",
+      "running": "Verarbeitung läuft...",
+      "stop": "Stoppen",
+      "reset": "Prozess zurücksetzen",
+      "cancel": "Abbrechen"
+    },
+    "configure": {
+      "selectTitle": "Wählen Sie aus, was konfiguriert werden soll",
+      "selectDescription": "Wählen Sie eine Komponente aus, um ihre Einstellungen zu konfigurieren",
+      "clickToConfig": "Klicken Sie zum Konfigurieren",
+      "configurationTitle": "Konfiguration",
+      "basicSettings": "Grundeinstellungen",
+      "advancedSettings": "Erweiterte Einstellungen",
+      "calibration": "Kalibrierung",
+      "comingSoon": "Konfigurationsoptionen folgen in Kürze",
+      "back": "Zurück",
+      "save": "Speichern",
+      "process": {
+        "title": "Konfiguration",
+        "searchingSetup": {
+          "title": "Suchkonfiguration",
+          "description": "Definieren Sie Zielparameter, Bewegungsmuster und Routinelogik."
+        },
+        "automations": {
+          "title": "Workflow-Automatisierung",
+          "description": "Legen Sie Trigger für Prozessstarts, -abschlüsse und Statusanzeigen fest."
+        },
+        "errorHandling": {
+          "title": "Fehlermanagement",
+          "description": "Definieren Sie das Systemverhalten und Wiederherstellungsprotokolle bei Störungen."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Punktwolken-Konfiguration",
+          "description": "Untersuchen Sie die Registrierungs-Pipeline in 3D — laden Sie die Punktwolken eines erfassten Frames und überprüfen Sie die ICP-Ausrichtungsstufen.",
+          "openViewer": "3D-Punktwolken-Viewer öffnen"
+        },
+        "replay": {
+          "title": "Prozess-Wiedergabe",
+          "description": "Durchlaufen oder spielen Sie eine erfasste Sequenz von Frames in 3D ab, um die Registrierungs-Pipeline im zeitlichen Verlauf zu überprüfen.",
+          "openReplay": "Prozess-Wiedergabe öffnen"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Sichtprüfung",
+      "robot": "Roboter",
+      "endeffector": "Endeffektor"
+    },
+    "pointCloud": {
+      "fitView": "Ansicht anpassen",
+      "pointSize": "Punktgröße",
+      "transformsTitle": "Transformationen & Fitness"
+    },
+    "cloudPointConfiguration": {
+      "title": "Punktwolken-Konfiguration",
+      "subtitle": "Laden Sie einen Frame-Ordner, um die Registrierungs-Pipeline in 3D zu untersuchen",
+      "uploadFrame": "Frame hochladen",
+      "emptyViewer": "Laden Sie einen Frame-Ordner hoch, um Punktwolken zu visualisieren",
+      "noFrameLoaded": "Noch kein Frame geladen. Klicken Sie auf \"Frame hochladen\" und wählen Sie den Ordner mit den .ply-Dateien aus.",
+      "missingFiles": "Im ausgewählten Ordner nicht gefunden:",
+      "uploadCad": "CAD hochladen",
+      "cadEmptyViewer": "Laden Sie eine .stl-CAD-Datei hoch, um das Modell in der Vorschau anzuzeigen",
+      "convertToPointCloud": "In Punktwolke umwandeln",
+      "voxelSizeLabel": "Voxelgröße (Modelleinheiten)",
+      "pointsGenerated": "Punkte erzeugt",
+      "exportPly": "PLY exportieren",
+      "exportScaleLabel": "Skalierungsfaktor beim Export (z. B. 0,001 oder 10)",
+      "clipTitle": "Schnittebenen (Bereich pro Achse)",
+      "clipMin": "Min",
+      "clipMax": "Max",
+      "cadViewMesh": "Netzansicht",
+      "cadViewPoints": "Punktwolkenansicht",
+      "done": "Fertig",
+      "insertInScene": "In Szene einfügen",
+      "removeFromScene": "Aus Szene entfernen",
+      "addPointCloud": "Punktwolke hinzufügen",
+      "userAddedPointCloud": "Vom Benutzer hinzugefügte Punktwolke",
+      "pointCloudFusion": "Punktwolken-Fusion",
+      "fusionModalTitle": "Punktwolken-Fusion",
+      "fusionModalDescription": "Wählen Sie die zu kombinierenden Punktwolken aus und fügen Sie sie zu einer einzigen Punktwolke zusammen.",
+      "fusePointClouds": "Punktwolken fusionieren",
+      "export": "Exportieren",
+      "fusedPointsSummary": "fusionierte Punkte",
+      "noPointCloudsAvailable": "Keine Punktwolken zum Fusionieren verfügbar.",
+      "selectAtLeastOnePointCloud": "Wählen Sie mindestens eine Punktwolke zum Fusionieren aus.",
+      "cadPointCloud": "CAD-Punktwolke",
+      "fusionPreviewEmpty": "Fusionieren Sie die ausgewählten Punktwolken, um das Ergebnis anzuzeigen"
+    },
+    "cloudPointReplay": {
+      "title": "Prozess-Wiedergabe",
+      "subtitle": "Laden Sie einen Sequenzordner, um die Registrierungs-Pipeline in 3D zu durchlaufen oder abzuspielen",
+      "uploadSequence": "Sequenz hochladen",
+      "emptyViewer": "Laden Sie einen Sequenzordner hoch, um die Frame-Sequenz zu visualisieren",
+      "noSequenceLoaded": "Noch keine Sequenz geladen. Klicken Sie auf \"Sequenz hochladen\" und wählen Sie den Ordner mit den Frame-Unterordnern aus.",
+      "notAvailableInFrame": "In diesem Frame nicht verfügbar",
+      "invalidFolder": "Im ausgewählten Ordner wurden keine Frame-Unterordner (z. B. \"frame_000123\") gefunden.",
+      "loadingFrame": "Frame wird geladen…",
+      "play": "Abspielen",
+      "pause": "Pause",
+      "previousFrame": "Vorheriger Frame",
+      "nextFrame": "Nächster Frame",
+      "frameLabel": "{frameId} · {current} von {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Initialisieren",
+        "checkDevices": "Geräte prüfen",
+        "startStream": "Stream starten",
+        "moveToPoints": "Zu Punkten bewegen",
+        "prepareDosing": "Dosierung vorbereiten",
+        "applyFluid": "Fluid anwenden",
+        "confirmComplete": "Bestätigen und abschließen"
+      }
+    },
+    "status": {
+      "live": "LIVE",
+      "systemStatus": "Systemstatus",
+      "latency": "Latenz",
+      "ms": "ms",
+      "overlay": "Objekterkennungsüberlagerung aktiviert",
+      "metadataNotPresent": "Metadaten der Vision-Inferenz nicht vorhanden"
+    }
+  },
+  "common": {
+    "open": "Öffnen",
+    "comingSoon": "Bald verfügbar",
+    "language": "Sprache",
+    "theme": "Design",
+    "settings": "Einstellungen"
+  },
+  "landing": {
+    "hero": {
+      "title1": "Willkommen bei",
+      "title2": "Theia",
+      "subtitle": "Die ultimative Plattform für automatisiertes Prozessmanagement und die Überwachung von robotergestützter Leckerkennung und Fluiddosierung mit KI-visionsgestützten Maschinen."
+    },
+    "cta": {
+      "login": "In Ihrem Konto anmelden"
+    }
+  },
+  "login": {
+    "title": "Bei Theia anmelden",
+    "tenant": "Mandanten-ID",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "submit": "Anmelden"
+  }
+}

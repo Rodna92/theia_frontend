@@ -1,0 +1,319 @@
+{
+  "processes": {
+    "hero": {
+      "title": "Processus Automatisés",
+      "subtitle": "Sélectionnez un processus pour commencer"
+    },
+    "cards": {
+      "leakDetection": {
+        "title": "Détection de Fuites",
+        "description": "Détection automatique des fuites utilisant la vision par ordinateur et l'inspection robotique"
+      },
+      "fluidDoser": {
+        "title": "Dosage Automatique de Fluides",
+        "description": "Distribution automatique de fluides avec système de dosage de précision"
+      },
+      "sequenceOfProcess": {
+        "title": "Séquence de Processus",
+        "description": "Créer et gérer un pipeline de processus pour l'exécution automatisée des machines"
+      }
+    }
+  },
+  "leakDetection": {
+    "title": "Détection de Fuites",
+    "headings": {
+      "actions": "Actions",
+      "processFlow": "Flux du processus"
+    },
+    "actions": {
+      "start": "Démarrer",
+      "test": "Tester",
+      "configure": "Configurer",
+      "running": "Traitement en cours...",
+      "stop": "Arrêter",
+      "reset": "Réinitialiser le Processus",
+      "cancel": "Annuler",
+      "retry": "Réessayer"
+    },
+    "configure": {
+      "selectTitle": "Sélectionnez ce qu'il faut configurer",
+      "selectDescription": "Choisissez un composant pour configurer ses paramètres",
+      "clickToConfig": "Cliquez pour configurer",
+      "configurationTitle": "Configuration",
+      "basicSettings": "Paramètres de base",
+      "advancedSettings": "Paramètres avancés",
+      "calibration": "Étalonnage",
+      "comingSoon": "Options de configuration à venir",
+      "back": "Retour",
+      "save": "Enregistrer",
+      "process": {
+        "title": "Configuration",
+        "searchingSetup": {
+          "title": "Configuration de la recherche",
+          "description": "Définissez les paramètres de la cible, les modèles de mouvement et la logique de routine."
+        },
+        "automations": {
+          "title": "Automatisation du flux de travail",
+          "description": "Définissez des déclencheurs pour les démarrages de processus, les achèvements et les indicateurs d'état."
+        },
+        "errorHandling": {
+          "title": "Gestion des erreurs",
+          "description": "Définissez le comportement du système et les protocolli de récupération en cas de pannes."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Configuration du Nuage de Points",
+          "description": "Inspectez le pipeline de recalage en 3D — chargez les nuages de points d'une image capturée et examinez les étapes d'alignement ICP.",
+          "openViewer": "Ouvrir le visualiseur 3D du nuage de points"
+        },
+        "replay": {
+          "title": "Relecture du Processus",
+          "description": "Parcourez ou lisez une séquence d'images capturées en 3D pour examiner le pipeline de recalage dans le temps.",
+          "openReplay": "Ouvrir la relecture du processus"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Vision",
+      "robot": "Robot",
+      "endeffector": "Effecteur terminal",
+      "leakEquipment": "Équipement de fuite"
+    },
+    "pointCloud": {
+      "fitView": "Ajuster la vue",
+      "pointSize": "Taille des points",
+      "transformsTitle": "Transformations et qualité d'ajustement"
+    },
+    "cloudPointConfiguration": {
+      "title": "Configuration du Nuage de Points",
+      "subtitle": "Chargez un dossier d'image pour inspecter le pipeline de recalage en 3D",
+      "uploadFrame": "Charger l'image",
+      "emptyViewer": "Chargez un dossier d'image pour visualiser les nuages de points",
+      "noFrameLoaded": "Aucune image chargée pour le moment. Cliquez sur \"Charger l'image\" et sélectionnez le dossier contenant les fichiers .ply.",
+      "missingFiles": "Introuvable dans le dossier sélectionné :",
+      "uploadCad": "Charger le CAO",
+      "cadEmptyViewer": "Chargez un fichier CAO .stl pour prévisualiser le modèle",
+      "convertToPointCloud": "Convertir en nuage de points",
+      "voxelSizeLabel": "Taille du voxel (unités du modèle)",
+      "pointsGenerated": "points générés",
+      "exportPly": "Exporter en PLY",
+      "exportScaleLabel": "Facteur d'échelle à l'export (ex. 0,001 ou 10)",
+      "clipTitle": "Plans de coupe (plage par axe)",
+      "clipMin": "Min",
+      "clipMax": "Max",
+      "cadViewMesh": "Vue maillage",
+      "cadViewPoints": "Vue nuage de points",
+      "done": "Terminé",
+      "insertInScene": "Insérer dans la scène",
+      "removeFromScene": "Retirer de la scène",
+      "addPointCloud": "Ajouter un nuage de points",
+      "userAddedPointCloud": "Nuage de points ajouté par l'utilisateur",
+      "pointCloudFusion": "Fusion de nuages de points",
+      "fusionModalTitle": "Fusion de nuages de points",
+      "fusionModalDescription": "Sélectionnez les nuages de points à combiner, puis fusionnez-les en un seul nuage de points.",
+      "fusePointClouds": "Fusionner les nuages de points",
+      "export": "Exporter",
+      "fusedPointsSummary": "points fusionnés",
+      "noPointCloudsAvailable": "Aucun nuage de points disponible pour la fusion.",
+      "selectAtLeastOnePointCloud": "Sélectionnez au moins un nuage de points à fusionner.",
+      "cadPointCloud": "Nuage de points CAO",
+      "fusionPreviewEmpty": "Fusionnez les nuages de points sélectionnés pour prévisualiser le résultat"
+    },
+    "cloudPointReplay": {
+      "title": "Relecture du Processus",
+      "subtitle": "Chargez un dossier de séquence pour parcourir ou lire le pipeline de recalage en 3D",
+      "uploadSequence": "Charger la séquence",
+      "emptyViewer": "Chargez un dossier de séquence pour visualiser la séquence d'images",
+      "noSequenceLoaded": "Aucune séquence chargée pour le moment. Cliquez sur \"Charger la séquence\" et sélectionnez le dossier contenant les sous-dossiers d'images.",
+      "notAvailableInFrame": "Non disponible dans cette image",
+      "invalidFolder": "Aucun sous-dossier d'image (ex. \"frame_000123\") n'a été trouvé dans le dossier sélectionné.",
+      "loadingFrame": "Chargement de l'image…",
+      "play": "Lecture",
+      "pause": "Pause",
+      "previousFrame": "Image précédente",
+      "nextFrame": "Image suivante",
+      "frameLabel": "{frameId} · {current} sur {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Initialiser",
+        "checkDevices": "Vérifier les appareils",
+        "startStream": "Démarrer le flux",
+        "moveToPoints": "Déplacer vers les points d'inspection",
+        "detectLeaks": "Détecter les fuites",
+        "confirmReport": "Confirmer et signaler",
+        "complete": "Terminé"
+      }
+    },
+    "status": {
+      "live": "EN DIRECT",
+      "idle": "INACTIF",
+      "connecting": "CONNEXION EN COURS",
+      "error": "ERREUR",
+      "systemStatus": "État du système",
+      "latency": "Latence",
+      "ms": "ms",
+      "overlay": "Superposition de reconnaissance d'objets activée",
+      "metadataNotPresent": "Métadonnées d'inférence de vision non présentes"
+    }
+  },
+  "fluidDoser": {
+    "title": "Dosage Automatique de Fluides",
+    "headings": {
+      "actions": "Actions",
+      "processFlow": "Flux du processus"
+    },
+    "actions": {
+      "start": "Démarrer",
+      "test": "Tester",
+      "configure": "Configurer",
+      "running": "Traitement en cours...",
+      "stop": "Arrêter",
+      "reset": "Réinitialiser le Processus",
+      "cancel": "Annuler"
+    },
+    "configure": {
+      "selectTitle": "Sélectionnez ce qu'il faut configurer",
+      "selectDescription": "Choisissez un composant pour configurer ses paramètres",
+      "clickToConfig": "Cliquez pour configurer",
+      "configurationTitle": "Configuration",
+      "basicSettings": "Paramètres de base",
+      "advancedSettings": "Paramètres avancés",
+      "calibration": "Étalonnage",
+      "comingSoon": "Options de configuration à venir",
+      "back": "Retour",
+      "save": "Enregistrer",
+      "process": {
+        "title": "Configuration",
+        "searchingSetup": {
+          "title": "Configuration de la recherche",
+          "description": "Définissez les paramètres de la cible, les modèles de mouvement et la logique de routine."
+        },
+        "automations": {
+          "title": "Automatisation du flux de travail",
+          "description": "Définissez des déclencheurs pour les démarrages de processus, les achèvements et les indicateurs d'état."
+        },
+        "errorHandling": {
+          "title": "Gestion des erreurs",
+          "description": "Définissez le comportement du système et les protocolli de récupération en cas de pannes."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Configuration du Nuage de Points",
+          "description": "Inspectez le pipeline de recalage en 3D — chargez les nuages de points d'une image capturée et examinez les étapes d'alignement ICP.",
+          "openViewer": "Ouvrir le visualiseur 3D du nuage de points"
+        },
+        "replay": {
+          "title": "Relecture du Processus",
+          "description": "Parcourez ou lisez une séquence d'images capturées en 3D pour examiner le pipeline de recalage dans le temps.",
+          "openReplay": "Ouvrir la relecture du processus"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Vision",
+      "robot": "Robot",
+      "endeffector": "Effecteur terminal"
+    },
+    "pointCloud": {
+      "fitView": "Ajuster la vue",
+      "pointSize": "Taille des points",
+      "transformsTitle": "Transformations et qualité d'ajustement"
+    },
+    "cloudPointConfiguration": {
+      "title": "Configuration du Nuage de Points",
+      "subtitle": "Chargez un dossier d'image pour inspecter le pipeline de recalage en 3D",
+      "uploadFrame": "Charger l'image",
+      "emptyViewer": "Chargez un dossier d'image pour visualiser les nuages de points",
+      "noFrameLoaded": "Aucune image chargée pour le moment. Cliquez sur \"Charger l'image\" et sélectionnez le dossier contenant les fichiers .ply.",
+      "missingFiles": "Introuvable dans le dossier sélectionné :",
+      "uploadCad": "Charger le CAO",
+      "cadEmptyViewer": "Chargez un fichier CAO .stl pour prévisualiser le modèle",
+      "convertToPointCloud": "Convertir en nuage de points",
+      "voxelSizeLabel": "Taille du voxel (unités du modèle)",
+      "pointsGenerated": "points générés",
+      "exportPly": "Exporter en PLY",
+      "exportScaleLabel": "Facteur d'échelle à l'export (ex. 0,001 ou 10)",
+      "clipTitle": "Plans de coupe (plage par axe)",
+      "clipMin": "Min",
+      "clipMax": "Max",
+      "cadViewMesh": "Vue maillage",
+      "cadViewPoints": "Vue nuage de points",
+      "done": "Terminé",
+      "insertInScene": "Insérer dans la scène",
+      "removeFromScene": "Retirer de la scène",
+      "addPointCloud": "Ajouter un nuage de points",
+      "userAddedPointCloud": "Nuage de points ajouté par l'utilisateur",
+      "pointCloudFusion": "Fusion de nuages de points",
+      "fusionModalTitle": "Fusion de nuages de points",
+      "fusionModalDescription": "Sélectionnez les nuages de points à combiner, puis fusionnez-les en un seul nuage de points.",
+      "fusePointClouds": "Fusionner les nuages de points",
+      "export": "Exporter",
+      "fusedPointsSummary": "points fusionnés",
+      "noPointCloudsAvailable": "Aucun nuage de points disponible pour la fusion.",
+      "selectAtLeastOnePointCloud": "Sélectionnez au moins un nuage de points à fusionner.",
+      "cadPointCloud": "Nuage de points CAO",
+      "fusionPreviewEmpty": "Fusionnez les nuages de points sélectionnés pour prévisualiser le résultat"
+    },
+    "cloudPointReplay": {
+      "title": "Relecture du Processus",
+      "subtitle": "Chargez un dossier de séquence pour parcourir ou lire le pipeline de recalage en 3D",
+      "uploadSequence": "Charger la séquence",
+      "emptyViewer": "Chargez un dossier de séquence pour visualiser la séquence d'images",
+      "noSequenceLoaded": "Aucune séquence chargée pour le moment. Cliquez sur \"Charger la séquence\" et sélectionnez le dossier contenant les sous-dossiers d'images.",
+      "notAvailableInFrame": "Non disponible dans cette image",
+      "invalidFolder": "Aucun sous-dossier d'image (ex. \"frame_000123\") n'a été trouvé dans le dossier sélectionné.",
+      "loadingFrame": "Chargement de l'image…",
+      "play": "Lecture",
+      "pause": "Pause",
+      "previousFrame": "Image précédente",
+      "nextFrame": "Image suivante",
+      "frameLabel": "{frameId} · {current} sur {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Initialiser",
+        "checkDevices": "Vérifier les appareils",
+        "startStream": "Démarrer le flux",
+        "moveToPoints": "Déplacer vers les points",
+        "prepareDosing": "Préparer le dosage",
+        "applyFluid": "Appliquer le fluide",
+        "confirmComplete": "Confirmer et terminer"
+      }
+    },
+    "status": {
+      "live": "EN DIRECT",
+      "systemStatus": "État du système",
+      "latency": "Latence",
+      "ms": "ms",
+      "overlay": "Superposition de reconnaissance d'objets activée",
+      "metadataNotPresent": "Métadonnées d'inférence de vision non présentes"
+    }
+  },
+  "common": {
+    "open": "Ouvrir",
+    "comingSoon": "Bientôt",
+    "language": "Langue",
+    "theme": "Thème",
+    "settings": "Paramètres"
+  },
+  "landing": {
+    "hero": {
+      "title1": "Bienvenue chez",
+      "title2": "Theia",
+      "subtitle": "La plateforme ultime pour la gestion et la surveillance automatisées des processus de détection de fuites robotisée et de dosage de fluides avec des machines améliorées par la vision par IA."
+    },
+    "cta": {
+      "login": "Connectez-vous à votre compte"
+    }
+  },
+  "login": {
+    "title": "Connectez-vous à Theia",
+    "tenant": "ID Locataire",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "submit": "Se connecter"
+  }
+}

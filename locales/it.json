@@ -1,0 +1,325 @@
+{
+  "processes": {
+    "hero": {
+      "title": "Processi Automatizzati",
+      "subtitle": "Seleziona un processo per iniziare"
+    },
+    "cards": {
+      "leakDetection": {
+        "title": "Rilevamento Perdite",
+        "description": "Rilevamento automatico delle perdite mediante visione artificiale e ispezione robotica"
+      },
+      "fluidDoser": {
+        "title": "Dosaggio Automatico dei Fluidi",
+        "description": "Erogazione automatica di fluidi con sistema di dosaggio di precisione"
+      },
+      "sequenceOfProcess": {
+        "title": "Sequenza di Processo",
+        "description": "Creare e gestire una pipeline di processi per l'esecuzione automatizzata della macchina"
+      }
+    }
+  },
+  "leakDetection": {
+    "title": "Rilevamento Perdite",
+    "headings": {
+      "actions": "Azioni",
+      "processFlow": "Flusso di processo"
+    },
+    "actions": {
+      "start": "Avvia",
+      "test": "Prova",
+      "configure": "Configura",
+      "running": "Elaborazione in corso...",
+      "stop": "Fermare",
+      "reset": "Ripristina Processo",
+      "cancel": "Annulla",
+      "retry": "Riprova"
+    },
+    "configure": {
+      "selectTitle": "Seleziona cosa configurare",
+      "selectDescription": "Scegli un componente per configurarne le impostazioni",
+      "clickToConfig": "Clicca per configurare",
+      "configurationTitle": "Configurazione",
+      "basicSettings": "Impostazioni di base",
+      "advancedSettings": "Impostazioni avanzate",
+      "calibration": "Calibrazione",
+      "comingSoon": "Opzioni di configurazione in arrivo",
+      "back": "Indietro",
+      "save": "Salva",
+      "process": {
+        "title": "Configurazione",
+        "searchingSetup": {
+          "title": "Configurazione della ricerca",
+          "description": "Definisci i parametri del target, i modelli di movimento e la logica della routine."
+        },
+        "automations": {
+          "title": "Automazione del flusso di lavoro",
+          "description": "Imposta i trigger per l'avvio del processo, il completamento e gli indicatori di stato."
+        },
+        "errorHandling": {
+          "title": "Gestione degli errori",
+          "description": "Definisci il comportamento del sistema e i protocolli di ripristino in caso di guasti."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Configurazione Nuvola di Punti",
+          "description": "Ispeziona la pipeline di registrazione in 3D — carica le nuvole di punti di un frame acquisito e rivedi le fasi di allineamento ICP.",
+          "openViewer": "Apri visualizzatore 3D nuvola di punti"
+        },
+        "replay": {
+          "title": "Replay del Processo",
+          "description": "Scorri o riproduci una sequenza di frame acquisiti in 3D per rivedere la pipeline di registrazione nel tempo.",
+          "openReplay": "Apri replay del processo"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Visione",
+      "robot": "Robot",
+      "endeffector": "End-effector",
+      "leakEquipment": "Apparecchiatura perdite"
+    },
+    "pointCloud": {
+      "fitView": "Adatta vista",
+      "pointSize": "Dimensione punti",
+      "transformsTitle": "Trasformazioni e fitness",
+      "verdictMode": "Modalità",
+      "verdictFitness": "Fitness migliore/minima",
+      "verdictResult": "Risultato"
+    },
+    "cloudPointConfiguration": {
+      "title": "Configurazione Nuvola di Punti",
+      "subtitle": "Carica una cartella frame per ispezionare la pipeline di registrazione in 3D",
+      "uploadFrame": "Carica frame",
+      "emptyViewer": "Carica una cartella frame per visualizzare le nuvole di punti",
+      "noFrameLoaded": "Nessun frame caricato. Clicca su \"Carica frame\" e seleziona la cartella con i file .ply.",
+      "missingFiles": "Non trovato nella cartella selezionata:",
+      "uploadCad": "Carica CAD",
+      "cadEmptyViewer": "Carica un file CAD .stl per visualizzare in anteprima il modello",
+      "convertToPointCloud": "Converti in nuvola di punti",
+      "voxelSizeLabel": "Dimensione voxel (unità del modello)",
+      "pointsGenerated": "punti generati",
+      "exportPly": "Esporta PLY",
+      "exportScaleLabel": "Fattore di scala per l'esportazione (es. 0,001 o 10)",
+      "clipTitle": "Piani di taglio (intervallo per asse)",
+      "clipMin": "Min",
+      "clipMax": "Max",
+      "cadViewMesh": "Vista mesh",
+      "cadViewPoints": "Vista nuvola di punti",
+      "done": "Fatto",
+      "insertInScene": "Inserisci nella scena",
+      "removeFromScene": "Rimuovi dalla scena",
+      "addPointCloud": "Aggiungi nuvola di punti",
+      "userAddedPointCloud": "Nuvola di punti aggiunta dall'utente",
+      "pointCloudFusion": "Fusione nuvole di punti",
+      "fusionModalTitle": "Fusione nuvole di punti",
+      "fusionModalDescription": "Seleziona le nuvole di punti da combinare, quindi uniscile in un'unica nuvola di punti.",
+      "fusePointClouds": "Fondi nuvole di punti",
+      "export": "Esporta",
+      "fusedPointsSummary": "punti fusi",
+      "noPointCloudsAvailable": "Nessuna nuvola di punti disponibile da fondere.",
+      "selectAtLeastOnePointCloud": "Seleziona almeno una nuvola di punti da fondere.",
+      "cadPointCloud": "Nuvola di punti CAD",
+      "fusionPreviewEmpty": "Fondi le nuvole di punti selezionate per visualizzare l'anteprima del risultato"
+    },
+    "cloudPointReplay": {
+      "title": "Replay del Processo",
+      "subtitle": "Carica una cartella sequenza per scorrere o riprodurre la pipeline di registrazione in 3D",
+      "uploadSequence": "Carica sequenza",
+      "emptyViewer": "Carica una cartella sequenza per visualizzare la sequenza di frame",
+      "noSequenceLoaded": "Nessuna sequenza caricata. Clicca su \"Carica sequenza\" e seleziona la cartella con le sottocartelle dei frame.",
+      "notAvailableInFrame": "Non disponibile in questo frame",
+      "invalidFolder": "Nessuna sottocartella frame (es. \"frame_000123\") trovata nella cartella selezionata.",
+      "loadingFrame": "Caricamento frame…",
+      "play": "Riproduci",
+      "pause": "Pausa",
+      "previousFrame": "Frame precedente",
+      "nextFrame": "Frame successivo",
+      "frameLabel": "{frameId} · {current} di {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Inizializza",
+        "checkDevices": "Verifica dispositivi",
+        "startStream": "Avvia flusso",
+        "moveToPoints": "Spostati ai punti di ispezione",
+        "detectLeaks": "Rileva perdite",
+        "confirmReport": "Conferma e rapporto",
+        "complete": "Completato"
+      }
+    },
+    "status": {
+      "live": "LIVE",
+      "idle": "INATTIVO",
+      "connecting": "CONNESSIONE IN CORSO",
+      "error": "ERRORE",
+      "systemStatus": "Stato del sistema",
+      "latency": "Latenza",
+      "ms": "ms",
+      "overlay": "Sovrapposizione di riconoscimento oggetti abilitata",
+      "metadataNotPresent": "Metadati di inferenza visiva non presenti"
+    }
+  },
+  "fluidDoser": {
+    "title": "Dosaggio Automatico dei Fluidi",
+    "headings": {
+      "actions": "Azioni",
+      "processFlow": "Flusso di processo"
+    },
+    "actions": {
+      "start": "Avvia",
+      "test": "Prova",
+      "configure": "Configura",
+      "running": "Elaborazione in corso...",
+      "stop": "Fermare",
+      "reset": "Ripristina Processo",
+      "cancel": "Annulla"
+    },
+    "configure": {
+      "selectTitle": "Seleziona cosa configurare",
+      "selectDescription": "Scegli un componente per configurarne le impostazioni",
+      "clickToConfig": "Clicca per configurare",
+      "configurationTitle": "Configurazione",
+      "basicSettings": "Impostazioni di base",
+      "advancedSettings": "Impostazioni avanzate",
+      "calibration": "Calibrazione",
+      "comingSoon": "Opzioni di configurazione in arrivo",
+      "back": "Indietro",
+      "save": "Salva",
+      "process": {
+        "title": "Configurazione",
+        "searchingSetup": {
+          "title": "Configurazione della ricerca",
+          "description": "Definisci i parametri del target, i modelli di movimento e la logica della routine."
+        },
+        "automations": {
+          "title": "Automazione del flusso di lavoro",
+          "description": "Imposta i trigger per l'avvio del processo, il completamento e gli indicatori di stato."
+        },
+        "errorHandling": {
+          "title": "Gestione degli errori",
+          "description": "Definisci il comportamento del sistema e i protocolli di ripristino in caso di guasti."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Configurazione Nuvola di Punti",
+          "description": "Ispeziona la pipeline di registrazione in 3D — carica le nuvole di punti di un frame acquisito e rivedi le fasi di allineamento ICP.",
+          "openViewer": "Apri visualizzatore 3D nuvola di punti"
+        },
+        "replay": {
+          "title": "Replay del Processo",
+          "description": "Scorri o riproduci una sequenza di frame acquisiti in 3D per rivedere la pipeline di registrazione nel tempo.",
+          "openReplay": "Apri replay del processo"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Visione",
+      "robot": "Robot",
+      "endeffector": "End-effector"
+    },
+    "pointCloud": {
+      "fitView": "Adatta vista",
+      "pointSize": "Dimensione punti",
+      "transformsTitle": "Trasformazioni e fitness",
+      "verdictMode": "Modalità",
+      "verdictFitness": "Fitness migliore/minima",
+      "verdictResult": "Risultato"
+    },
+    "cloudPointConfiguration": {
+      "title": "Configurazione Nuvola di Punti",
+      "subtitle": "Carica una cartella frame per ispezionare la pipeline di registrazione in 3D",
+      "uploadFrame": "Carica frame",
+      "emptyViewer": "Carica una cartella frame per visualizzare le nuvole di punti",
+      "noFrameLoaded": "Nessun frame caricato. Clicca su \"Carica frame\" e seleziona la cartella con i file .ply.",
+      "missingFiles": "Non trovato nella cartella selezionata:",
+      "uploadCad": "Carica CAD",
+      "cadEmptyViewer": "Carica un file CAD .stl per visualizzare in anteprima il modello",
+      "convertToPointCloud": "Converti in nuvola di punti",
+      "voxelSizeLabel": "Dimensione voxel (unità del modello)",
+      "pointsGenerated": "punti generati",
+      "exportPly": "Esporta PLY",
+      "exportScaleLabel": "Fattore di scala per l'esportazione (es. 0,001 o 10)",
+      "clipTitle": "Piani di taglio (intervallo per asse)",
+      "clipMin": "Min",
+      "clipMax": "Max",
+      "cadViewMesh": "Vista mesh",
+      "cadViewPoints": "Vista nuvola di punti",
+      "done": "Fatto",
+      "insertInScene": "Inserisci nella scena",
+      "removeFromScene": "Rimuovi dalla scena",
+      "addPointCloud": "Aggiungi nuvola di punti",
+      "userAddedPointCloud": "Nuvola di punti aggiunta dall'utente",
+      "pointCloudFusion": "Fusione nuvole di punti",
+      "fusionModalTitle": "Fusione nuvole di punti",
+      "fusionModalDescription": "Seleziona le nuvole di punti da combinare, quindi uniscile in un'unica nuvola di punti.",
+      "fusePointClouds": "Fondi nuvole di punti",
+      "export": "Esporta",
+      "fusedPointsSummary": "punti fusi",
+      "noPointCloudsAvailable": "Nessuna nuvola di punti disponibile da fondere.",
+      "selectAtLeastOnePointCloud": "Seleziona almeno una nuvola di punti da fondere.",
+      "cadPointCloud": "Nuvola di punti CAD",
+      "fusionPreviewEmpty": "Fondi le nuvole di punti selezionate per visualizzare l'anteprima del risultato"
+    },
+    "cloudPointReplay": {
+      "title": "Replay del Processo",
+      "subtitle": "Carica una cartella sequenza per scorrere o riprodurre la pipeline di registrazione in 3D",
+      "uploadSequence": "Carica sequenza",
+      "emptyViewer": "Carica una cartella sequenza per visualizzare la sequenza di frame",
+      "noSequenceLoaded": "Nessuna sequenza caricata. Clicca su \"Carica sequenza\" e seleziona la cartella con le sottocartelle dei frame.",
+      "notAvailableInFrame": "Non disponibile in questo frame",
+      "invalidFolder": "Nessuna sottocartella frame (es. \"frame_000123\") trovata nella cartella selezionata.",
+      "loadingFrame": "Caricamento frame…",
+      "play": "Riproduci",
+      "pause": "Pausa",
+      "previousFrame": "Frame precedente",
+      "nextFrame": "Frame successivo",
+      "frameLabel": "{frameId} · {current} di {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Inizializza",
+        "checkDevices": "Verifica dispositivi",
+        "startStream": "Avvia flusso",
+        "moveToPoints": "Sposta ai punti",
+        "prepareDosing": "Prepara dosaggio",
+        "applyFluid": "Applica fluido",
+        "confirmComplete": "Conferma e completa"
+      }
+    },
+    "status": {
+      "live": "LIVE",
+      "systemStatus": "Stato del sistema",
+      "latency": "Latenza",
+      "ms": "ms",
+      "overlay": "Sovrapposizione di riconoscimento oggetti abilitata",
+      "metadataNotPresent": "Metadati di inferenza visiva non presenti"
+    }
+  },
+  "common": {
+    "open": "Apri",
+    "comingSoon": "Presto disponibile",
+    "language": "Lingua",
+    "theme": "Tema",
+    "settings": "Impostazioni"
+  },
+  "landing": {
+    "hero": {
+      "title1": "Benvenuti in",
+      "title2": "Theia",
+      "subtitle": "La piattaforma per la gestione e il monitoraggio automatizzati dei processi di rilevamento perdite robotizzato e dosaggio di fluidi con macchine potenziate dalla visione artificiale basata su IA."
+    },
+    "cta": {
+      "login": "Accedi al tuo account"
+    }
+  },
+  "login": {
+    "title": "Accedi a Theia",
+    "tenant": "ID Tenant",
+    "username": "Nome utente",
+    "password": "Password",
+    "submit": "Accedi"
+  }
+}

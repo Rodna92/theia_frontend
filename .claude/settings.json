@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(agent-browser doctor *)",
+      "Bash(agent-browser console *)"
+    ]
+  }
+}

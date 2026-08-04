@@ -1,0 +1,319 @@
+{
+  "processes": {
+    "hero": {
+      "title": "Procesos Automatizados",
+      "subtitle": "Selecciona un proceso para comenzar"
+    },
+    "cards": {
+      "leakDetection": {
+        "title": "Detección de Fugas",
+        "description": "Detección automática de fugas utilizando visión por computadora e inspección robótica"
+      },
+      "fluidDoser": {
+        "title": "Dosificación Automática de Fluidos",
+        "description": "Dispensación automática de fluidos con sistema de dosificación de precisión"
+      },
+      "sequenceOfProcess": {
+        "title": "Secuencia de Proceso",
+        "description": "Crear y gestionar una canalización de procesos para la ejecución automatizada de la máquina"
+      }
+    }
+  },
+  "leakDetection": {
+    "title": "Detección de Fugas",
+    "headings": {
+      "actions": "Acciones",
+      "processFlow": "Flujo de proceso"
+    },
+    "actions": {
+      "start": "Iniciar",
+      "test": "Probar",
+      "configure": "Configurar",
+      "running": "Procesando...",
+      "stop": "Detener",
+      "reset": "Restablecer Proceso",
+      "cancel": "Cancelar",
+      "retry": "Reintentar"
+    },
+    "configure": {
+      "selectTitle": "Selecciona qué configurar",
+      "selectDescription": "Elige un componente para configurar sus opciones",
+      "clickToConfig": "Haz clic para configurar",
+      "configurationTitle": "Configuración",
+      "basicSettings": "Configuración Básica",
+      "advancedSettings": "Configuración Avanzada",
+      "calibration": "Calibración",
+      "comingSoon": "Opciones de configuración próximamente",
+      "back": "Atrás",
+      "save": "Guardar",
+      "process": {
+        "title": "Configuración",
+        "searchingSetup": {
+          "title": "Configuración de búsqueda",
+          "description": "Define los parámetros del objetivo, los patrones de movimiento y la lógica de la rutina."
+        },
+        "automations": {
+          "title": "Automatización del flujo de trabajo",
+          "description": "Establece los disparadores para el inicio del proceso, las finalizaciones y los indicadores de estado."
+        },
+        "errorHandling": {
+          "title": "Gestión de errores",
+          "description": "Define el comportamiento del sistema y los protocolos de recuperación cuando ocurren fallos."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Configuración de Nube de Puntos",
+          "description": "Inspecciona la canalización de registro en 3D — carga las nubes de puntos de un frame capturado y revisa las etapas de alineación ICP.",
+          "openViewer": "Abrir visor 3D de nube de puntos"
+        },
+        "replay": {
+          "title": "Repetición del Proceso",
+          "description": "Recorre o reproduce una secuencia de frames capturados en 3D para revisar la canalización de registro a lo largo del tiempo.",
+          "openReplay": "Abrir repetición del proceso"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Visión",
+      "robot": "Robot",
+      "endeffector": "End-effector",
+      "leakEquipment": "Equipo de fugas"
+    },
+    "pointCloud": {
+      "fitView": "Ajustar vista",
+      "pointSize": "Tamaño de punto",
+      "transformsTitle": "Transformaciones y ajuste"
+    },
+    "cloudPointConfiguration": {
+      "title": "Configuración de Nube de Puntos",
+      "subtitle": "Carga una carpeta de frame para inspeccionar la canalización de registro en 3D",
+      "uploadFrame": "Cargar frame",
+      "emptyViewer": "Carga una carpeta de frame para visualizar las nubes de puntos",
+      "noFrameLoaded": "Aún no se ha cargado ningún frame. Haz clic en \"Cargar frame\" y selecciona la carpeta con los archivos .ply.",
+      "missingFiles": "No encontrado en la carpeta seleccionada:",
+      "uploadCad": "Cargar CAD",
+      "cadEmptyViewer": "Carga un archivo CAD .stl para previsualizar el modelo",
+      "convertToPointCloud": "Convertir a nube de puntos",
+      "voxelSizeLabel": "Tamaño de vóxel (unidades del modelo)",
+      "pointsGenerated": "puntos generados",
+      "exportPly": "Exportar PLY",
+      "exportScaleLabel": "Factor de escala de exportación (ej. 0,001 o 10)",
+      "clipTitle": "Planos de corte (rango por eje)",
+      "clipMin": "Mín",
+      "clipMax": "Máx",
+      "cadViewMesh": "Vista de malla",
+      "cadViewPoints": "Vista de nube de puntos",
+      "done": "Hecho",
+      "insertInScene": "Insertar en la escena",
+      "removeFromScene": "Quitar de la escena",
+      "addPointCloud": "Añadir nube de puntos",
+      "userAddedPointCloud": "Nube de puntos añadida por el usuario",
+      "pointCloudFusion": "Fusión de nubes de puntos",
+      "fusionModalTitle": "Fusión de nubes de puntos",
+      "fusionModalDescription": "Selecciona las nubes de puntos que quieres combinar y fusiónalas en una sola nube de puntos.",
+      "fusePointClouds": "Fusionar nubes de puntos",
+      "export": "Exportar",
+      "fusedPointsSummary": "puntos fusionados",
+      "noPointCloudsAvailable": "No hay nubes de puntos disponibles para fusionar.",
+      "selectAtLeastOnePointCloud": "Selecciona al menos una nube de puntos para fusionar.",
+      "cadPointCloud": "Nube de puntos del CAD",
+      "fusionPreviewEmpty": "Fusiona las nubes de puntos seleccionadas para previsualizar el resultado"
+    },
+    "cloudPointReplay": {
+      "title": "Repetición del Proceso",
+      "subtitle": "Carga una carpeta de secuencia para recorrer o reproducir la canalización de registro en 3D",
+      "uploadSequence": "Cargar secuencia",
+      "emptyViewer": "Carga una carpeta de secuencia para visualizar la secuencia de frames",
+      "noSequenceLoaded": "Aún no se ha cargado ninguna secuencia. Haz clic en \"Cargar secuencia\" y selecciona la carpeta con las subcarpetas de frames.",
+      "notAvailableInFrame": "No disponible en este frame",
+      "invalidFolder": "No se encontraron subcarpetas de frame (p. ej. \"frame_000123\") en la carpeta seleccionada.",
+      "loadingFrame": "Cargando frame…",
+      "play": "Reproducir",
+      "pause": "Pausar",
+      "previousFrame": "Frame anterior",
+      "nextFrame": "Frame siguiente",
+      "frameLabel": "{frameId} · {current} de {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Inicializar",
+        "checkDevices": "Verificar dispositivos",
+        "startStream": "Iniciar flujo",
+        "moveToPoints": "Mover a puntos de inspección",
+        "detectLeaks": "Detectar fugas",
+        "confirmReport": "Confirmar e informar",
+        "complete": "Completado"
+      }
+    },
+    "status": {
+      "live": "EN DIRECTO",
+      "idle": "INACTIVO",
+      "connecting": "CONECTANDO",
+      "error": "ERROR",
+      "systemStatus": "Estado del sistema",
+      "latency": "Latencia",
+      "ms": "ms",
+      "overlay": "Superposición de reconocimiento de objetos habilitada",
+      "metadataNotPresent": "Metadatos de inferencia de visión no presentes"
+    }
+  },
+  "fluidDoser": {
+    "title": "Dosificación Automática de Fluidos",
+    "headings": {
+      "actions": "Acciones",
+      "processFlow": "Flujo de proceso"
+    },
+    "actions": {
+      "start": "Iniciar",
+      "test": "Probar",
+      "configure": "Configurar",
+      "running": "Procesando...",
+      "stop": "Detener",
+      "reset": "Restablecer Proceso",
+      "cancel": "Cancelar"
+    },
+    "configure": {
+      "selectTitle": "Selecciona qué configurar",
+      "selectDescription": "Elige un componente para configurar sus opciones",
+      "clickToConfig": "Haz clic para configurar",
+      "configurationTitle": "Configuración",
+      "basicSettings": "Configuración Básica",
+      "advancedSettings": "Configuración Avanzada",
+      "calibration": "Calibración",
+      "comingSoon": "Opciones de configuración próximamente",
+      "back": "Atrás",
+      "save": "Guardar",
+      "process": {
+        "title": "Configuración",
+        "searchingSetup": {
+          "title": "Configuración de búsqueda",
+          "description": "Define los parámetros del objetivo, los patrones de movimiento y la lógica de la rutina."
+        },
+        "automations": {
+          "title": "Automatización del flujo de trabajo",
+          "description": "Establece los disparadores para el inicio del proceso, las finalizaciones y los indicadores de estado."
+        },
+        "errorHandling": {
+          "title": "Gestión de errores",
+          "description": "Define el comportamiento del sistema y los protocolos de recuperación cuando ocurren fallos."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Configuración de Nube de Puntos",
+          "description": "Inspecciona la canalización de registro en 3D — carga las nubes de puntos de un frame capturado y revisa las etapas de alineación ICP.",
+          "openViewer": "Abrir visor 3D de nube de puntos"
+        },
+        "replay": {
+          "title": "Repetición del Proceso",
+          "description": "Recorre o reproduce una secuencia de frames capturados en 3D para revisar la canalización de registro a lo largo del tiempo.",
+          "openReplay": "Abrir repetición del proceso"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Visión",
+      "robot": "Robot",
+      "endeffector": "End-effector"
+    },
+    "pointCloud": {
+      "fitView": "Ajustar vista",
+      "pointSize": "Tamaño de punto",
+      "transformsTitle": "Transformaciones y ajuste"
+    },
+    "cloudPointConfiguration": {
+      "title": "Configuración de Nube de Puntos",
+      "subtitle": "Carga una carpeta de frame para inspeccionar la canalización de registro en 3D",
+      "uploadFrame": "Cargar frame",
+      "emptyViewer": "Carga una carpeta de frame para visualizar las nubes de puntos",
+      "noFrameLoaded": "Aún no se ha cargado ningún frame. Haz clic en \"Cargar frame\" y selecciona la carpeta con los archivos .ply.",
+      "missingFiles": "No encontrado en la carpeta seleccionada:",
+      "uploadCad": "Cargar CAD",
+      "cadEmptyViewer": "Carga un archivo CAD .stl para previsualizar el modelo",
+      "convertToPointCloud": "Convertir a nube de puntos",
+      "voxelSizeLabel": "Tamaño de vóxel (unidades del modelo)",
+      "pointsGenerated": "puntos generados",
+      "exportPly": "Exportar PLY",
+      "exportScaleLabel": "Factor de escala de exportación (ej. 0,001 o 10)",
+      "clipTitle": "Planos de corte (rango por eje)",
+      "clipMin": "Mín",
+      "clipMax": "Máx",
+      "cadViewMesh": "Vista de malla",
+      "cadViewPoints": "Vista de nube de puntos",
+      "done": "Hecho",
+      "insertInScene": "Insertar en la escena",
+      "removeFromScene": "Quitar de la escena",
+      "addPointCloud": "Añadir nube de puntos",
+      "userAddedPointCloud": "Nube de puntos añadida por el usuario",
+      "pointCloudFusion": "Fusión de nubes de puntos",
+      "fusionModalTitle": "Fusión de nubes de puntos",
+      "fusionModalDescription": "Selecciona las nubes de puntos que quieres combinar y fusiónalas en una sola nube de puntos.",
+      "fusePointClouds": "Fusionar nubes de puntos",
+      "export": "Exportar",
+      "fusedPointsSummary": "puntos fusionados",
+      "noPointCloudsAvailable": "No hay nubes de puntos disponibles para fusionar.",
+      "selectAtLeastOnePointCloud": "Selecciona al menos una nube de puntos para fusionar.",
+      "cadPointCloud": "Nube de puntos del CAD",
+      "fusionPreviewEmpty": "Fusiona las nubes de puntos seleccionadas para previsualizar el resultado"
+    },
+    "cloudPointReplay": {
+      "title": "Repetición del Proceso",
+      "subtitle": "Carga una carpeta de secuencia para recorrer o reproducir la canalización de registro en 3D",
+      "uploadSequence": "Cargar secuencia",
+      "emptyViewer": "Carga una carpeta de secuencia para visualizar la secuencia de frames",
+      "noSequenceLoaded": "Aún no se ha cargado ninguna secuencia. Haz clic en \"Cargar secuencia\" y selecciona la carpeta con las subcarpetas de frames.",
+      "notAvailableInFrame": "No disponible en este frame",
+      "invalidFolder": "No se encontraron subcarpetas de frame (p. ej. \"frame_000123\") en la carpeta seleccionada.",
+      "loadingFrame": "Cargando frame…",
+      "play": "Reproducir",
+      "pause": "Pausar",
+      "previousFrame": "Frame anterior",
+      "nextFrame": "Frame siguiente",
+      "frameLabel": "{frameId} · {current} de {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Inicializar",
+        "checkDevices": "Verificar dispositivos",
+        "startStream": "Iniciar flujo",
+        "moveToPoints": "Mover a puntos",
+        "prepareDosing": "Preparar dosificación",
+        "applyFluid": "Aplicar fluido",
+        "confirmComplete": "Confirmar y completar"
+      }
+    },
+    "status": {
+      "live": "EN DIRECTO",
+      "systemStatus": "Estado del sistema",
+      "latency": "Latencia",
+      "ms": "ms",
+      "overlay": "Superposición de reconocimiento de objetos habilitada",
+      "metadataNotPresent": "Metadatos de inferencia de visión no presentes"
+    }
+  },
+  "common": {
+    "open": "Abrir",
+    "comingSoon": "Próximamente",
+    "language": "Idioma",
+    "theme": "Tema",
+    "settings": "Configuración"
+  },
+  "landing": {
+    "hero": {
+      "title1": "Bienvenido a",
+      "title2": "Theia",
+      "subtitle": "La plataforma definitiva para la gestión y el seguimiento automatizados de procesos de detección de fugas robótica y dosificación de fluidos con máquinas mejoradas con visión por IA."
+    },
+    "cta": {
+      "login": "Inicia sesión en tu cuenta"
+    }
+  },
+  "login": {
+    "title": "Iniciar sesión en Theia",
+    "tenant": "ID del inquilino",
+    "username": "Nombre de usuario",
+    "password": "Contraseña",
+    "submit": "Iniciar sesión"
+  }
+}

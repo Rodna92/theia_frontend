@@ -1,0 +1,325 @@
+{
+  "processes": {
+    "hero": {
+      "title": "Automated Processes",
+      "subtitle": "Select a process to begin"
+    },
+    "cards": {
+      "leakDetection": {
+        "title": "Leak Detection",
+        "description": "Automated leak detection using computer vision and robotic inspection"
+      },
+      "fluidDoser": {
+        "title": "Automatic Fluid Dosing",
+        "description": "Automated fluid dispensing with precision dosing system"
+      },
+      "sequenceOfProcess": {
+        "title": "Sequence of Process",
+        "description": "Create and manage a pipeline of processes for automated machine execution"
+      }
+    }
+  },
+  "leakDetection": {
+    "title": "Leak Detection",
+    "headings": {
+      "actions": "Actions",
+      "processFlow": "Process Flow"
+    },
+    "actions": {
+      "start": "Start",
+      "test": "Test",
+      "configure": "Configure",
+      "running": "Processing...",
+      "stop": "Stop",
+      "reset": "Reset Process",
+      "cancel": "Cancel",
+      "retry": "Retry"
+    },
+    "configure": {
+      "selectTitle": "Select what to configure",
+      "selectDescription": "Choose a component to configure its settings",
+      "clickToConfig": "Click to configure",
+      "configurationTitle": "Configuration",
+      "basicSettings": "Basic Settings",
+      "advancedSettings": "Advanced Settings",
+      "calibration": "Calibration",
+      "comingSoon": "Configuration options coming soon",
+      "back": "Back",
+      "save": "Save",
+      "process": {
+        "title": "Process Configuration",
+        "searchingSetup": {
+          "title": "Search Configuration",
+          "description": "Define target parameters, movement patterns, and routine logic."
+        },
+        "automations": {
+          "title": "Workflow Automation",
+          "description": "Set triggers for process starts, completions, and status indicators."
+        },
+        "errorHandling": {
+          "title": "Error Management",
+          "description": "Define system behavior and recovery protocols when faults occur."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Point Cloud Configuration",
+          "description": "Inspect the registration pipeline in 3D — load a captured frame's point clouds and review the ICP alignment stages.",
+          "openViewer": "Open 3D point cloud viewer"
+        },
+        "replay": {
+          "title": "Process Replay",
+          "description": "Step or play through a captured sequence of frames in 3D to review the registration pipeline over time.",
+          "openReplay": "Open process replay"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Vision",
+      "robot": "Robot",
+      "endeffector": "End-effector",
+      "leakEquipment": "Leak equipment"
+    },
+    "pointCloud": {
+      "fitView": "Fit view",
+      "pointSize": "Point size",
+      "transformsTitle": "Transforms & fitness",
+      "verdictMode": "Mode",
+      "verdictFitness": "Best/min fitness",
+      "verdictResult": "Result"
+    },
+    "cloudPointConfiguration": {
+      "title": "Point Cloud Configuration",
+      "subtitle": "Load a frame folder to inspect the registration pipeline in 3D",
+      "uploadFrame": "Upload frame",
+      "emptyViewer": "Upload a frame folder to visualize point clouds",
+      "noFrameLoaded": "No frame loaded yet. Click \"Upload frame\" and select the folder containing the .ply files.",
+      "missingFiles": "Not found in the selected folder:",
+      "uploadCad": "Upload CAD",
+      "cadEmptyViewer": "Upload a .stl CAD file to preview the model",
+      "convertToPointCloud": "Convert to point cloud",
+      "voxelSizeLabel": "Voxel size (model units)",
+      "pointsGenerated": "points generated",
+      "exportPly": "Export PLY",
+      "exportScaleLabel": "Export scale factor (e.g. 0.001 or 10)",
+      "clipTitle": "Cut planes (per-axis range)",
+      "clipMin": "Min",
+      "clipMax": "Max",
+      "cadViewMesh": "Mesh view",
+      "cadViewPoints": "Point cloud view",
+      "done": "Done",
+      "insertInScene": "Insert in scene",
+      "removeFromScene": "Remove from scene",
+      "addPointCloud": "Add point cloud",
+      "userAddedPointCloud": "User-added point cloud",
+      "pointCloudFusion": "Point cloud fusion",
+      "fusionModalTitle": "Point cloud fusion",
+      "fusionModalDescription": "Select the point clouds to combine, then fuse them into a single point cloud.",
+      "fusePointClouds": "Fusion point clouds",
+      "export": "Export",
+      "fusedPointsSummary": "fused points",
+      "noPointCloudsAvailable": "No point clouds available to fuse.",
+      "selectAtLeastOnePointCloud": "Select at least one point cloud to fuse.",
+      "cadPointCloud": "CAD point cloud",
+      "fusionPreviewEmpty": "Fuse the selected point clouds to preview the result"
+    },
+    "cloudPointReplay": {
+      "title": "Process Replay",
+      "subtitle": "Load a sequence folder to step or play through the registration pipeline in 3D",
+      "uploadSequence": "Upload sequence",
+      "emptyViewer": "Upload a sequence folder to visualize the frame sequence",
+      "noSequenceLoaded": "No sequence loaded yet. Click \"Upload sequence\" and select the folder containing the frame subfolders.",
+      "notAvailableInFrame": "Not available in this frame",
+      "invalidFolder": "No frame subfolders (e.g. \"frame_000123\") were found in the selected folder.",
+      "loadingFrame": "Loading frame…",
+      "play": "Play",
+      "pause": "Pause",
+      "previousFrame": "Previous frame",
+      "nextFrame": "Next frame",
+      "frameLabel": "{frameId} · {current} of {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Initialize",
+        "checkDevices": "Check devices",
+        "startStream": "Start stream",
+        "moveToPoints": "Move to inspection points",
+        "detectLeaks": "Detect leaks",
+        "confirmReport": "Confirm & report",
+        "complete": "Complete"
+      }
+    },
+    "status": {
+      "live": "LIVE",
+      "idle": "IDLE",
+      "connecting": "CONNECTING",
+      "error": "ERROR",
+      "systemStatus": "System Status",
+      "latency": "Latency",
+      "ms": "ms",
+      "overlay": "Object recognition overlay enabled",
+      "metadataNotPresent": "Vision inference metadata not present"
+    }
+  },
+  "fluidDoser": {
+    "title": "Automatic Fluid Dosing",
+    "headings": {
+      "actions": "Actions",
+      "processFlow": "Process Flow"
+    },
+    "actions": {
+      "start": "Start",
+      "test": "Test",
+      "configure": "Configure",
+      "running": "Processing...",
+      "stop": "Stop",
+      "reset": "Reset Process",
+      "cancel": "Cancel"
+    },
+    "configure": {
+      "selectTitle": "Select what to configure",
+      "selectDescription": "Choose a component to configure its settings",
+      "clickToConfig": "Click to configure",
+      "configurationTitle": "Configuration",
+      "basicSettings": "Basic Settings",
+      "advancedSettings": "Advanced Settings",
+      "calibration": "Calibration",
+      "comingSoon": "Configuration options coming soon",
+      "back": "Back",
+      "save": "Save",
+      "process": {
+        "title": "Process Configuration",
+        "searchingSetup": {
+          "title": "Search Configuration",
+          "description": "Define target parameters, movement patterns, and routine logic."
+        },
+        "automations": {
+          "title": "Workflow Automation",
+          "description": "Set triggers for process starts, completions, and status indicators."
+        },
+        "errorHandling": {
+          "title": "Error Management",
+          "description": "Define system behavior and recovery protocols when faults occur."
+        }
+      },
+      "vision": {
+        "configuration": {
+          "title": "Point Cloud Configuration",
+          "description": "Inspect the registration pipeline in 3D — load a captured frame's point clouds and review the ICP alignment stages.",
+          "openViewer": "Open 3D point cloud viewer"
+        },
+        "replay": {
+          "title": "Process Replay",
+          "description": "Step or play through a captured sequence of frames in 3D to review the registration pipeline over time.",
+          "openReplay": "Open process replay"
+        }
+      }
+    },
+    "checks": {
+      "vision": "Vision",
+      "robot": "Robot",
+      "endeffector": "End-effector"
+    },
+    "pointCloud": {
+      "fitView": "Fit view",
+      "pointSize": "Point size",
+      "transformsTitle": "Transforms & fitness",
+      "verdictMode": "Mode",
+      "verdictFitness": "Best/min fitness",
+      "verdictResult": "Result"
+    },
+    "cloudPointConfiguration": {
+      "title": "Point Cloud Configuration",
+      "subtitle": "Load a frame folder to inspect the registration pipeline in 3D",
+      "uploadFrame": "Upload frame",
+      "emptyViewer": "Upload a frame folder to visualize point clouds",
+      "noFrameLoaded": "No frame loaded yet. Click \"Upload frame\" and select the folder containing the .ply files.",
+      "missingFiles": "Not found in the selected folder:",
+      "uploadCad": "Upload CAD",
+      "cadEmptyViewer": "Upload a .stl CAD file to preview the model",
+      "convertToPointCloud": "Convert to point cloud",
+      "voxelSizeLabel": "Voxel size (model units)",
+      "pointsGenerated": "points generated",
+      "exportPly": "Export PLY",
+      "exportScaleLabel": "Export scale factor (e.g. 0.001 or 10)",
+      "clipTitle": "Cut planes (per-axis range)",
+      "clipMin": "Min",
+      "clipMax": "Max",
+      "cadViewMesh": "Mesh view",
+      "cadViewPoints": "Point cloud view",
+      "done": "Done",
+      "insertInScene": "Insert in scene",
+      "removeFromScene": "Remove from scene",
+      "addPointCloud": "Add point cloud",
+      "userAddedPointCloud": "User-added point cloud",
+      "pointCloudFusion": "Point cloud fusion",
+      "fusionModalTitle": "Point cloud fusion",
+      "fusionModalDescription": "Select the point clouds to combine, then fuse them into a single point cloud.",
+      "fusePointClouds": "Fusion point clouds",
+      "export": "Export",
+      "fusedPointsSummary": "fused points",
+      "noPointCloudsAvailable": "No point clouds available to fuse.",
+      "selectAtLeastOnePointCloud": "Select at least one point cloud to fuse.",
+      "cadPointCloud": "CAD point cloud",
+      "fusionPreviewEmpty": "Fuse the selected point clouds to preview the result"
+    },
+    "cloudPointReplay": {
+      "title": "Process Replay",
+      "subtitle": "Load a sequence folder to step or play through the registration pipeline in 3D",
+      "uploadSequence": "Upload sequence",
+      "emptyViewer": "Upload a sequence folder to visualize the frame sequence",
+      "noSequenceLoaded": "No sequence loaded yet. Click \"Upload sequence\" and select the folder containing the frame subfolders.",
+      "notAvailableInFrame": "Not available in this frame",
+      "invalidFolder": "No frame subfolders (e.g. \"frame_000123\") were found in the selected folder.",
+      "loadingFrame": "Loading frame…",
+      "play": "Play",
+      "pause": "Pause",
+      "previousFrame": "Previous frame",
+      "nextFrame": "Next frame",
+      "frameLabel": "{frameId} · {current} of {total}"
+    },
+    "flow": {
+      "step": {
+        "initialize": "Initialize",
+        "checkDevices": "Check devices",
+        "startStream": "Start stream",
+        "moveToPoints": "Move to points",
+        "prepareDosing": "Prepare dosing",
+        "applyFluid": "Apply fluid",
+        "confirmComplete": "Confirm & complete"
+      }
+    },
+    "status": {
+      "live": "LIVE",
+      "systemStatus": "System Status",
+      "latency": "Latency",
+      "ms": "ms",
+      "overlay": "Object recognition overlay enabled",
+      "metadataNotPresent": "Vision inference metadata not present"
+    }
+  },
+  "common": {
+    "open": "Open",
+    "comingSoon": "Coming soon",
+    "language": "Language",
+    "theme": "Theme",
+    "settings": "Settings"
+  },
+  "landing": {
+    "hero": {
+      "title1": "Welcome to",
+      "title2": "Theia",
+      "subtitle": "The ultimate platform for automated process management and monitoring of robotic leak detection and fluid dosing with AI-vision enhanced machines."
+    },
+    "cta": {
+      "login": "Login to your account"
+    }
+  },
+  "login": {
+    "title": "Sign in to Theia",
+    "tenant": "Tenant ID",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in"
+  }
+}

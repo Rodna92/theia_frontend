@@ -1,0 +1,256 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  /* crystal accents */
+  --cr-cyan: 6 182 212;
+  --cr-green: 34 197 94;
+
+  /* surfaces (light) */
+  --cr-surface: 255 255 255;
+  --cr-ink: 15 23 42;
+  --cr-border: 15 23 42;
+  --cr-shadow: 2 6 23;
+  /* theme tokens (light) */
+  --accent-1: rgb(var(--cr-cyan) / 1);
+  --muted: rgb(var(--cr-ink) / 0.64);
+  --theme-hover: rgb(var(--cr-cyan) / 0.08);
+}
+
+html.dark {
+  /* surfaces (dark) */
+  --cr-surface: 2 6 23;
+  --cr-ink: 226 232 240;
+  --cr-border: 255 255 255;
+  --cr-shadow: 0 0 0;
+  /* theme tokens (dark) - keep current dark values */
+  --accent-1: rgb(var(--cr-cyan) / 1);
+  --muted: rgb(var(--cr-ink) / 0.72);
+  --theme-hover: rgb(var(--cr-cyan) / 0.12);
+}
+
+@layer utilities {
+  /* Main crystal navbar shell */
+  .crystal-nav {
+    position: relative;
+    border-bottom: 1px solid rgb(var(--cr-border) / 0.10);
+    background:
+      radial-gradient(900px 120px at 20% 0%,
+        rgb(var(--cr-cyan) / 0.20),
+        transparent 60%),
+      radial-gradient(900px 120px at 80% 0%,
+        rgb(var(--cr-green) / 0.16),
+        transparent 60%),
+      linear-gradient(
+        to bottom,
+        rgb(var(--cr-surface) / 0.72),
+        rgb(var(--cr-surface) / 0.50)
+      );
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow:
+      0 10px 40px rgb(var(--cr-shadow) / 0.10),
+      inset 0 1px 0 rgba(255,255,255,0.22);
+  }
+
+  /* Reflections / “crystal streaks” */
+  .crystal-nav::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(115deg,
+        transparent 0%,
+        rgb(var(--cr-cyan) / 0.18) 25%,
+        transparent 45%,
+        rgb(var(--cr-green) / 0.14) 62%,
+        transparent 85%);
+    opacity: 0.55;
+    filter: blur(0.2px);
+    mix-blend-mode: screen;
+  }
+
+  /* Hairline + divider */
+  .crystal-hairline {
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgb(var(--cr-cyan) / 0.45),
+      rgb(var(--cr-green) / 0.35),
+      transparent
+    );
+  }
+
+  .crystal-divider {
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--cr-border) / 0.22),
+      transparent
+    );
+  }
+
+  /* Brand */
+  .crystal-brand {
+    background-image: linear-gradient(
+      90deg,
+      rgb(var(--cr-cyan) / 1),
+      rgb(var(--cr-green) / 1)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 22px rgb(var(--cr-cyan) / 0.18);
+  }
+
+  .crystal-brand-glow {
+    background: radial-gradient(
+      closest-side,
+      rgb(var(--cr-cyan) / 0.22),
+      rgb(var(--cr-green) / 0.14),
+      transparent 70%
+    );
+  }
+
+  /* Buttons */
+  .crystal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.9rem;
+    border: 1px solid transparent;
+    background: transparent;
+    color: rgb(var(--cr-ink));
+    transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .crystal-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgb(var(--cr-cyan) / 0.30);
+    background:
+      linear-gradient(
+        to bottom,
+        rgb(var(--cr-surface) / 0.55),
+        rgb(var(--cr-surface) / 0.30)
+      );
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+      0 14px 34px rgb(var(--cr-shadow) / 0.14),
+      0 0 0 1px rgb(var(--cr-cyan) / 0.16),
+      inset 0 1px 0 rgba(255,255,255,0.22);
+  }
+
+  .crystal-btn:active {
+    transform: translateY(0px);
+  }
+
+  .crystal-btn:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px rgb(var(--cr-cyan) / 0.30),
+      0 0 0 6px rgb(var(--cr-green) / 0.14);
+  }
+
+  .crystal-btn-iconOnly {
+    padding: 0.55rem;
+  }
+
+  .crystal-btn-icon {
+    width: 1.9rem;
+    height: 1.9rem;
+    display: grid;
+    place-items: center;
+    border-radius: 0.75rem;
+    border: 1px solid transparent;
+    background: transparent;
+  }
+
+  /* Popover */
+  .crystal-popover {
+    position: absolute;
+    right: 0;
+    margin-top: 0.55rem;
+    width: 11rem;
+    transform-origin: top right;
+    animation: crystalIn 160ms ease-out;
+    z-index: 60;
+  }
+
+  .crystal-popover-inner {
+    /* 1. Container Structure */
+    
+    overflow: hidden;          /* Clips content to corners */
+    border: 1px solid rgb(var(--cr-border) / 0.08); /* faint border to define edges */
+    box-shadow: 
+      0 10px 15px -3px rgb(var(--cr-shadow) / 0.1), 
+      0 4px 6px -2px rgb(var(--cr-shadow) / 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15); /* Top inner highlight for 3D effect */
+
+    /* 2. Positioning */
+    position: relative;
+    isolation: isolate;
+    will-change: backdrop-filter;
+
+    /* 3. Glass Effect */
+    /* Increased opacity slightly (0.28 -> 0.65) to make the surface visible while keeping blur */
+    background-color: rgb(var(--cr-surface) / 0.65) !important;
+    
+    /* The Blur (XL = 24px) */
+    backdrop-filter: blur(24px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  }
+
+  .crystal-item {
+    width: 100%;
+    text-align: left;
+    padding: 0.7rem 0.85rem;
+    color: rgb(var(--cr-ink));
+    transition: background 160ms ease, transform 160ms ease;
+  }
+
+  .crystal-item:hover {
+    background: rgb(var(--cr-cyan) / 0.10);
+  }
+
+  .crystal-item-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--cr-cyan) / 0.18),
+      rgb(var(--cr-green) / 0.12)
+    );
+  }
+
+  @keyframes crystalIn {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0px) scale(1);
+    }
+  }
+
+  /* Theme-specific utility helpers */
+  .bg-theme-hover {
+    background-color: var(--theme-hover) !important;
+  }
+
+  .hover\:bg-theme-hover:hover {
+    background-color: var(--theme-hover) !important;
+  }
+}

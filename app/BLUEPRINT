@@ -1,0 +1,228 @@
+current backend setup:
+
+Spring STOMP over WebSocket
+
+Broker destinations: /topic/**
+
+STOMP endpoint: /ws
+
+REST API: /api/runs/**
+
+Realtime payload pushed by backend: RunView on /topic/runs/{runId}
+
+1) Connectivity Contract
+1.1 Transport
+
+Realtime channel: STOMP over WebSocket
+
+WebSocket endpoint (handshake): GET ws(s)://<core-host>/ws
+
+Broker destinations: /topic/** (server-to-client fanout)
+
+App destinations: /app/** (client-to-server commands, optional in v1)
+
+1.2 Authentication & Session
+
+You must choose one (the frontend implementation differs):
+
+Cookie-based session (recommended for browser simplicity)
+
+WebSocket handshake relies on browser cookies (SameSite=None; Secure if cross-site).
+
+REST calls: credentials: "include".
+
+
+2) API Surface the UI uses
+2.1 Create a run
+
+POST /api/runs
+
+Creates a ProcessRun
+
+Required fields (minimum):
+
+processType (enum string, e.g. LEAK_DETECTION)
+
+edgeId (string; optional if your flow doesn’t need subsystem lookup)
+
+contextJson (stringified JSON; default {})
+
+Response
+
+ProcessRun object; UI must capture run.id
+
+2.2 Fetch current projection (recommended)
+
+GET /api/runs/{runId}/view
+
+Returns RunView, the canonical UI projection.
+
+Used for:
+
+initial render
+
+recovery after reconnect
+
+idempotent refresh
+
+2.3 Apply trigger (start/stop/…)
+
+POST /api/runs/{runId}/trigger/{trigger}
+
+Returns updated RunView
+
+UI should treat REST response as immediate/authoritative, but still accept the subsequent WS push.
+
+2.4 Commands API (optional for v1)
+
+POST /api/runs/{runId}/commands/{command}
+
+Requires header Idempotency-Key
+
+This is more “distributed-systems correct” for edge orchestration, but you can start with triggers.
+
+3) Realtime Channel Contract
+3.1 Subscription
+
+After runId is known, the frontend opens a WebSocket and establishes a STOMP session, then subscribes to:
+
+Topic: /topic/runs/{runId}
+
+3.2 Message payload
+
+Backend sends:
+
+RunView JSON (whatever AllowedCommandsService.buildRunView(...) produces)
+
+The UI must treat incoming RunView as the single source of truth for:
+
+run state (state)
+
+allowed actions (e.g. allowed triggers / commands list)
+
+subsystem statuses (if included)
+
+guard/validation results (if included)
+
+3.3 Delivery semantics
+
+Broker is enableSimpleBroker → best-effort delivery.
+
+Frontend must implement resilience patterns:
+
+automatic reconnect (client-side)
+
+on reconnect, call GET /view to resync (because messages may be missed while offline)
+
+local “optimistic UI” should be replaced by incoming RunView (server-authoritative)
+
+4) Frontend State Model
+4.1 Core state
+
+Maintain a minimal client-side state machine:
+
+runId: string | null
+
+realtimeStatus: "disconnected" | "connecting" | "connected" | "error"
+
+runView: RunView | null
+
+lastError?: string
+
+lastUpdateTs?: number
+
+4.2 Deterministic render strategy
+
+Render UI strictly from runView (projection-driven UI).
+
+Buttons enabled/disabled based on:
+
+runView.allowedTriggers (or equivalent)
+
+runView.allowedCommands (or equivalent)
+
+Avoid deriving state from local flags (prevents UI drift).
+
+5) Frontend Implementation Requirements
+5.1 Libraries
+
+STOMP client: @stomp/stompjs
+
+(Optional) SockJS: only if you enable .withSockJS() server-side
+
+5.2 WebSocket URL resolution
+
+If frontend is served behind the same origin/proxy as core:
+
+ws(s)://window.location.host/ws
+
+If different origin:
+
+ws(s)://<core-host>/ws from NEXT_PUBLIC_CORE_WS_URL
+
+5.3 Reconnect policy
+
+reconnect backoff: constant or exponential (e.g. start 1s, cap at 10s)
+
+on reconnect:
+
+re-subscribe to /topic/runs/{runId}
+
+fetch GET /api/runs/{runId}/view once to resync
+
+5.4 Error handling
+
+If REST trigger returns:
+
+409 (optimistic lock): UI retries a GET /view
+
+422 (guard violation): UI displays guard reason + snapshot
+
+400/404: show error toast and stop
+
+5.5 CORS / credentials
+
+REST: credentials: "include" if cookie auth
+
+WS: cookies automatically included by browser in handshake if same-site constraints allow.
+
+If Bearer auth: connectHeaders must include token, and backend must accept it for WS.
+
+6) UI Interaction “Start Process”
+6.1 Control sequence (recommended)
+
+POST /api/runs → obtain runId
+
+open WS + STOMP connect → subscribe /topic/runs/{runId}
+
+GET /api/runs/{runId}/view → initial snapshot
+
+user clicks Start
+
+POST /api/runs/{runId}/trigger/START
+
+render returned RunView
+
+subsequent WS messages keep UI consistent
+
+6.2 Idempotency & replay-safe behavior
+
+If the user double-clicks Start:
+
+backend may ignore replay-safe triggers (as your engine does)
+
+UI should disable Start when not allowed by runView
+
+7) Minimal Acceptance Criteria
+
+The frontend integration is “done” when:
+
+From UI you can create a run and see its RunView.
+
+Clicking “Start” transitions run state and updates UI immediately (REST response).
+
+UI receives at least one realtime update via /topic/runs/{runId} on state changes.
+
+Refreshing the page and reloading with runId restores state via GET /view.
+
+Losing network temporarily reconnects and rehydrates state via GET /view.
