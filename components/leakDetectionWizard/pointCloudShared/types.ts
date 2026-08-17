@@ -52,7 +52,50 @@ export const FRAME_FILE_SPECS: FrameFileSpec[] = [
   },
 ];
 
+// The multi-target debug output (one subfolder per target:
+// pose_debug/<target>/frame_NNNNNN/...) writes this file set — RANSAC global
+// registration plus an ICP refinement pass on top of it.
+export const RANSAC_FRAME_FILE_SPECS: FrameFileSpec[] = [
+  {
+    id: 'srcRaw',
+    fileName: '01_src_raw.ply',
+    description: 'Mask-cropped, z-filtered points — raw density',
+    color: 0x94a3b8,
+  },
+  {
+    id: 'srcFused',
+    fileName: '02_src_fused.ply',
+    description: 'Source points fused across captures, before RANSAC',
+    color: 0xf59e0b,
+  },
+  {
+    id: 'ransacRefAligned',
+    fileName: '04_ransac_ref_aligned.ply',
+    description: 'Reference cloud transformed by the RANSAC global registration result',
+    color: 0xa78bfa,
+  },
+  {
+    id: 'ransacSrc',
+    fileName: '04_ransac_src.ply',
+    description: 'Source points used for RANSAC global registration',
+    color: 0xfb7185,
+  },
+  {
+    id: 'icpRefAligned',
+    fileName: '05_icp_ref_aligned.ply',
+    description: 'Reference cloud further refined by ICP after RANSAC alignment',
+    color: 0x34d399,
+  },
+];
+
 export const TRANSFORMS_FILE_NAME = 'transforms.txt';
+
+// Assigns each detected target (Tappo_1, target_0, hansen_0, ...) a stable
+// color across its whole set of point clouds, so targets stay visually
+// distinguishable when overlaid together in the multi-target viewer.
+export const TARGET_COLOR_PALETTE = [
+  0x38bdf8, 0xf97316, 0x34d399, 0xf472b6, 0xa78bfa, 0xfacc15, 0xfb7185, 0x22d3ee, 0x94a3b8, 0xc084fc,
+];
 
 export interface LoadedFrameCloud {
   id: string;
@@ -62,6 +105,20 @@ export interface LoadedFrameCloud {
   visible: boolean;
   pointCount: number;
   geometry: THREE.BufferGeometry;
+  // Present only for clouds loaded as part of a multi-target RANSAC upload —
+  // identifies which target subfolder (e.g. "Tappo_1") this cloud came from.
+  targetName?: string;
+}
+
+// One RANSAC target's data for the currently selected frame number, in a
+// multi-target upload (pose_debug/<targetName>/frame_NNNNNN/...).
+export interface TargetFrameData {
+  targetName: string;
+  color: number;
+  visible: boolean;
+  frames: LoadedFrameCloud[];
+  transformsText: string | null;
+  missingFiles: string[];
 }
 
 // A CAD model "inserted" into the main scene alongside the captured frames —

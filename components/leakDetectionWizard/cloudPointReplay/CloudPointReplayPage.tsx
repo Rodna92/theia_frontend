@@ -18,8 +18,8 @@ export function CloudPointReplayPage() {
     inputRef,
     onInputChange,
     openFolderPicker,
+    mode,
     sequenceName,
-    entries,
     currentIndex,
     currentEntry,
     currentFrameData,
@@ -29,20 +29,34 @@ export function CloudPointReplayPage() {
     visibility,
     toggleVisibility,
     isPlaying,
+    playbackSpeed,
+    setPlaybackSpeed,
     play,
     pause,
     goToIndex,
     next,
     previous,
+    targetFrameData,
+    toggleTargetVisibility,
+    totalFrames,
+    currentFrameLabel,
   } = useReplayUpload();
 
   const viewerFrames = useMemo(() => {
+    if (mode === 'multi') {
+      return targetFrameData.flatMap((target) =>
+        target.clouds.map((cloud) => ({
+          ...cloud,
+          visible: visibility[cloud.id] ?? true,
+        }))
+      );
+    }
     if (!currentFrameData) return [];
     return currentFrameData.clouds.map((cloud) => ({
       ...cloud,
       visible: visibility[cloud.id] ?? true,
     }));
-  }, [currentFrameData, visibility]);
+  }, [mode, targetFrameData, currentFrameData, visibility]);
 
   return (
     <div>
@@ -70,12 +84,22 @@ export function CloudPointReplayPage() {
             <PointCloudViewer
               frames={viewerFrames}
               emptyMessage={t('leakDetection.cloudPointReplay.emptyViewer')}
-              transformsText={currentFrameData?.transformsText ?? null}
+              transformsText={mode === 'single' ? currentFrameData?.transformsText ?? null : null}
+              targetTransforms={
+                mode === 'multi'
+                  ? targetFrameData.map((target) => ({
+                      targetName: target.targetName,
+                      transformsText: target.transformsText,
+                    }))
+                  : undefined
+              }
+              playbackSpeed={playbackSpeed}
+              onPlaybackSpeedChange={setPlaybackSpeed}
               overlay={
                 <PlaybackControls
-                  frameId={currentEntry?.id ?? null}
+                  frameId={currentFrameLabel}
                   currentIndex={currentIndex}
-                  totalFrames={entries.length}
+                  totalFrames={totalFrames}
                   isPlaying={isPlaying}
                   isFrameLoading={isFrameLoading}
                   onPlay={play}
@@ -113,18 +137,18 @@ export function CloudPointReplayPage() {
 
             {scanError && <p className="text-xs text-red-600 dark:text-red-400">{scanError}</p>}
 
-            {entries.length === 0 && !scanError && (
+            {totalFrames === 0 && !scanError && (
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 {t('leakDetection.cloudPointReplay.noSequenceLoaded')}
               </p>
             )}
 
-            {entries.length > 0 && (
+            {totalFrames > 0 && mode === 'single' && (
               <TransformsPanel transformsText={currentFrameData?.transformsText ?? null} />
             )}
           </div>
 
-          {entries.length > 0 && (
+          {totalFrames > 0 && (
             <div className="lg:col-span-3">
               <FrameTypeChecklist
                 currentEntryFiles={currentEntry?.files ?? null}
@@ -132,6 +156,8 @@ export function CloudPointReplayPage() {
                 visibility={visibility}
                 onToggle={toggleVisibility}
                 isFrameLoading={isFrameLoading}
+                targetGroups={mode === 'multi' ? targetFrameData : undefined}
+                onToggleTarget={toggleTargetVisibility}
               />
             </div>
           )}

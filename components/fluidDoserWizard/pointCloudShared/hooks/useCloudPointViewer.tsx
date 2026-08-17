@@ -7,10 +7,21 @@ import { InsertedCadObject, LoadedFrameCloud } from '../types';
 
 export type InsertedCadViewMode = 'mesh' | 'points';
 
+// One target's origin-axis marker in multi-target mode — positioned at the
+// RANSAC pose, shown only while `cloudId` (e.g. "<targetName>:icpRefAligned")
+// is visible. `pose` is null when the target's transforms.txt has no
+// parseable RANSAC section for this frame.
+export interface TargetReferencePose {
+  targetName: string;
+  pose: THREE.Matrix4 | null;
+  cloudId: string;
+}
+
 interface UseCloudPointViewerOptions {
   containerRef: RefObject<HTMLDivElement | null>;
   frames: LoadedFrameCloud[];
   referencePose?: THREE.Matrix4 | null;
+  targetReferencePoses?: TargetReferencePose[];
   insertedCad?: InsertedCadObject | null;
   insertedCadViewMode?: InsertedCadViewMode;
   pointSize?: number;
@@ -19,6 +30,13 @@ interface UseCloudPointViewerOptions {
 export const DEFAULT_POINT_SIZE = 0.004;
 export const MIN_POINT_SIZE = 0.001;
 export const MAX_POINT_SIZE = 0.005;
+
+// Playback speed multiplier for replay sequences — 1x is the base cadence;
+// the actual interval math lives in useReplayUpload, this is just the shared
+// range shown on the slider next to point size.
+export const DEFAULT_PLAYBACK_SPEED = 1;
+export const MIN_PLAYBACK_SPEED = 0.25;
+export const MAX_PLAYBACK_SPEED = 4;
 
 // 05_fine_ref_aligned.ply's own origin — where the reference cloud's local
 // frame ended up after the fine ICP transform — shown alongside it, distinct
@@ -29,6 +47,7 @@ export function useCloudPointViewer({
   containerRef,
   frames,
   referencePose,
+  targetReferencePoses = [],
   insertedCad,
   insertedCadViewMode = 'points',
   pointSize = DEFAULT_POINT_SIZE,
@@ -39,6 +58,7 @@ export function useCloudPointViewer({
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const pointsRef = useRef<Map<string, THREE.Points>>(new Map());
   const referenceAxesRef = useRef<THREE.AxesHelper | null>(null);
+  const targetAxesRef = useRef<Map<string, THREE.AxesHelper>>(new Map());
   const insertedMeshRef = useRef<THREE.Mesh | null>(null);
   const insertedPointsRef = useRef<THREE.Points | null>(null);
   const hasAutoFitRef = useRef(false);
@@ -162,6 +182,12 @@ export function useCloudPointViewer({
         (points.material as THREE.Material).dispose();
       });
       pointsRef.current.clear();
+      targetAxesRef.current.forEach((axes) => {
+        scene.remove(axes);
+        axes.geometry.dispose();
+        (axes.material as THREE.Material).dispose();
+      });
+      targetAxesRef.current.clear();
       if (insertedMeshRef.current) {
         insertedMeshRef.current.geometry.dispose();
         (insertedMeshRef.current.material as THREE.Material).dispose();
@@ -243,6 +269,48 @@ export function useCloudPointViewer({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frames, referencePose]);
+
+  // Sync per-target origin-axis markers (multi-target mode) — one AxesHelper
+  // per target, positioned at that target's RANSAC pose and shown only while
+  // its "05_icp_ref_aligned" cloud is visible.
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    const currentTargetNames = new Set(targetReferencePoses.map((t) => t.targetName));
+    targetAxesRef.current.forEach((axes, targetName) => {
+      if (!currentTargetNames.has(targetName)) {
+        scene.remove(axes);
+        axes.geometry.dispose();
+        (axes.material as THREE.Material).dispose();
+        targetAxesRef.current.delete(targetName);
+      }
+    });
+
+    targetReferencePoses.forEach(({ targetName, pose, cloudId }) => {
+      let axes = targetAxesRef.current.get(targetName);
+      if (!axes) {
+        axes = new THREE.AxesHelper(0.12);
+        axes.visible = false;
+        targetAxesRef.current.set(targetName, axes);
+        scene.add(axes);
+      }
+
+      const cloud = frames.find((f) => f.id === cloudId);
+      if (pose && cloud?.visible) {
+        const position = new THREE.Vector3();
+        const quaternion = new THREE.Quaternion();
+        const scale = new THREE.Vector3();
+        pose.decompose(position, quaternion, scale);
+        axes.position.copy(position);
+        axes.quaternion.copy(quaternion);
+        axes.visible = true;
+      } else {
+        axes.visible = false;
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frames, targetReferencePoses]);
 
   // Sync the inserted CAD mesh with the scene graph.
   useEffect(() => {

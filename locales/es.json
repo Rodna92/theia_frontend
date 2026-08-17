@@ -83,6 +83,9 @@
     "pointCloud": {
       "fitView": "Ajustar vista",
       "pointSize": "Tamaño de punto",
+      "playbackSpeed": "Velocidad de reproducción",
+      "fitness": "Fitness",
+      "rmse": "RMSE",
       "transformsTitle": "Transformaciones y ajuste"
     },
     "cloudPointConfiguration": {
@@ -92,6 +95,8 @@
       "emptyViewer": "Carga una carpeta de frame para visualizar las nubes de puntos",
       "noFrameLoaded": "Aún no se ha cargado ningún frame. Haz clic en \"Cargar frame\" y selecciona la carpeta con los archivos .ply.",
       "missingFiles": "No encontrado en la carpeta seleccionada:",
+      "frameSelectorLabel": "Frame",
+      "noRansacTransform": "No se encontró ninguna transformación RANSAC para este frame",
       "uploadCad": "Cargar CAD",
       "cadEmptyViewer": "Carga un archivo CAD .stl para previsualizar el modelo",
       "convertToPointCloud": "Convertir a nube de puntos",
@@ -220,6 +225,9 @@
     "pointCloud": {
       "fitView": "Ajustar vista",
       "pointSize": "Tamaño de punto",
+      "playbackSpeed": "Velocidad de reproducción",
+      "fitness": "Fitness",
+      "rmse": "RMSE",
       "transformsTitle": "Transformaciones y ajuste"
     },
     "cloudPointConfiguration": {
@@ -229,6 +237,8 @@
       "emptyViewer": "Carga una carpeta de frame para visualizar las nubes de puntos",
       "noFrameLoaded": "Aún no se ha cargado ningún frame. Haz clic en \"Cargar frame\" y selecciona la carpeta con los archivos .ply.",
       "missingFiles": "No encontrado en la carpeta seleccionada:",
+      "frameSelectorLabel": "Frame",
+      "noRansacTransform": "No se encontró ninguna transformación RANSAC para este frame",
       "uploadCad": "Cargar CAD",
       "cadEmptyViewer": "Carga un archivo CAD .stl para previsualizar el modelo",
       "convertToPointCloud": "Convertir a nube de puntos",

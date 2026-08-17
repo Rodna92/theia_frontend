@@ -37,6 +37,7 @@ export function CloudPointConfigurationPage() {
     inputRef,
     onInputChange,
     openFolderPicker,
+    mode,
     frames,
     missingFiles,
     transformsText,
@@ -44,6 +45,12 @@ export function CloudPointConfigurationPage() {
     error,
     folderName,
     toggleVisibility,
+    frameNumbers,
+    selectedFrameNumber,
+    setSelectedFrameNumber,
+    targetFrames,
+    toggleTargetVisibility,
+    toggleTargetCloudVisibility,
   } = useFrameUpload();
 
   const {
@@ -152,10 +159,20 @@ export function CloudPointConfigurationPage() {
     setClip((prev) => (prev ? { ...prev, [axis]: next } : prev));
   };
 
+  // In multi-target mode the pipeline frames come from every visible RANSAC
+  // target's currently selected frame number instead of a single flat set.
+  const activePipelineFrames = useMemo(
+    () => (mode === 'multi' ? targetFrames.flatMap((target) => target.frames) : frames),
+    [mode, targetFrames, frames]
+  );
+
   // User-added point clouds render and list alongside the pipeline's own
   // frames, sharing the same viewer and checklist since both are just
   // LoadedFrameCloud entries.
-  const allFrames = useMemo(() => [...frames, ...extraPointClouds], [frames, extraPointClouds]);
+  const allFrames = useMemo(
+    () => [...activePipelineFrames, ...extraPointClouds],
+    [activePipelineFrames, extraPointClouds]
+  );
 
   // The CAD point cloud only exists as a fusable entry once it's been
   // inserted into the main scene — before that it's just a preview, not
@@ -230,7 +247,15 @@ export function CloudPointConfigurationPage() {
             <PointCloudViewer
               frames={allFrames}
               emptyMessage={t('fluidDoser.cloudPointConfiguration.emptyViewer')}
-              transformsText={transformsText}
+              transformsText={mode === 'single' ? transformsText : null}
+              targetTransforms={
+                mode === 'multi'
+                  ? targetFrames.map((target) => ({
+                      targetName: target.targetName,
+                      transformsText: target.transformsText,
+                    }))
+                  : undefined
+              }
               insertedCad={insertedCad}
             />
           </div>
@@ -308,7 +333,30 @@ export function CloudPointConfigurationPage() {
 
             {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
 
-            <TransformsPanel transformsText={transformsText} />
+            {mode === 'multi' && frameNumbers.length > 0 && (
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="target-frame-select"
+                  className="text-xs font-medium text-slate-600 dark:text-slate-400 shrink-0"
+                >
+                  {t('fluidDoser.cloudPointConfiguration.frameSelectorLabel')}
+                </label>
+                <select
+                  id="target-frame-select"
+                  value={selectedFrameNumber ?? ''}
+                  onChange={(e) => setSelectedFrameNumber(Number(e.target.value))}
+                  className="flex-1 min-w-0 text-sm rounded-lg border border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-slate-900/40 px-2 py-1.5 text-slate-700 dark:text-slate-200"
+                >
+                  {frameNumbers.map((frameNumber) => (
+                    <option key={frameNumber} value={frameNumber}>
+                      {frameNumber}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <TransformsPanel transformsText={mode === 'single' ? transformsText : null} />
           </div>
 
           <div className="lg:col-span-3">
@@ -321,13 +369,16 @@ export function CloudPointConfigurationPage() {
             />
 
             <FrameChecklist
-              frames={allFrames}
-              missingFiles={missingFiles}
+              frames={mode === 'multi' ? extraPointClouds : allFrames}
+              missingFiles={mode === 'multi' ? [] : missingFiles}
               onToggle={handleToggleFrameVisibility}
               onAddPointCloud={openExtraCloudFilePicker}
               isAddingPointCloud={isExtraCloudLoading}
               onOpenFusion={() => setIsFusionModalOpen(true)}
               isFusionDisabled={fusableFrames.length === 0}
+              targetGroups={mode === 'multi' ? targetFrames : undefined}
+              onToggleTarget={toggleTargetVisibility}
+              onToggleTargetCloud={toggleTargetCloudVisibility}
             />
 
             {extraCloudError && (

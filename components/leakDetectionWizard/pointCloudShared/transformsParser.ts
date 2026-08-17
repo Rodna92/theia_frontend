@@ -75,6 +75,38 @@ export function parseFineAlignedPose(transformsText: string | null): THREE.Matri
   }
 }
 
+export interface ParsedTransform {
+  fitness: number;
+  rmse: number;
+  matrix: THREE.Matrix4;
+}
+
+/**
+ * Parses the "== RANSAC global registration ==" section — the only pose
+ * available for the RANSAC-only multi-target pipeline (pose_debug/<target>/
+ * frame_NNNNNN/...), which has no coarse/fine ICP stages.
+ */
+export function parseRansacTransform(transformsText: string | null): ParsedTransform | null {
+  if (!transformsText) return null;
+
+  try {
+    const section = splitSections(transformsText).find((s) => s.name.toLowerCase().startsWith('ransac'));
+    if (!section) return null;
+
+    const matrix = parseMatrixFromLines(section.lines);
+    if (!matrix) return null;
+
+    const header = section.lines[0] ?? '';
+    const fitness = Number(header.match(/fitness=(\S+)/)?.[1]);
+    const rmse = Number(header.match(/rmse=(\S+)/)?.[1]);
+    if (Number.isNaN(fitness) || Number.isNaN(rmse)) return null;
+
+    return { fitness, rmse, matrix };
+  } catch {
+    return null;
+  }
+}
+
 export interface ParsedVerdict {
   mode: string;
   bestFitness: number;

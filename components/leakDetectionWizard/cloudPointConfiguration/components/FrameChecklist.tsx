@@ -2,7 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { IconPlus, IconLoader, IconLayersUnion } from '@tabler/icons-react';
-import { LoadedFrameCloud } from '../../pointCloudShared/types';
+import { LoadedFrameCloud, TargetFrameData } from '../../pointCloudShared/types';
+import { parseRansacTransform } from '../../pointCloudShared/transformsParser';
 
 interface FrameChecklistProps {
   frames: LoadedFrameCloud[];
@@ -12,6 +13,12 @@ interface FrameChecklistProps {
   isAddingPointCloud?: boolean;
   onOpenFusion: () => void;
   isFusionDisabled?: boolean;
+  // Present only in multi-target mode — rendered as grouped per-target cards
+  // (one card per RANSAC target, each listing its own clouds individually)
+  // instead of/alongside the per-file `frames` rows.
+  targetGroups?: TargetFrameData[];
+  onToggleTarget?: (targetName: string) => void;
+  onToggleTargetCloud?: (targetName: string, cloudId: string) => void;
 }
 
 function colorToCss(color: number) {
@@ -26,16 +33,90 @@ export function FrameChecklist({
   isAddingPointCloud = false,
   onOpenFusion,
   isFusionDisabled = frames.length === 0,
+  targetGroups,
+  onToggleTarget,
+  onToggleTargetCloud,
 }: FrameChecklistProps) {
   const t = useTranslations();
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
-      {frames.length === 0 && missingFiles.length === 0 && (
+      {frames.length === 0 && missingFiles.length === 0 && !targetGroups?.length && (
         <p className="col-span-full text-sm text-slate-500 dark:text-slate-400">
           {t('leakDetection.cloudPointConfiguration.noFrameLoaded')}
         </p>
       )}
+
+      {targetGroups?.map((target) => {
+        const transform = parseRansacTransform(target.transformsText);
+        const allVisible = target.frames.length > 0 && target.frames.every((frame) => frame.visible);
+        return (
+          <div
+            key={target.targetName}
+            className={`flex flex-col gap-2 p-3 rounded-lg border bg-white/40 dark:bg-slate-900/30 transition-colors ${
+              allVisible ? 'border-slate-500/70 dark:border-white/50' : 'border-slate-200/50 dark:border-white/5'
+            }`}
+          >
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={allVisible}
+                onChange={() => onToggleTarget?.(target.targetName)}
+                className="sr-only"
+              />
+              <span
+                className="self-stretch w-1 rounded-full shrink-0"
+                style={{ backgroundColor: colorToCss(target.color) }}
+              />
+              <span className="flex-1 min-w-0">
+                <span className="block text-sm font-medium text-slate-700 dark:text-slate-200 truncate">
+                  {target.targetName}
+                </span>
+                <span className="block text-xs text-slate-500 dark:text-slate-500">
+                  {transform
+                    ? `${t('leakDetection.pointCloud.fitness')} ${transform.fitness.toFixed(4)} · ${t(
+                        'leakDetection.pointCloud.rmse'
+                      )} ${transform.rmse.toFixed(4)}`
+                    : t('leakDetection.cloudPointConfiguration.noRansacTransform')}
+                </span>
+                {target.missingFiles.length > 0 && (
+                  <span className="block text-[10px] text-amber-600 dark:text-amber-500 mt-0.5">
+                    {t('leakDetection.cloudPointConfiguration.missingFiles')} {target.missingFiles.join(', ')}
+                  </span>
+                )}
+              </span>
+            </label>
+
+            {target.frames.length > 0 && (
+              <div className="flex flex-col gap-1 pl-4 border-l border-slate-200/60 dark:border-white/10">
+                {target.frames.map((frame) => (
+                  <label
+                    key={frame.id}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={frame.visible}
+                      onChange={() => onToggleTargetCloud?.(target.targetName, frame.id)}
+                      className="h-3 w-3 accent-cyan-500 shrink-0"
+                    />
+                    <span
+                      className="h-2 w-2 rounded-full shrink-0"
+                      style={{ backgroundColor: colorToCss(frame.color) }}
+                    />
+                    <span className="flex-1 min-w-0 truncate text-[11px] text-slate-600 dark:text-slate-400">
+                      {frame.fileName}
+                    </span>
+                    <span className="shrink-0 text-[10px] text-slate-400 dark:text-slate-600">
+                      {frame.pointCount.toLocaleString()}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
 
       {frames.map((frame) => (
         <label

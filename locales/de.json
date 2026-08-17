@@ -83,6 +83,9 @@
     "pointCloud": {
       "fitView": "Ansicht anpassen",
       "pointSize": "Punktgröße",
+      "playbackSpeed": "Wiedergabegeschwindigkeit",
+      "fitness": "Fitness",
+      "rmse": "RMSE",
       "transformsTitle": "Transformationen & Fitness"
     },
     "cloudPointConfiguration": {
@@ -92,6 +95,8 @@
       "emptyViewer": "Laden Sie einen Frame-Ordner hoch, um Punktwolken zu visualisieren",
       "noFrameLoaded": "Noch kein Frame geladen. Klicken Sie auf \"Frame hochladen\" und wählen Sie den Ordner mit den .ply-Dateien aus.",
       "missingFiles": "Im ausgewählten Ordner nicht gefunden:",
+      "frameSelectorLabel": "Frame",
+      "noRansacTransform": "Keine RANSAC-Transformation für dieses Frame gefunden",
       "uploadCad": "CAD hochladen",
       "cadEmptyViewer": "Laden Sie eine .stl-CAD-Datei hoch, um das Modell in der Vorschau anzuzeigen",
       "convertToPointCloud": "In Punktwolke umwandeln",
@@ -220,6 +225,9 @@
     "pointCloud": {
       "fitView": "Ansicht anpassen",
       "pointSize": "Punktgröße",
+      "playbackSpeed": "Wiedergabegeschwindigkeit",
+      "fitness": "Fitness",
+      "rmse": "RMSE",
       "transformsTitle": "Transformationen & Fitness"
     },
     "cloudPointConfiguration": {
@@ -229,6 +237,8 @@
       "emptyViewer": "Laden Sie einen Frame-Ordner hoch, um Punktwolken zu visualisieren",
       "noFrameLoaded": "Noch kein Frame geladen. Klicken Sie auf \"Frame hochladen\" und wählen Sie den Ordner mit den .ply-Dateien aus.",
       "missingFiles": "Im ausgewählten Ordner nicht gefunden:",
+      "frameSelectorLabel": "Frame",
+      "noRansacTransform": "Keine RANSAC-Transformation für dieses Frame gefunden",
       "uploadCad": "CAD hochladen",
       "cadEmptyViewer": "Laden Sie eine .stl-CAD-Datei hoch, um das Modell in der Vorschau anzuzeigen",
       "convertToPointCloud": "In Punktwolke umwandeln",

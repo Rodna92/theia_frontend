@@ -83,6 +83,9 @@
     "pointCloud": {
       "fitView": "Ajuster la vue",
       "pointSize": "Taille des points",
+      "playbackSpeed": "Vitesse de lecture",
+      "fitness": "Fitness",
+      "rmse": "RMSE",
       "transformsTitle": "Transformations et qualité d'ajustement"
     },
     "cloudPointConfiguration": {
@@ -92,6 +95,8 @@
       "emptyViewer": "Chargez un dossier d'image pour visualiser les nuages de points",
       "noFrameLoaded": "Aucune image chargée pour le moment. Cliquez sur \"Charger l'image\" et sélectionnez le dossier contenant les fichiers .ply.",
       "missingFiles": "Introuvable dans le dossier sélectionné :",
+      "frameSelectorLabel": "Image",
+      "noRansacTransform": "Aucune transformation RANSAC trouvée pour cette image",
       "uploadCad": "Charger le CAO",
       "cadEmptyViewer": "Chargez un fichier CAO .stl pour prévisualiser le modèle",
       "convertToPointCloud": "Convertir en nuage de points",
@@ -220,6 +225,9 @@
     "pointCloud": {
       "fitView": "Ajuster la vue",
       "pointSize": "Taille des points",
+      "playbackSpeed": "Vitesse de lecture",
+      "fitness": "Fitness",
+      "rmse": "RMSE",
       "transformsTitle": "Transformations et qualité d'ajustement"
     },
     "cloudPointConfiguration": {
@@ -229,6 +237,8 @@
       "emptyViewer": "Chargez un dossier d'image pour visualiser les nuages de points",
       "noFrameLoaded": "Aucune image chargée pour le moment. Cliquez sur \"Charger l'image\" et sélectionnez le dossier contenant les fichiers .ply.",
       "missingFiles": "Introuvable dans le dossier sélectionné :",
+      "frameSelectorLabel": "Image",
+      "noRansacTransform": "Aucune transformation RANSAC trouvée pour cette image",
       "uploadCad": "Charger le CAO",
       "cadEmptyViewer": "Chargez un fichier CAO .stl pour prévisualiser le modèle",
       "convertToPointCloud": "Convertir en nuage de points",
