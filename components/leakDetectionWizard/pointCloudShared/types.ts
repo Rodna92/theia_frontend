@@ -53,13 +53,17 @@ export const FRAME_FILE_SPECS: FrameFileSpec[] = [
 ];
 
 // The multi-target debug output (one subfolder per target:
-// pose_debug/<target>/frame_NNNNNN/...) writes this file set — RANSAC global
-// registration plus an ICP refinement pass on top of it.
+// pose_debug/<target>/frame_NNNNNN/...) — bootstrap registration (RANSAC +
+// ICP), TSDF surface fusion, then per-frame local-ICP tracking against that
+// fused surface. Most clouds live in the camera frame; the two TSDF-related
+// ones (surfaceTsdfFused, localIcpRefAligned) live in the object-local frame
+// instead, so they won't line up spatially with the camera-frame clouds if
+// overlaid without a frame transform.
 export const RANSAC_FRAME_FILE_SPECS: FrameFileSpec[] = [
   {
     id: 'srcRaw',
     fileName: '01_src_raw.ply',
-    description: 'Mask-cropped, z-filtered points — raw density',
+    description: "Current frame's masked RGB-D cloud, camera frame — what the camera actually sees",
     color: 0x94a3b8,
   },
   {
@@ -69,22 +73,40 @@ export const RANSAC_FRAME_FILE_SPECS: FrameFileSpec[] = [
     color: 0xf59e0b,
   },
   {
-    id: 'ransacRefAligned',
-    fileName: '04_ransac_ref_aligned.ply',
-    description: 'Reference cloud transformed by the RANSAC global registration result',
-    color: 0xa78bfa,
-  },
-  {
     id: 'ransacSrc',
     fileName: '04_ransac_src.ply',
-    description: 'Source points used for RANSAC global registration',
+    description: 'Source cloud used during the initial RANSAC registration, camera frame',
     color: 0xfb7185,
+  },
+  {
+    id: 'ransacRefAligned',
+    fileName: '04_ransac_ref_aligned.ply',
+    description: 'Reference model transformed by the RANSAC coarse pose — check the initial rough alignment',
+    color: 0xa78bfa,
   },
   {
     id: 'icpRefAligned',
     fileName: '05_icp_ref_aligned.ply',
-    description: 'Reference cloud further refined by ICP after RANSAC alignment',
+    description: 'Reference model transformed by the fine-ICP bootstrap result — initial estimated pose, camera frame',
     color: 0x34d399,
+  },
+  {
+    id: 'surfaceTsdfFused',
+    fileName: 'surface_tsdf_fused.ply',
+    description: 'Surface reconstructed from several TSDF-fused frames — object-local frame, not camera coordinates',
+    color: 0x22d3ee,
+  },
+  {
+    id: 'localIcpRefAligned',
+    fileName: '06_local_icp_ref_aligned.ply',
+    description: 'Reference model after the local ICP correction, aligned with the TSDF surface — object-local frame',
+    color: 0xfacc15,
+  },
+  {
+    id: 'finalPoseRefAlignedCamera',
+    fileName: '07_final_pose_ref_aligned_camera.ply',
+    description: 'Reference model at the final accepted pose for this frame, camera frame — the key file for validating tracking',
+    color: 0xf472b6,
   },
 ];
 
