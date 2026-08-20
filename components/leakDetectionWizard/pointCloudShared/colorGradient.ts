@@ -52,9 +52,10 @@ function rgbToHex(r: number, g: number, b: number): number {
 }
 
 // Shades a target's base color across its ordered set of point clouds (e.g.
-// 01_src_raw -> 04_ransac_src) — lightest at index 0, darkest at the last
-// index — so a target's clouds read as a family in the viewer while still
-// being individually distinguishable, instead of rendering as identical dots.
+// 01_src_raw -> 04_final_pose_ref_aligned_camera) — lightest at index 0,
+// darkest at the last index — so a target's clouds read as a family in the
+// viewer while still being individually distinguishable, instead of
+// rendering as identical dots.
 export function targetCloudShade(baseColor: number, index: number, count: number): number {
   if (count <= 1) return baseColor;
 

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { FRAME_FILE_SPECS, LoadedFrameCloud } from '../../pointCloudShared/types';
-import { parseRansacTransform } from '../../pointCloudShared/transformsParser';
+import { parseTsdfTransform } from '../../pointCloudShared/transformsParser';
 import { ReplayTargetFrameData } from '../types';
 
 interface FrameTypeChecklistProps {
@@ -37,7 +37,7 @@ export function FrameTypeChecklist({
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
         {targetGroups.map((target) => {
-          const transform = parseRansacTransform(target.transformsText);
+          const transform = parseTsdfTransform(target.transformsText);
           const allVisible = target.clouds.length > 0 && target.clouds.every((cloud) => visibility[cloud.id] ?? true);
 
           return (
@@ -67,7 +67,7 @@ export function FrameTypeChecklist({
                       ? `${t('leakDetection.pointCloud.fitness')} ${transform.fitness.toFixed(4)} · ${t(
                           'leakDetection.pointCloud.rmse'
                         )} ${transform.rmse.toFixed(4)}`
-                      : t('leakDetection.cloudPointConfiguration.noRansacTransform')}
+                      : t('leakDetection.cloudPointConfiguration.noTsdfTransform')}
                   </span>
                   {target.missingFiles.length > 0 && (
                     <span className="block text-[10px] text-amber-600 dark:text-amber-500 mt-0.5">

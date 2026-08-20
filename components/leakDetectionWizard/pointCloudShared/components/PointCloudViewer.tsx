@@ -12,12 +12,12 @@ import {
   MIN_PLAYBACK_SPEED,
   MAX_PLAYBACK_SPEED,
 } from '../hooks/useCloudPointViewer';
-import { parseFineAlignedPose, parseRansacTransform, parseVerdict } from '../transformsParser';
+import { parseFineAlignedPose, parseTsdfTransform, parseVerdict } from '../transformsParser';
 import { InsertedCadObject, LoadedFrameCloud } from '../types';
 import { VerdictBanner } from './VerdictBanner';
 
 // A target's raw transforms.txt, keyed by target name — used in multi-target
-// mode to derive each target's own RANSAC origin-axis marker.
+// mode to derive each target's own final-pose origin-axis marker.
 export interface TargetTransformsEntry {
   targetName: string;
   transformsText: string | null;
@@ -56,8 +56,8 @@ export function PointCloudViewer({
     () =>
       (targetTransforms ?? []).map(({ targetName, transformsText: targetText }) => ({
         targetName,
-        pose: parseRansacTransform(targetText)?.matrix ?? null,
-        cloudId: `${targetName}:icpRefAligned`,
+        pose: parseTsdfTransform(targetText)?.matrix ?? null,
+        cloudId: `${targetName}:finalPoseRefAlignedCamera`,
       })),
     [targetTransforms]
   );

@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { IconPlus, IconLoader, IconLayersUnion } from '@tabler/icons-react';
 import { LoadedFrameCloud, TargetFrameData } from '../../pointCloudShared/types';
-import { parseRansacTransform } from '../../pointCloudShared/transformsParser';
+import { parseTsdfTransform } from '../../pointCloudShared/transformsParser';
 
 interface FrameChecklistProps {
   frames: LoadedFrameCloud[];
@@ -14,7 +14,7 @@ interface FrameChecklistProps {
   onOpenFusion: () => void;
   isFusionDisabled?: boolean;
   // Present only in multi-target mode — rendered as grouped per-target cards
-  // (one card per RANSAC target, each listing its own clouds individually)
+  // (one card per TSDF target, each listing its own clouds individually)
   // instead of/alongside the per-file `frames` rows.
   targetGroups?: TargetFrameData[];
   onToggleTarget?: (targetName: string) => void;
@@ -48,7 +48,7 @@ export function FrameChecklist({
       )}
 
       {targetGroups?.map((target) => {
-        const transform = parseRansacTransform(target.transformsText);
+        const transform = parseTsdfTransform(target.transformsText);
         const allVisible = target.frames.length > 0 && target.frames.every((frame) => frame.visible);
         return (
           <div
@@ -77,7 +77,7 @@ export function FrameChecklist({
                     ? `${t('leakDetection.pointCloud.fitness')} ${transform.fitness.toFixed(4)} · ${t(
                         'leakDetection.pointCloud.rmse'
                       )} ${transform.rmse.toFixed(4)}`
-                    : t('leakDetection.cloudPointConfiguration.noRansacTransform')}
+                    : t('leakDetection.cloudPointConfiguration.noTsdfTransform')}
                 </span>
                 {target.missingFiles.length > 0 && (
                   <span className="block text-[10px] text-amber-600 dark:text-amber-500 mt-0.5">

@@ -159,7 +159,7 @@ export function CloudPointConfigurationPage() {
     setClip((prev) => (prev ? { ...prev, [axis]: next } : prev));
   };
 
-  // In multi-target mode the pipeline frames come from every visible RANSAC
+  // In multi-target mode the pipeline frames come from every visible TSDF
   // target's currently selected frame number instead of a single flat set.
   const activePipelineFrames = useMemo(
     () => (mode === 'multi' ? targetFrames.flatMap((target) => target.frames) : frames),

@@ -53,59 +53,35 @@ export const FRAME_FILE_SPECS: FrameFileSpec[] = [
 ];
 
 // The multi-target debug output (one subfolder per target:
-// pose_debug/<target>/frame_NNNNNN/...) — bootstrap registration (RANSAC +
-// ICP), TSDF surface fusion, then per-frame local-ICP tracking against that
-// fused surface. Most clouds live in the camera frame; the two TSDF-related
-// ones (surfaceTsdfFused, localIcpRefAligned) live in the object-local frame
-// instead, so they won't line up spatially with the camera-frame clouds if
-// overlaid without a frame transform.
-export const RANSAC_FRAME_FILE_SPECS: FrameFileSpec[] = [
+// pose_debug/<target>/frame_NNNNNN/...) — the Tracking/TSDF pipeline. Two
+// visual checks: srcRaw vs finalPoseRefAlignedCamera (does the final
+// published pose match what the camera sees, camera frame) and
+// tsdfFusedSurface vs localIcpRefAligned (internal TSDF/local-ICP
+// registration quality, object-local frame — won't line up spatially with
+// the camera-frame clouds if overlaid without a frame transform).
+export const TSDF_FRAME_FILE_SPECS: FrameFileSpec[] = [
   {
     id: 'srcRaw',
     fileName: '01_src_raw.ply',
-    description: "Current frame's masked RGB-D cloud, camera frame — what the camera actually sees",
+    description: 'Raw masked point cloud from the current camera frame',
     color: 0x94a3b8,
   },
   {
-    id: 'srcFused',
-    fileName: '02_src_fused.ply',
-    description: 'Source points fused across captures, before RANSAC',
-    color: 0xf59e0b,
-  },
-  {
-    id: 'ransacSrc',
-    fileName: '04_ransac_src.ply',
-    description: 'Source cloud used during the initial RANSAC registration, camera frame',
-    color: 0xfb7185,
-  },
-  {
-    id: 'ransacRefAligned',
-    fileName: '04_ransac_ref_aligned.ply',
-    description: 'Reference model transformed by the RANSAC coarse pose — check the initial rough alignment',
-    color: 0xa78bfa,
-  },
-  {
-    id: 'icpRefAligned',
-    fileName: '05_icp_ref_aligned.ply',
-    description: 'Reference model transformed by the fine-ICP bootstrap result — initial estimated pose, camera frame',
-    color: 0x34d399,
-  },
-  {
-    id: 'surfaceTsdfFused',
-    fileName: 'surface_tsdf_fused.ply',
-    description: 'Surface reconstructed from several TSDF-fused frames — object-local frame, not camera coordinates',
+    id: 'tsdfFusedSurface',
+    fileName: '02_tsdf_fused_surface.ply',
+    description: 'Accumulated TSDF surface built from multiple frames — object-local frame',
     color: 0x22d3ee,
   },
   {
     id: 'localIcpRefAligned',
-    fileName: '06_local_icp_ref_aligned.ply',
-    description: 'Reference model after the local ICP correction, aligned with the TSDF surface — object-local frame',
+    fileName: '03_local_icp_ref_aligned.ply',
+    description: 'Reference model aligned to the TSDF surface using local ICP — object-local frame',
     color: 0xfacc15,
   },
   {
     id: 'finalPoseRefAlignedCamera',
-    fileName: '07_final_pose_ref_aligned_camera.ply',
-    description: 'Reference model at the final accepted pose for this frame, camera frame — the key file for validating tracking',
+    fileName: '04_final_pose_ref_aligned_camera.ply',
+    description: 'Reference model transformed with the final accepted pose — camera frame',
     color: 0xf472b6,
   },
 ];
@@ -127,12 +103,12 @@ export interface LoadedFrameCloud {
   visible: boolean;
   pointCount: number;
   geometry: THREE.BufferGeometry;
-  // Present only for clouds loaded as part of a multi-target RANSAC upload —
+  // Present only for clouds loaded as part of a multi-target TSDF upload —
   // identifies which target subfolder (e.g. "Tappo_1") this cloud came from.
   targetName?: string;
 }
 
-// One RANSAC target's data for the currently selected frame number, in a
+// One TSDF target's data for the currently selected frame number, in a
 // multi-target upload (pose_debug/<targetName>/frame_NNNNNN/...).
 export interface TargetFrameData {
   targetName: string;

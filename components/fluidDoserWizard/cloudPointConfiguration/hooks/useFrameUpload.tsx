@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 import {
   FRAME_FILE_SPECS,
-  RANSAC_FRAME_FILE_SPECS,
+  TSDF_FRAME_FILE_SPECS,
   TARGET_COLOR_PALETTE,
   TRANSFORMS_FILE_NAME,
   LoadedFrameCloud,
@@ -18,7 +18,7 @@ interface FileWithRelativePath extends File {
 }
 
 // pose_debug/<targetName>/<frameFolder>/<fileName> — the per-target-subfolder
-// layout used by the RANSAC multi-target pipeline (Tappo_1, target_0, ...).
+// layout used by the TSDF multi-target pipeline (Tappo_1, target_0, ...).
 type MultiTargetFileIndex = Map<string, Map<number, Map<string, FileWithRelativePath>>>;
 
 function extractFrameNumber(folderName: string): number | null {
@@ -211,8 +211,8 @@ export function useFrameUpload() {
         const loadedFrames: LoadedFrameCloud[] = [];
         const missing: string[] = [];
 
-        for (let specIndex = 0; specIndex < RANSAC_FRAME_FILE_SPECS.length; specIndex++) {
-          const spec = RANSAC_FRAME_FILE_SPECS[specIndex];
+        for (let specIndex = 0; specIndex < TSDF_FRAME_FILE_SPECS.length; specIndex++) {
+          const spec = TSDF_FRAME_FILE_SPECS[specIndex];
           const file = fileMap?.get(spec.fileName);
           if (!file) {
             missing.push(spec.fileName);
@@ -224,7 +224,7 @@ export function useFrameUpload() {
             id: `${targetName}:${spec.id}`,
             fileName: spec.fileName,
             description: spec.description,
-            color: targetCloudShade(color, specIndex, RANSAC_FRAME_FILE_SPECS.length),
+            color: targetCloudShade(color, specIndex, TSDF_FRAME_FILE_SPECS.length),
             visible: true,
             pointCount,
             geometry,

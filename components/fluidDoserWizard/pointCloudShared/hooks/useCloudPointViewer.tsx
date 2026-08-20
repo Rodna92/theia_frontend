@@ -8,9 +8,9 @@ import { InsertedCadObject, LoadedFrameCloud } from '../types';
 export type InsertedCadViewMode = 'mesh' | 'points';
 
 // One target's origin-axis marker in multi-target mode — positioned at the
-// RANSAC pose, shown only while `cloudId` (e.g. "<targetName>:icpRefAligned")
-// is visible. `pose` is null when the target's transforms.txt has no
-// parseable RANSAC section for this frame.
+// parsed pose, shown only while `cloudId` (e.g.
+// "<targetName>:finalPoseRefAlignedCamera") is visible. `pose` is null when
+// the target's transforms.txt has no parseable pose section for this frame.
 export interface TargetReferencePose {
   targetName: string;
   pose: THREE.Matrix4 | null;
@@ -271,8 +271,8 @@ export function useCloudPointViewer({
   }, [frames, referencePose]);
 
   // Sync per-target origin-axis markers (multi-target mode) — one AxesHelper
-  // per target, positioned at that target's RANSAC pose and shown only while
-  // its "05_icp_ref_aligned" cloud is visible.
+  // per target, positioned at that target's parsed pose and shown only while
+  // its "04_final_pose_ref_aligned_camera" cloud is visible.
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene) return;

@@ -82,15 +82,24 @@ export interface ParsedTransform {
 }
 
 /**
- * Parses the "== RANSAC global registration ==" section — the only pose
- * available for the RANSAC-only multi-target pipeline (pose_debug/<target>/
- * frame_NNNNNN/...), which has no coarse/fine ICP stages.
+ * Parses the "== final accepted pose (camera_T_object) ==" section — the
+ * TSDF/local-ICP multi-target pipeline's (pose_debug/<target>/frame_NNNNNN/...)
+ * published pose for the frame, in the camera frame. This is what
+ * 04_final_pose_ref_aligned_camera.ply was transformed by.
+ *
+ * transforms.txt for this pipeline also carries "TSDF integration extrinsic
+ * (camera_T_object)" (no fitness/rmse — the object-local-to-camera extrinsic
+ * used when integrating into the TSDF) and "local ICP (TSDF surface)" (the
+ * pose 03_local_icp_ref_aligned.ply was transformed by, in the object-local
+ * frame) — neither is parsed here since nothing currently needs them.
  */
-export function parseRansacTransform(transformsText: string | null): ParsedTransform | null {
+export function parseTsdfTransform(transformsText: string | null): ParsedTransform | null {
   if (!transformsText) return null;
 
   try {
-    const section = splitSections(transformsText).find((s) => s.name.toLowerCase().startsWith('ransac'));
+    const section = splitSections(transformsText).find((s) =>
+      s.name.toLowerCase().includes('final accepted pose')
+    );
     if (!section) return null;
 
     const matrix = parseMatrixFromLines(section.lines);

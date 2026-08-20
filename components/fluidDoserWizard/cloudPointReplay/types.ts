@@ -11,7 +11,7 @@ export interface ReplayFrameData {
   transformsText: string | null;
 }
 
-// Multi-target RANSAC replay — pose_debug/<target>/frame_NNNNNN/... — frame
+// Multi-target TSDF replay — pose_debug/<target>/frame_NNNNNN/... — frame
 // numbers are expected to line up across targets, so playback advances one
 // shared frame number at a time while loading every target's data for it.
 export interface ReplayTargetFrameData {
