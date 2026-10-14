@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { IconChevronDown, IconChevronLeft, IconFileSettings, IconPlayerPause, IconPlayerPlay, IconPlayerSkipBack, IconRoute, IconX } from '@tabler/icons-react';
-import { ALL_TARGETS, EQUIPMENT_ID, MODALITY, EndEffector, RoutineTarget } from './catalog';
+import { ALL_TARGETS, EQUIPMENT_ID, MODALITY, EndEffector, RoutineTarget, TargetGroups } from './catalog';
 import { EeViewer } from './EeViewer';
 import { EndEffectorIcon } from './EndEffectorIcon';
-import { buildPlayback } from './playback';
+import { buildPlayback, layoutPlacements } from './playback';
 
 const card =
   'rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5';
@@ -117,10 +117,19 @@ export function EeTypeTrajectoryPage() {
   const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(false);
 
-  const playback = useMemo(() => {
-    const shown = targets.filter((tg) => trajId === ALL_TARGETS || String(tg.index) === trajId);
-    return buildPlayback(shown, shown.length === 1);
-  }, [targets, trajId]);
+  const [groups, setGroups] = useState<TargetGroups | null>(null);
+  useEffect(() => {
+    fetch('/api/ee-target-groups')
+      .then((r) => r.json())
+      .then((data) => setGroups(data.anchor?.length ? (data as TargetGroups) : null))
+      .catch(() => setGroups(null));
+  }, []);
+
+  const placements = useMemo(
+    () => layoutPlacements(targets, trajId, groups),
+    [targets, trajId, groups]
+  );
+  const playback = useMemo(() => buildPlayback(placements), [placements]);
 
   // Restart whenever the displayed routine changes.
   useEffect(() => {
@@ -199,7 +208,7 @@ export function EeTypeTrajectoryPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-3">
             <div className={`h-[65vh] overflow-hidden ${card}`}>
-              <EeViewer endEffector={ee} targets={targets} selected={trajId} pose={pose} models={models} />
+              <EeViewer endEffector={ee} placements={placements} pose={pose} models={models} />
             </div>
             {targets.length > 0 && playback.total > 0 && (
               <div className="mt-3 flex items-center gap-3">

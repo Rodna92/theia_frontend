@@ -6,13 +6,12 @@ import { IconFocusCentered } from '@tabler/icons-react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
-import { ALL_TARGETS, type EndEffector, type RoutineTarget } from './catalog';
-import { TARGET_SPACING, toScene, toolBodyDir, type Pose } from './playback';
+import { type EndEffector } from './catalog';
+import { place, placeDir, type Pose, type Placement } from './playback';
 
 interface EeViewerProps {
   endEffector: EndEffector | null;
-  targets: RoutineTarget[];
-  selected: string | null;
+  placements: Placement[];
   // Animated tool pose; when null the tool rests at the start of the first displayed routine.
   pose: Pose | null;
   // Saved STL path per target index.
@@ -76,7 +75,7 @@ function dispose(obj: THREE.Object3D) {
   });
 }
 
-export function EeViewer({ endEffector, targets, selected, pose, models }: EeViewerProps) {
+export function EeViewer({ endEffector, placements, pose, models }: EeViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<THREE.Group | null>(null);
   const eeRef = useRef<THREE.Group | null>(null);
@@ -186,58 +185,62 @@ export function EeViewer({ endEffector, targets, selected, pose, models }: EeVie
     eeRef.current = ee;
     content.add(ee);
 
-    const shown = targets.filter((tg) => selected === ALL_TARGETS || String(tg.index) === selected);
-    const single = shown.length === 1;
     let first: THREE.Vector3 | null = null;
     let firstToolZ: [number, number, number] | null = null;
-    shown.forEach((tg, i) => {
+    let firstPlacement: Placement | null = null;
+    placements.forEach((pl) => {
+      const tg = pl.target;
       if (tg.points.length === 0) return;
-      const ox = single ? 0 : (i - (shown.length - 1) / 2) * TARGET_SPACING;
-      const pts = tg.points.map((p) => new THREE.Vector3(...toScene(p, ox)));
-      if (!first) {
+      // Associated (non-played) targets are drawn dimmed.
+      const dim = !pl.primary;
+      const pts = tg.points.map((p) => new THREE.Vector3(...place(pl, p)));
+      if (!first && pl.primary) {
         first = pts[0];
         firstToolZ = tg.startToolZ;
+        firstPlacement = pl;
       }
       content.add(
         new THREE.Line(
           new THREE.BufferGeometry().setFromPoints(pts),
-          new THREE.LineBasicMaterial({ color: 0x06b6d4 })
+          new THREE.LineBasicMaterial({ color: dim ? 0x64748b : 0x06b6d4 })
         )
       );
       content.add(
         new THREE.Points(
           new THREE.BufferGeometry().setFromPoints([pts[0], pts[pts.length - 1]]),
-          new THREE.PointsMaterial({ color: 0x06b6d4, size: 0.015 })
+          new THREE.PointsMaterial({ color: dim ? 0x64748b : 0x06b6d4, size: 0.015 })
         )
       );
       // Orientation arrows: the direction the tool tip points (tool Z axis) along the path.
       const addArrow = (pos: [number, number, number], z: [number, number, number]) => {
-        const dir = new THREE.Vector3(...toScene(z, 0)).normalize();
+        const dir = new THREE.Vector3(...placeDir(pl, z)).normalize();
         content.add(
-          new THREE.ArrowHelper(dir, new THREE.Vector3(...toScene(pos, ox)), 0.015, 0xf59e0b, 0.005, 0.0025)
+          new THREE.ArrowHelper(dir, new THREE.Vector3(...place(pl, pos)), 0.015, 0xf59e0b, 0.005, 0.0025)
         );
       };
-      tg.segments.forEach((seg) => {
-        if (seg.type === 'pause' || seg.type === 'settle') return; // no motion
-        if (seg.type === 'arc') {
-          seg.points.forEach((p, k) => {
-            if (k % 4 === 0 || k === seg.points.length - 1) addArrow(p, seg.toolZ[k]);
-          });
-          return;
-        }
-        // Straight phases (move_to_start, line, retract): an arrow about every 3 cm, ends included.
-        const from = new THREE.Vector3(...seg.points[0]);
-        const to = new THREE.Vector3(...seg.points[seg.points.length - 1]);
-        const count = Math.max(1, Math.ceil(from.distanceTo(to) / 0.03));
-        const z0 = new THREE.Vector3(...seg.toolZ[0]);
-        const z1 = new THREE.Vector3(...seg.toolZ[seg.toolZ.length - 1]);
-        for (let i = 0; i <= count; i++) {
-          const s = i / count;
-          const pos = from.clone().lerp(to, s);
-          const z = z0.clone().lerp(z1, s).normalize();
-          addArrow([pos.x, pos.y, pos.z], [z.x, z.y, z.z]);
-        }
-      });
+      if (!dim) {
+        tg.segments.forEach((seg) => {
+          if (seg.type === 'pause' || seg.type === 'settle') return; // no motion
+          if (seg.type === 'arc') {
+            seg.points.forEach((p, k) => {
+              if (k % 4 === 0 || k === seg.points.length - 1) addArrow(p, seg.toolZ[k]);
+            });
+            return;
+          }
+          // Straight phases (move_to_start, line, retract): an arrow about every 3 cm, ends included.
+          const from = new THREE.Vector3(...seg.points[0]);
+          const to = new THREE.Vector3(...seg.points[seg.points.length - 1]);
+          const count = Math.max(1, Math.ceil(from.distanceTo(to) / 0.03));
+          const z0 = new THREE.Vector3(...seg.toolZ[0]);
+          const z1 = new THREE.Vector3(...seg.toolZ[seg.toolZ.length - 1]);
+          for (let i = 0; i <= count; i++) {
+            const s = i / count;
+            const pos = from.clone().lerp(to, s);
+            const z = z0.clone().lerp(z1, s).normalize();
+            addArrow([pos.x, pos.y, pos.z], [z.x, z.y, z.z]);
+          }
+        });
+      }
       const modelPath = models[String(tg.index)];
       if (modelPath) {
         let promise = geometryCache.current.get(modelPath);
@@ -252,35 +255,48 @@ export function EeViewer({ endEffector, targets, selected, pose, models }: EeVie
             const mesh = new THREE.Mesh(
               geometry,
               new THREE.MeshStandardMaterial({
-                color: 0x94a3b8,
+                color: dim ? 0x64748b : 0x94a3b8,
                 metalness: 0.2,
                 roughness: 0.6,
                 transparent: true,
-                opacity: 0.85,
+                opacity: dim ? 0.45 : 0.85,
                 side: THREE.DoubleSide,
               })
             );
-            // STL is in millimetres; its own axes are used as they are.
-            mesh.scale.setScalar(0.001);
-            mesh.rotation.y = Math.PI; // same 180 deg turn about Y as the trajectories
-            mesh.position.x = ox;
+            // STL is in millimetres, in the target's own axes: scale, then place like the path.
+            const o = place(pl, [0, 0, 0]);
+            const ex = placeDir(pl, [1, 0, 0]);
+            const ey = placeDir(pl, [0, 1, 0]);
+            const ez = placeDir(pl, [0, 0, 1]);
+            mesh.matrixAutoUpdate = false;
+            mesh.matrix.set(
+              ex[0] * 0.001, ey[0] * 0.001, ez[0] * 0.001, o[0],
+              ex[1] * 0.001, ey[1] * 0.001, ez[1] * 0.001, o[1],
+              ex[2] * 0.001, ey[2] * 0.001, ez[2] * 0.001, o[2],
+              0, 0, 0, 1
+            );
             content.add(mesh);
           })
           .catch(() => undefined);
       }
       const label = makeLabel(String(tg.index));
-      label.position.set(ox, 0.2, 0);
+      const o = place(pl, [0, 0, 0]);
+      label.position.set(o[0], 0.2, o[2]);
       content.add(label);
     });
-    // The tool tip rests at the start of the first displayed routine.
+    // The tool tip rests at the start of the first played routine.
     if (first) ee.position.copy(first);
     // The tool body extends opposite to the tool Z axis (which points into the panel).
-    const bodyDir = toolBodyDir((firstToolZ as [number, number, number] | null) ?? [0, 0, 1]);
-    ee.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(...bodyDir));
+    const fp = firstPlacement as Placement | null;
+    const tip = fp ? placeDir(fp, (firstToolZ as [number, number, number] | null) ?? [0, 0, 1]) : [0, 0, -1];
+    ee.quaternion.setFromUnitVectors(
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(-tip[0], -tip[1], -tip[2])
+    );
     return () => {
       cancelled = true;
     };
-  }, [endEffector, targets, selected, models]);
+  }, [endEffector, placements, models]);
 
   // Animated pose (playback) overrides the resting placement.
   useEffect(() => {
@@ -291,7 +307,7 @@ export function EeViewer({ endEffector, targets, selected, pose, models }: EeVie
       new THREE.Vector3(0, 1, 0),
       new THREE.Vector3(...pose.bodyDir)
     );
-  }, [pose, endEffector, targets, selected, models]);
+  }, [pose, endEffector, placements, models]);
 
   return (
     <div className="relative w-full h-full">

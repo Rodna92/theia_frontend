@@ -31,3 +31,14 @@ export interface RoutineTarget {
 export const ALL_TARGETS = 'all';
 export const EQUIPMENT_ID = 'ariston_a';
 export const MODALITY = 'aldm';
+
+// Target-group associations of the vision node (/api/ee-target-groups), indexed by target - 1.
+export interface TargetGroups {
+  anchor: number[];
+  x: number[];
+  y: number[];
+  z: number[];
+  roll: number[];
+  pitch: number[];
+  yaw: number[];
+}
