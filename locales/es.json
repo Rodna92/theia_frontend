@@ -41,6 +41,8 @@
       "clickToConfig": "Haz clic para configurar",
       "configurationTitle": "Configuración",
       "basicSettings": "Configuración Básica",
+      "endEffectorTitle": "Tipo de efector final y trayectoria",
+      "endEffectorSubtitle": "Seleccione el tipo de efector final y la trayectoria asociada al grupo de procesamiento.",
       "advancedSettings": "Configuración Avanzada",
       "calibration": "Calibración",
       "comingSoon": "Opciones de configuración próximamente",
@@ -161,6 +163,21 @@
       "ms": "ms",
       "overlay": "Superposición de reconocimiento de objetos habilitada",
       "metadataNotPresent": "Metadatos de inferencia de visión no presentes"
+    },
+    "eeTrajectory": {
+      "endEffectors": "Efectores finales",
+      "trajectories": "Trayectorias",
+      "selectEeFirst": "Seleccione un efector final para ver sus trayectorias disponibles",
+      "productionEquipment": "Equipo de producción",
+      "notSelected": "No seleccionado",
+      "allTargets": "Todos los objetivos",
+      "target": "Objetivo",
+      "play": "Reproducir",
+      "pause": "Pausa",
+      "reset": "Reiniciar",
+      "model": "Modelo (STL)",
+      "modelSaved": "Modelo guardado",
+      "fitView": "Centrar y ajustar zoom"
     }
   },
   "fluidDoser": {
@@ -184,6 +201,8 @@
       "clickToConfig": "Haz clic para configurar",
       "configurationTitle": "Configuración",
       "basicSettings": "Configuración Básica",
+      "endEffectorTitle": "Tipo de efector final y trayectoria",
+      "endEffectorSubtitle": "Seleccione el tipo de efector final y la trayectoria asociada al grupo de procesamiento.",
       "advancedSettings": "Configuración Avanzada",
       "calibration": "Calibración",
       "comingSoon": "Opciones de configuración próximamente",

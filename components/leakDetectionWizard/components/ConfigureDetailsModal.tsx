@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { IconX, IconChevronLeft, IconChevronDown, IconChevronUp, IconCube3dSphere, IconPlayerPlay } from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { EndEffectorIcon } from '../eeTypeTrajectory/EndEffectorIcon';
 
 interface ConfigureDetailsModalProps {
   selectedItemId: string | null;
@@ -439,14 +440,24 @@ export function ConfigureDetailsModal({
           </div>
         ) : (
           <>
-            <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                {t('leakDetection.configure.basicSettings')}
-              </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                {t('leakDetection.configure.comingSoon')}
-              </p>
-            </div>
+            <Link
+              href={`/${locale}/process/leak-detection/ee-type-trajectory`}
+              className="block p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5 hover:border-cyan-500/40 hover:bg-cyan-500/10 transition-colors"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                  <EndEffectorIcon size={22} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    {t('leakDetection.configure.endEffectorTitle')}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {t('leakDetection.configure.endEffectorSubtitle')}
+                  </p>
+                </div>
+              </div>
+            </Link>
 
             <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">

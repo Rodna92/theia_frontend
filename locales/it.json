@@ -41,6 +41,8 @@
       "clickToConfig": "Clicca per configurare",
       "configurationTitle": "Configurazione",
       "basicSettings": "Impostazioni di base",
+      "endEffectorTitle": "Tipo di end-effector e traiettoria",
+      "endEffectorSubtitle": "Seleziona il tipo di end-effector e la traiettoria associata al gruppo di elaborazione.",
       "advancedSettings": "Impostazioni avanzate",
       "calibration": "Calibrazione",
       "comingSoon": "Opzioni di configurazione in arrivo",
@@ -164,6 +166,21 @@
       "ms": "ms",
       "overlay": "Sovrapposizione di riconoscimento oggetti abilitata",
       "metadataNotPresent": "Metadati di inferenza visiva non presenti"
+    },
+    "eeTrajectory": {
+      "endEffectors": "End-effector",
+      "trajectories": "Traiettorie",
+      "selectEeFirst": "Seleziona un end-effector per vedere le traiettorie disponibili",
+      "productionEquipment": "Apparecchiatura di produzione",
+      "notSelected": "Non selezionato",
+      "allTargets": "Tutti i target",
+      "target": "Target",
+      "play": "Riproduci",
+      "pause": "Pausa",
+      "reset": "Riavvia",
+      "model": "Modello (STL)",
+      "modelSaved": "Modello salvato",
+      "fitView": "Centra e adatta lo zoom"
     }
   },
   "fluidDoser": {
@@ -187,6 +204,8 @@
       "clickToConfig": "Clicca per configurare",
       "configurationTitle": "Configurazione",
       "basicSettings": "Impostazioni di base",
+      "endEffectorTitle": "Tipo di end-effector e traiettoria",
+      "endEffectorSubtitle": "Seleziona il tipo di end-effector e la traiettoria associata al gruppo di elaborazione.",
       "advancedSettings": "Impostazioni avanzate",
       "calibration": "Calibrazione",
       "comingSoon": "Opzioni di configurazione in arrivo",

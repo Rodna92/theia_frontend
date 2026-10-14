@@ -41,6 +41,8 @@
       "clickToConfig": "Click to configure",
       "configurationTitle": "Configuration",
       "basicSettings": "Basic Settings",
+      "endEffectorTitle": "End-effector type and trajectory",
+      "endEffectorSubtitle": "Select the end-effector type and the trajectory associated with the processing group.",
       "advancedSettings": "Advanced Settings",
       "calibration": "Calibration",
       "comingSoon": "Configuration options coming soon",
@@ -164,6 +166,21 @@
       "ms": "ms",
       "overlay": "Object recognition overlay enabled",
       "metadataNotPresent": "Vision inference metadata not present"
+    },
+    "eeTrajectory": {
+      "endEffectors": "End-effectors",
+      "trajectories": "Trajectories",
+      "selectEeFirst": "Select an end-effector to see its available trajectories",
+      "productionEquipment": "Production Equipment",
+      "notSelected": "Not selected",
+      "allTargets": "All targets",
+      "target": "Target",
+      "play": "Play",
+      "pause": "Pause",
+      "reset": "Restart",
+      "model": "Model (STL)",
+      "modelSaved": "Model saved",
+      "fitView": "Center and zoom to fit"
     }
   },
   "fluidDoser": {
@@ -187,6 +204,8 @@
       "clickToConfig": "Click to configure",
       "configurationTitle": "Configuration",
       "basicSettings": "Basic Settings",
+      "endEffectorTitle": "End-effector type and trajectory",
+      "endEffectorSubtitle": "Select the end-effector type and the trajectory associated with the processing group.",
       "advancedSettings": "Advanced Settings",
       "calibration": "Calibration",
       "comingSoon": "Configuration options coming soon",

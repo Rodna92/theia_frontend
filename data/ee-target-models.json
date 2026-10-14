@@ -1,0 +1,16 @@
+{
+  "aldm/ariston_a/rigid_tip/1": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_1.stl",
+  "aldm/ariston_a/rigid_tip/2": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_2.stl",
+  "aldm/ariston_a/rigid_tip/3": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_3.stl",
+  "aldm/ariston_a/rigid_tip/4": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_4.stl",
+  "aldm/ariston_a/rigid_tip/5": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_5.stl",
+  "aldm/ariston_a/rigid_tip/6": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_6.stl",
+  "aldm/ariston_a/rigid_tip/7": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_7.stl",
+  "aldm/ariston_a/r_end_effector/1": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_1.stl",
+  "aldm/ariston_a/r_end_effector/2": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_2.stl",
+  "aldm/ariston_a/r_end_effector/3": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_3.stl",
+  "aldm/ariston_a/r_end_effector/4": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_4.stl",
+  "aldm/ariston_a/r_end_effector/5": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_5.stl",
+  "aldm/ariston_a/r_end_effector/6": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_6.stl",
+  "aldm/ariston_a/r_end_effector/7": "X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds/Tappo_7.stl"
+}

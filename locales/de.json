@@ -41,6 +41,8 @@
       "clickToConfig": "Klicken Sie zum Konfigurieren",
       "configurationTitle": "Konfiguration",
       "basicSettings": "Grundeinstellungen",
+      "endEffectorTitle": "Endeffektor-Typ und Trajektorie",
+      "endEffectorSubtitle": "Wählen Sie den Endeffektor-Typ und die dem Bearbeitungsgruppe zugeordnete Trajektorie aus.",
       "advancedSettings": "Erweiterte Einstellungen",
       "calibration": "Kalibrierung",
       "comingSoon": "Konfigurationsoptionen folgen in Kürze",
@@ -161,6 +163,21 @@
       "ms": "ms",
       "overlay": "Objekterkennungsüberlagerung aktiviert",
       "metadataNotPresent": "Metadaten der Vision-Inferenz nicht vorhanden"
+    },
+    "eeTrajectory": {
+      "endEffectors": "Endeffektoren",
+      "trajectories": "Trajektorien",
+      "selectEeFirst": "Wählen Sie einen Endeffektor, um die verfügbaren Trajektorien zu sehen",
+      "productionEquipment": "Produktionsanlage",
+      "notSelected": "Nicht ausgewählt",
+      "allTargets": "Alle Ziele",
+      "target": "Ziel",
+      "play": "Abspielen",
+      "pause": "Pause",
+      "reset": "Neustart",
+      "model": "Modell (STL)",
+      "modelSaved": "Modell gespeichert",
+      "fitView": "Zentrieren und Zoom anpassen"
     }
   },
   "fluidDoser": {
@@ -184,6 +201,8 @@
       "clickToConfig": "Klicken Sie zum Konfigurieren",
       "configurationTitle": "Konfiguration",
       "basicSettings": "Grundeinstellungen",
+      "endEffectorTitle": "Endeffektor-Typ und Trajektorie",
+      "endEffectorSubtitle": "Wählen Sie den Endeffektor-Typ und die dem Bearbeitungsgruppe zugeordnete Trajektorie aus.",
       "advancedSettings": "Erweiterte Einstellungen",
       "calibration": "Kalibrierung",
       "comingSoon": "Konfigurationsoptionen folgen in Kürze",
