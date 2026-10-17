@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { type EndEffector } from './catalog';
-import { place, placeDir, type Pose, type Placement } from './playback';
+import { atParam, place, placeDir, type Pose, type Placement } from './playback';
 
 interface EeViewerProps {
   endEffector: EndEffector | null;
@@ -221,23 +221,34 @@ export function EeViewer({ endEffector, placements, pose, models }: EeViewerProp
       if (!dim) {
         tg.segments.forEach((seg) => {
           if (seg.type === 'pause' || seg.type === 'settle') return; // no motion
+          if (seg.type === 'handover' || seg.type === 'release') {
+            // Zero-time markers on the path: scan done / next approach may take over.
+            content.add(
+              new THREE.Points(
+                new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...place(pl, seg.points[0]))]),
+                new THREE.PointsMaterial({ color: seg.type === 'handover' ? 0xa855f7 : 0xec4899, size: 0.02 })
+              )
+            );
+            return;
+          }
           if (seg.type === 'arc') {
             seg.points.forEach((p, k) => {
               if (k % 4 === 0 || k === seg.points.length - 1) addArrow(p, seg.toolZ[k]);
             });
             return;
           }
-          // Straight phases (move_to_start, line, retract): an arrow about every 3 cm, ends included.
+          // Other phases (move_to_start, line, retract, rotate): an arrow about every 3 cm of
+          // travel or every 15 deg of turn, ends included.
           const from = new THREE.Vector3(...seg.points[0]);
           const to = new THREE.Vector3(...seg.points[seg.points.length - 1]);
-          const count = Math.max(1, Math.ceil(from.distanceTo(to) / 0.03));
-          const z0 = new THREE.Vector3(...seg.toolZ[0]);
-          const z1 = new THREE.Vector3(...seg.toolZ[seg.toolZ.length - 1]);
+          let turn = 0;
+          for (let k = 1; k < seg.toolZ.length; k++) {
+            turn += new THREE.Vector3(...seg.toolZ[k - 1]).angleTo(new THREE.Vector3(...seg.toolZ[k]));
+          }
+          const count = Math.max(1, Math.ceil(Math.max(from.distanceTo(to) / 0.03, turn / (Math.PI / 12))));
           for (let i = 0; i <= count; i++) {
             const s = i / count;
-            const pos = from.clone().lerp(to, s);
-            const z = z0.clone().lerp(z1, s).normalize();
-            addArrow([pos.x, pos.y, pos.z], [z.x, z.y, z.z]);
+            addArrow(atParam(seg.points, s), atParam(seg.toolZ, s));
           }
         });
       }

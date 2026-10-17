@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { IconX, IconChevronLeft, IconChevronDown, IconChevronUp, IconCube3dSphere, IconPlayerPlay } from '@tabler/icons-react';
+import { IconX, IconChevronLeft, IconChevronDown, IconChevronUp, IconCube3dSphere, IconPlayerPlay, IconAdjustments } from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { EndEffectorIcon } from '../eeTypeTrajectory/EndEffectorIcon';
@@ -435,6 +435,22 @@ export function ConfigureDetailsModal({
               >
                 <IconPlayerPlay size={18} />
                 {t('leakDetection.configure.vision.replay.openReplay')}
+              </Link>
+            </div>
+
+            <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                {t('leakDetection.configure.vision.params.title')}
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                {t('leakDetection.configure.vision.params.description')}
+              </p>
+              <Link
+                href={`/${locale}/process/leak-detection/vision-params`}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-green-500/20 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/30 transition-colors text-sm font-medium"
+              >
+                <IconAdjustments size={18} />
+                {t('leakDetection.configure.vision.params.open')}
               </Link>
             </div>
           </div>

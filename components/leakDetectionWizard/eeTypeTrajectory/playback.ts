@@ -33,7 +33,7 @@ const lerp3 = (a: Vec3, b: Vec3, s: number): Vec3 => [
 ];
 
 // Interpolates uniformly-spaced samples at parameter s in 0..1.
-function atParam(samples: Vec3[], s: number): Vec3 {
+export function atParam(samples: Vec3[], s: number): Vec3 {
   if (samples.length === 1) return samples[0];
   const f = s * (samples.length - 1);
   const i = Math.min(Math.floor(f), samples.length - 2);
