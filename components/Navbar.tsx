@@ -5,7 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { IconMoon, IconSun, IconCheck } from '@tabler/icons-react';
 import { useTheme } from '@/providers/ThemeProvider';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const locales = ['en', 'it', 'es', 'fr', 'de'];
 
@@ -52,6 +53,42 @@ const FlagIcon = ({ code }: { code: string }) => {
   return flags[code] || null;
 };
 
+/**
+ * Renders the popover in document.body so no navbar ancestor (fixed / isolated / filtered
+ * containers) can act as a backdrop root and cancel its backdrop-filter blur.
+ */
+function CrystalPopover({
+  anchorRef,
+  popoverRef,
+  children,
+}: {
+  anchorRef: React.RefObject<HTMLDivElement | null>;
+  popoverRef: React.RefObject<HTMLDivElement | null>;
+  children: React.ReactNode;
+}) {
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const update = () => {
+      const rect = anchorRef.current?.getBoundingClientRect();
+      if (rect) setPos({ top: rect.bottom, right: window.innerWidth - rect.right });
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [anchorRef]);
+
+  if (!pos) return null;
+
+  return createPortal(
+    <div ref={popoverRef} className="crystal-popover" style={{ position: 'fixed', top: pos.top, right: pos.right }}>
+      {/* backblur + glass base */}
+      <div className="crystal-popover-inner">{children}</div>
+    </div>,
+    document.body
+  );
+}
+
 export function Navbar() {
   const t = useTranslations();
   const locale = useLocale();
@@ -64,13 +101,16 @@ export function Navbar() {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const themeDropdownRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (popoverRef.current?.contains(target)) return;
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setIsLanguageDropdownOpen(false);
       }
-      if (themeDropdownRef.current && !themeDropdownRef.current.contains(event.target as Node)) {
+      if (themeDropdownRef.current && !themeDropdownRef.current.contains(target)) {
         setIsThemeDropdownOpen(false);
       }
     }
@@ -140,9 +180,7 @@ export function Navbar() {
                 </button>
 
                 {isLanguageDropdownOpen && (
-                  <div className="crystal-popover">
-                    {/* backblur + glass base */}
-                    <div className="crystal-popover-inner">
+                  <CrystalPopover anchorRef={dropdownRef} popoverRef={popoverRef}>
                       {locales.map((loc) => {
                         const active = loc === locale;
                         return (
@@ -172,8 +210,7 @@ export function Navbar() {
                           </button>
                         );
                       })}
-                    </div>
-                  </div>
+                  </CrystalPopover>
                 )}
               </div>
 
@@ -196,9 +233,7 @@ export function Navbar() {
                 </button>
 
                 {isThemeDropdownOpen && (
-                  <div className="crystal-popover">
-                    {/* backblur + glass base */}
-                    <div className="crystal-popover-inner">
+                  <CrystalPopover anchorRef={themeDropdownRef} popoverRef={popoverRef}>
                       <button
                         type="button"
                         onClick={() => {
@@ -236,8 +271,7 @@ export function Navbar() {
                           {theme === 'dark' && <IconCheck size={16} />}
                         </span>
                       </button>
-                    </div>
-                  </div>
+                  </CrystalPopover>
                 )}
               </div>
 

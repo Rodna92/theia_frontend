@@ -19,13 +19,14 @@ export function StartButton({ onClick, label }: StartButtonProps) {
         grid grid-cols-[24px_1fr] items-center gap-3 py-4 px-5
         
         /* Base Borders & Rings */
-        border border-blue-200/50 
+        border border-blue-700/20 dark:border-blue-200/50
         ring-1 ring-blue-500/10
-        hover:ring-blue-500/30 hover:border-blue-300/80
+        hover:ring-blue-500/30 dark:hover:border-blue-300/80
+        shadow-[0_8px_20px_-8px_rgba(29,78,216,0.5)] dark:shadow-none
         
         /* Text Styling */
         text-left font-bold tracking-wide
-        text-slate-800 dark:text-white
+        text-white
         
         /* Active State */
         active:scale-[0.98]
@@ -37,7 +38,7 @@ export function StartButton({ onClick, label }: StartButtonProps) {
       <div
         className="
           absolute inset-0 -z-20
-          bg-gradient-to-r from-blue-500/10 via-cyan-400/10 to-green-400/10
+          bg-gradient-to-r from-cyan-600 to-blue-700
           dark:from-blue-600/20 dark:via-cyan-500/20 dark:to-green-500/20
           transition-opacity duration-300
         "
@@ -49,7 +50,7 @@ export function StartButton({ onClick, label }: StartButtonProps) {
       <div
         className="
           absolute inset-0 -z-10 opacity-0 transition-opacity duration-500
-          bg-gradient-to-r from-blue-500/20 via-cyan-400/20 to-green-400/20
+          bg-gradient-to-r from-cyan-500 to-blue-600
           dark:from-blue-600/40 dark:via-cyan-500/40 dark:to-green-500/40
           group-hover:opacity-100
         "

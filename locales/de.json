@@ -39,10 +39,18 @@
       "selectTitle": "Wählen Sie aus, was konfiguriert werden soll",
       "selectDescription": "Wählen Sie eine Komponente aus, um ihre Einstellungen zu konfigurieren",
       "clickToConfig": "Klicken Sie zum Konfigurieren",
+      "items": {
+        "vision": "Punktwolken, Prozess-Replay und Parameter des Vision-Knotens.",
+        "robot": "Roboter-Einstellungen, erweiterte Optionen und Kalibrierung.",
+        "endeffector": "End-Effektor-Typ, Trajektorie und Kalibrierung.",
+        "leakEquipment": "Einstellungen und Kalibrierung der Lecksuchausrüstung.",
+        "process": "Suchkonfiguration, Workflow-Automatisierungen und Fehlerbehandlung."
+      },
       "configurationTitle": "Konfiguration",
       "basicSettings": "Grundeinstellungen",
       "endEffectorTitle": "Endeffektor-Typ und Trajektorie",
       "endEffectorSubtitle": "Wählen Sie den Endeffektor-Typ und die dem Bearbeitungsgruppe zugeordnete Trajektorie aus.",
+      "endEffectorOpen": "End-Effektor-Konfiguration öffnen",
       "advancedSettings": "Erweiterte Einstellungen",
       "calibration": "Kalibrierung",
       "comingSoon": "Konfigurationsoptionen folgen in Kürze",
@@ -52,7 +60,8 @@
         "title": "Konfiguration",
         "searchingSetup": {
           "title": "Suchkonfiguration",
-          "description": "Definieren Sie Zielparameter, Bewegungsmuster und Routinelogik."
+          "description": "Definieren Sie Zielparameter, Bewegungsmuster und Routinelogik.",
+          "open": "Suchkonfiguration öffnen"
         },
         "automations": {
           "title": "Workflow-Automatisierung",
@@ -598,6 +607,7 @@
   "common": {
     "open": "Öffnen",
     "comingSoon": "Bald verfügbar",
+    "create": "Erstellen",
     "language": "Sprache",
     "theme": "Design",
     "settings": "Einstellungen"

@@ -8,6 +8,21 @@ const config: Config = {
     './ui/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    // Device tiers: base = small phone (<375), xs = large phone, sm/md = tablet,
+    // lg = desktop S, xl = desktop M, 2xl = desktop L (incl. 1920 FHD), 3xl = desktop XL (QHD+).
+    // 3xl starts at 2000px so 2560 monitors match at both 100% and 125% Windows scaling.
+    // Declared in full (not under extend) so xs is ordered before sm in the CSS.
+    screens: {
+      xs: '375px',
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+      '3xl': '2000px',
+      // Height-aware override for short phones (e.g. iPhone SE 375x667). Declared last so it wins over xs.
+      'phone-short': { raw: '(max-width: 639px) and (max-height: 760px)' },
+    },
     extend: {
       colors: {
         slate: {

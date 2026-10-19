@@ -39,10 +39,18 @@
       "selectTitle": "Seleziona cosa configurare",
       "selectDescription": "Scegli un componente per configurarne le impostazioni",
       "clickToConfig": "Clicca per configurare",
+      "items": {
+        "vision": "Nuvole di punti, replay del processo e parametri del nodo di visione.",
+        "robot": "Impostazioni del robot, opzioni avanzate e calibrazione.",
+        "endeffector": "Tipo di end-effector, traiettoria e calibrazione.",
+        "leakEquipment": "Impostazioni e calibrazione dell'apparecchiatura di rilevamento perdite.",
+        "process": "Configurazione della ricerca, automazioni del flusso di lavoro e gestione degli errori."
+      },
       "configurationTitle": "Configurazione",
       "basicSettings": "Impostazioni di base",
       "endEffectorTitle": "Tipo di end-effector e traiettoria",
       "endEffectorSubtitle": "Seleziona il tipo di end-effector e la traiettoria associata al gruppo di elaborazione.",
+      "endEffectorOpen": "Apri configurazione end-effector",
       "advancedSettings": "Impostazioni avanzate",
       "calibration": "Calibrazione",
       "comingSoon": "Opzioni di configurazione in arrivo",
@@ -52,7 +60,8 @@
         "title": "Configurazione",
         "searchingSetup": {
           "title": "Configurazione della ricerca",
-          "description": "Definisci i parametri del target, i modelli di movimento e la logica della routine."
+          "description": "Definisci i parametri del target, i modelli di movimento e la logica della routine.",
+          "open": "Apri configurazione della ricerca"
         },
         "automations": {
           "title": "Automazione del flusso di lavoro",
@@ -604,6 +613,7 @@
   "common": {
     "open": "Apri",
     "comingSoon": "Presto disponibile",
+    "create": "Crea",
     "language": "Lingua",
     "theme": "Tema",
     "settings": "Impostazioni"

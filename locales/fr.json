@@ -39,10 +39,18 @@
       "selectTitle": "Sélectionnez ce qu'il faut configurer",
       "selectDescription": "Choisissez un composant pour configurer ses paramètres",
       "clickToConfig": "Cliquez pour configurer",
+      "items": {
+        "vision": "Nuages de points, replay du processus et paramètres du nœud de vision.",
+        "robot": "Réglages du robot, options avancées et calibration.",
+        "endeffector": "Type d'end-effector, trajectoire et calibration.",
+        "leakEquipment": "Réglages et calibration de l'équipement de détection de fuites.",
+        "process": "Configuration de la recherche, automatisations du flux de travail et gestion des erreurs."
+      },
       "configurationTitle": "Configuration",
       "basicSettings": "Paramètres de base",
       "endEffectorTitle": "Type d'effecteur final et trajectoire",
       "endEffectorSubtitle": "Sélectionnez le type d'effecteur final et la trajectoire associée au groupe de traitement.",
+      "endEffectorOpen": "Ouvrir la configuration de l'end-effector",
       "advancedSettings": "Paramètres avancés",
       "calibration": "Étalonnage",
       "comingSoon": "Options de configuration à venir",
@@ -52,7 +60,8 @@
         "title": "Configuration",
         "searchingSetup": {
           "title": "Configuration de la recherche",
-          "description": "Définissez les paramètres de la cible, les modèles de mouvement et la logique de routine."
+          "description": "Définissez les paramètres de la cible, les modèles de mouvement et la logique de routine.",
+          "open": "Ouvrir la configuration de la recherche"
         },
         "automations": {
           "title": "Automatisation du flux de travail",
@@ -598,6 +607,7 @@
   "common": {
     "open": "Ouvrir",
     "comingSoon": "Bientôt",
+    "create": "Créer",
     "language": "Langue",
     "theme": "Thème",
     "settings": "Paramètres"

@@ -100,10 +100,10 @@ export function ActionsPanel({
           label={t('fluidDoser.actions.reset') || 'Reset Process'}
           icon={<IconRotateClockwise size={20} />}
           light={{
-            text: '#0369a1',
-            border: 'rgba(34, 211, 238, 0.4)',
-            background: '#f0f9ff',
-            hoverBackground: '#e0f2fe',
+            text: '#0e7490',
+            border: '#cbd5e1',
+            background: '#ffffff',
+            hoverBackground: '#f1f5f9',
           }}
           dark={{
             text: '#22d3ee',
@@ -130,10 +130,10 @@ export function ActionsPanel({
           label={t('fluidDoser.actions.test')}
           icon={<IconPlayerPlay size={20} />}
           light={{
-            text: '#0369a1',
-            border: 'rgba(34, 211, 238, 0.4)',
-            background: '#f0f9ff',
-            hoverBackground: '#e0f2fe',
+            text: '#0e7490',
+            border: '#cbd5e1',
+            background: '#ffffff',
+            hoverBackground: '#f1f5f9',
           }}
           dark={{
             text: '#22d3ee',
@@ -148,10 +148,10 @@ export function ActionsPanel({
           label={t('fluidDoser.actions.configure')}
           icon={<IconSettings size={20} />}
           light={{
-            text: '#3f3f46',
-            border: '#e4e4e7',
+            text: '#334155',
+            border: '#e2e8f0',
             background: '#ffffff',
-            hoverBackground: '#f4f4f5',
+            hoverBackground: '#f8fafc',
           }}
           dark={{
             text: '#d4d4d8',

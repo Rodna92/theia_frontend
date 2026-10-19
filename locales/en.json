@@ -39,10 +39,18 @@
       "selectTitle": "Select what to configure",
       "selectDescription": "Choose a component to configure its settings",
       "clickToConfig": "Click to configure",
+      "items": {
+        "vision": "Point clouds, process replay and vision node parameters.",
+        "robot": "Robot settings, advanced options and calibration.",
+        "endeffector": "End-effector type, trajectory and calibration.",
+        "leakEquipment": "Leak detection equipment settings and calibration.",
+        "process": "Search setup, workflow automations and error handling."
+      },
       "configurationTitle": "Configuration",
       "basicSettings": "Basic Settings",
       "endEffectorTitle": "End-effector type and trajectory",
       "endEffectorSubtitle": "Select the end-effector type and the trajectory associated with the processing group.",
+      "endEffectorOpen": "Open end-effector configuration",
       "advancedSettings": "Advanced Settings",
       "calibration": "Calibration",
       "comingSoon": "Configuration options coming soon",
@@ -52,7 +60,8 @@
         "title": "Process Configuration",
         "searchingSetup": {
           "title": "Search Configuration",
-          "description": "Define target parameters, movement patterns, and routine logic."
+          "description": "Define target parameters, movement patterns, and routine logic.",
+          "open": "Open search configuration"
         },
         "automations": {
           "title": "Workflow Automation",
@@ -604,6 +613,7 @@
   "common": {
     "open": "Open",
     "comingSoon": "Coming soon",
+    "create": "Create",
     "language": "Language",
     "theme": "Theme",
     "settings": "Settings"

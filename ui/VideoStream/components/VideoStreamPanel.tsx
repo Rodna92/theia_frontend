@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { SystemChecksRow } from './SystemChecksRow';
 import { BackendStateDisplay } from './BackendStateDisplay';
@@ -43,6 +43,7 @@ export function VideoStreamPanel({
   const t = useTranslations();
   const { systemState: hookSystemState, lastRawMessage: systemRaw, runView, processState } = useSystemStatus();
   const systemState = propsSystemState || hookSystemState;
+  const [showDebug, setShowDebug] = useState(false);
 
   const handleStopInference = useCallback(async () => {
     if (!runId) return;
@@ -314,9 +315,18 @@ export function VideoStreamPanel({
         />
 
         {/* --- Dev Debug Card --- */}
-        <div className="mt-4 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] overflow-auto max-h-64">
-          <h4 className="font-bold mb-2 uppercase text-slate-500">Dev Debug: Run & Checks Status</h4>
-          <div className="space-y-2 text-slate-500">
+        <div className={`mt-4 font-mono text-[10px] ${showDebug ? 'p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-auto max-h-64' : ''}`}>
+          <button
+            type="button"
+            onClick={() => setShowDebug((v) => !v)}
+            aria-expanded={showDebug}
+            className={`flex items-center font-bold uppercase text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 ${showDebug ? 'w-full justify-between' : ''}`}
+          >
+            <span>{showDebug ? 'Dev Debug: Run & Checks Status' : 'Dev Debug'}</span>
+            {showDebug && <span aria-hidden>▲</span>}
+          </button>
+          {showDebug && (
+          <div className="mt-2 space-y-2 text-slate-500">
             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4'>
               <div className="col-span-2">
                 <span className="text-blue-500">Run ID:</span> {runId || 'null'}
@@ -354,6 +364,7 @@ export function VideoStreamPanel({
               </pre>
             </div>
           </div>
+          )}
         </div>
         {/* --- End Dev Debug Card --- */}
       </div>

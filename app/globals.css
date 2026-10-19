@@ -44,7 +44,21 @@ html.dark {
   /* Main crystal navbar shell */
   .crystal-nav {
     position: relative;
+    isolation: isolate;
     border-bottom: 1px solid rgb(var(--cr-border) / 0.10);
+    box-shadow:
+      0 10px 40px rgb(var(--cr-shadow) / 0.10),
+      inset 0 1px 0 rgba(255,255,255,0.22);
+  }
+
+  /* Glass layer lives on a pseudo-element: a backdrop-filter on .crystal-nav itself
+     would make it a backdrop root and prevent the popovers from blurring the page. */
+  .crystal-nav::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background:
       radial-gradient(900px 120px at 20% 0%,
         rgb(var(--cr-cyan) / 0.20),
@@ -59,9 +73,6 @@ html.dark {
       );
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    box-shadow:
-      0 10px 40px rgb(var(--cr-shadow) / 0.10),
-      inset 0 1px 0 rgba(255,255,255,0.22);
   }
 
   /* Reflections / “crystal streaks” */
@@ -186,6 +197,7 @@ html.dark {
     margin-top: 0.55rem;
     width: 11rem;
     transform-origin: top right;
+    /* Animate transform only: an opacity < 1 on an ancestor also blocks backdrop-filter */
     animation: crystalIn 160ms ease-out;
     z-index: 60;
   }
@@ -234,15 +246,89 @@ html.dark {
     );
   }
 
+  /* Light theme: the crystal chrome becomes a crisp, opaque instrument bar —
+     no colour washes or streaks, just a hairline and a soft shadow. */
+  html:not(.dark) .crystal-nav {
+    border-bottom-color: rgb(15 23 42 / 0.08);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.10);
+  }
+
+  html:not(.dark) .crystal-nav::after {
+    background: rgb(255 255 255 / 0.86);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  html:not(.dark) .crystal-nav::before {
+    display: none;
+  }
+
+  html:not(.dark) .crystal-hairline {
+    background: linear-gradient(to right, transparent, rgb(8 145 178 / 0.35), rgb(29 78 216 / 0.25), transparent);
+  }
+
+  html:not(.dark) .crystal-brand {
+    background-image: linear-gradient(90deg, #0e7490, #1d4ed8);
+    text-shadow: none;
+  }
+
+  html:not(.dark) .crystal-brand-glow {
+    display: none;
+  }
+
+  html:not(.dark) .crystal-btn:hover {
+    background: rgb(15 23 42 / 0.04);
+    border-color: rgb(15 23 42 / 0.10);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  html:not(.dark) .crystal-popover-inner {
+    background-color: rgb(255 255 255 / 0.92) !important;
+    border-color: rgb(15 23 42 / 0.10);
+    box-shadow: 0 12px 32px -8px rgb(15 23 42 / 0.18), 0 2px 6px rgb(15 23 42 / 0.06);
+  }
+
+  html:not(.dark) .crystal-item:hover {
+    background: rgb(15 23 42 / 0.04);
+  }
+
+  html:not(.dark) .crystal-item-active {
+    background: rgb(8 145 178 / 0.08);
+    color: #0e7490;
+  }
+
   @keyframes crystalIn {
     from {
-      opacity: 0;
       transform: translateY(-6px) scale(0.98);
     }
     to {
-      opacity: 1;
       transform: translateY(0px) scale(1);
     }
+  }
+
+  /* App canvas: a faint engineering grid fading out below the fold, over a neutral
+     instrument-grey (light) or the slate gradient (dark). */
+  .app-canvas {
+    background-color: #f4f6f9;
+    background-image:
+      linear-gradient(to bottom, rgb(244 246 249 / 0) 0%, #f4f6f9 85%),
+      radial-gradient(1200px 420px at 50% -10%, rgb(var(--cr-cyan) / 0.07), transparent 70%),
+      linear-gradient(to right, rgb(15 23 42 / 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(15 23 42 / 0.045) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+  }
+
+  html.dark .app-canvas {
+    background-color: #030712;
+    background-image:
+      linear-gradient(to bottom, rgb(3 7 18 / 0) 0%, rgb(3 7 18 / 0.9) 85%),
+      radial-gradient(1200px 420px at 50% -10%, rgb(var(--cr-cyan) / 0.08), transparent 70%),
+      linear-gradient(to right, rgb(148 163 184 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(148 163 184 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom right, #030712, #0f172a, #030712);
+    background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px, 100% 100%;
   }
 
   /* Theme-specific utility helpers */
