@@ -176,6 +176,7 @@ export function VisionParamsPage() {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('');
   const [view, setView] = useState<'table' | 'raw'>('table');
+  const [infoView, setInfoView] = useState<'full' | 'focused'>('full');
   const [selected, setSelected] = useState<string | null>(null);
   const [openDocs, setOpenDocs] = useState<Set<string>>(new Set());
   // Folded subgroup headings, keyed `<group id><subgroup path>`; ignored while filtering.
@@ -291,6 +292,8 @@ export function VisionParamsPage() {
     });
   }, [data, query]);
 
+  const visibleGroups =
+    infoView === 'focused' ? groups.filter((g) => g.section === 'groupGeometry' || g.section === 'sceneCorrection') : groups;
   const total = data?.nodes?.reduce((s, n) => s + n.params.length, 0) ?? 0;
 
   const shownPath = data?.path ?? currentPath;
@@ -300,7 +303,7 @@ export function VisionParamsPage() {
 
   // Only the selected section is shown. Falls back to the first section when nothing is
   // selected yet or the filter hides the selected one; the choice is kept for when it returns.
-  const active = groups.find((g) => g.id === selected) ?? groups[0];
+  const active = visibleGroups.find((g) => g.id === selected) ?? visibleGroups[0];
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -393,20 +396,42 @@ export function VisionParamsPage() {
         {data && !data.error && (
           <>
             <div className="flex flex-col sm:flex-row gap-2 sm:items-center justify-between mb-3">
-              <div className="flex p-1 bg-slate-200/50 dark:bg-slate-900/50 rounded-lg w-fit">
-                {(['table', 'raw'] as const).map((v) => (
-                  <button
-                    key={v}
-                    onClick={() => setView(v)}
-                    className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                      view === v
-                        ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm'
-                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                    }`}
-                  >
-                    {t(v === 'table' ? 'viewTable' : 'viewRaw')}
-                  </button>
-                ))}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{t('infoView')}</span>
+                  <div role="group" aria-label={t('infoView')} className="flex p-1 bg-slate-200/50 dark:bg-slate-900/50 rounded-lg w-fit">
+                    {(['full', 'focused'] as const).map((v) => (
+                      <button
+                        key={v}
+                        type="button"
+                        aria-pressed={infoView === v}
+                        onClick={() => setInfoView(v)}
+                        className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                          infoView === v
+                            ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                        }`}
+                      >
+                        {t(v === 'full' ? 'viewFullInfo' : 'viewFocusedInfo')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex p-1 bg-slate-200/50 dark:bg-slate-900/50 rounded-lg w-fit">
+                  {(['table', 'raw'] as const).map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => setView(v)}
+                      className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                        view === v
+                          ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm'
+                          : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                      }`}
+                    >
+                      {t(v === 'table' ? 'viewTable' : 'viewRaw')}
+                    </button>
+                  ))}
+                </div>
               </div>
               {view === 'table' && (
                 <div className="relative">
@@ -425,7 +450,7 @@ export function VisionParamsPage() {
               <pre className="max-h-[calc(100vh-20rem)] min-h-[16rem] overflow-auto p-3 rounded-lg bg-slate-100/70 dark:bg-slate-950/60 border border-slate-200/50 dark:border-white/5 text-[11px] font-mono text-slate-700 dark:text-slate-300">
                 {data.raw}
               </pre>
-            ) : groups.length === 0 ? (
+            ) : visibleGroups.length === 0 ? (
               <div className="px-3 py-6 text-center text-xs text-slate-400">{t('noMatches')}</div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-[14rem_1fr] gap-4 items-start">
@@ -436,10 +461,10 @@ export function VisionParamsPage() {
                   <div className="hidden lg:block px-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                     {t('sectionsTitle')}
                   </div>
-                  {groups.map((g, i) => {
+                  {visibleGroups.map((g, i) => {
                     const isActive = g.id === active.id;
                     const sectionEdits = g.params.filter((p) => editKey(g.nodeName, p.key) in edits).length;
-                    const prev = groups[i - 1];
+                    const prev = visibleGroups[i - 1];
                     const startsScenery = !!g.scenery && (prev?.scenery !== g.scenery || prev?.nodeName !== g.nodeName);
                     return (
                       <Fragment key={g.id}>
