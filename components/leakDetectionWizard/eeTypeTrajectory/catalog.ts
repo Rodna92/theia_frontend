@@ -15,6 +15,15 @@ export interface RoutineSegment {
   duration: number;
   points: Vec3[];
   toolZ: Vec3[];
+  // Composed (`segments:`) targets: the part this step belongs to; target = the reused target.
+  part?: { n: number; of: number; target: number | null };
+}
+
+// One part of a composed routine: the target it sweeps and its fixed sub-frame (target-local).
+export interface RoutinePart {
+  target: number;
+  origin: Vec3;
+  axes: [Vec3, Vec3, Vec3]; // sub-frame x, y, z axes
 }
 
 // One target of a routine file (/api/ee-routines); points are in the target-local frame.
@@ -26,6 +35,10 @@ export interface RoutineTarget {
   // Tool Z axis (target-local) at the start of the path; null = target's own orientation.
   startToolZ: Vec3 | null;
   segments: RoutineSegment[];
+  // target_selection of the routine file: disabled targets are not visited by the robot.
+  enabled: boolean;
+  // Set when the routine is composed of other routines (`segments:`), in run order.
+  parts: RoutinePart[] | null;
 }
 
 export const ALL_TARGETS = 'all';

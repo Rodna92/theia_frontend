@@ -18,7 +18,26 @@ interface Segment {
   // `points` and `toolZ` may have different lengths.
   points: Vec3[];
   toolZ: Vec3[];
+  // Set on `segments:` targets: which part of the composed routine this step belongs to.
+  part?: SegmentPart;
 }
+
+interface SegmentPart {
+  n: number; // 1-based
+  of: number;
+  target: number | null; // the reused target (`target: N`), null for `use` / `steps` parts
+}
+
+// A sub-frame of the target (`frame` step / segment frame_* keys), target-local:
+// T_target_sub = Translate(t) * R, with R = Rz(yaw) * Ry(pitch) * Rx(roll).
+interface SubFrame {
+  t: Vec3;
+  R: [Vec3, Vec3, Vec3]; // columns: the sub-frame's x, y, z axes in the target frame
+}
+
+type RoutineBody = { use?: string; with?: Record<string, unknown>; steps?: Step[] };
+type SegmentDef = RoutineBody & { target?: number; frame_offset_m?: Vec3; frame_rpy_deg?: Vec3 };
+type TargetDef = RoutineBody & { segments?: SegmentDef[] };
 
 interface ApproachView {
   offset_m?: Vec3;
@@ -111,6 +130,27 @@ function slerp(a: Vec3, b: Vec3, s: number): Vec3 {
   return normalize([k0 * a[0] + k1 * b[0], k0 * a[1] + k1 * b[1], k0 * a[2] + k1 * b[2]]);
 }
 
+const ID_FRAME: SubFrame = { t: [0, 0, 0], R: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] };
+
+function subFrame(offset: unknown, rpyDeg: unknown): SubFrame {
+  const o = Array.isArray(offset) ? offset.map((v) => Number(v) || 0) : [0, 0, 0];
+  const [r, p, y] = (Array.isArray(rpyDeg) ? rpyDeg : [0, 0, 0]).map((d) => rad(Number(d) || 0));
+  // Rz(yaw) * Ry(pitch) * Rx(roll) applied to each basis vector.
+  const col = (v: Vec3): Vec3 => rotateAbout(rotateAbout(rotateAbout(v, AXES.x, r), AXES.y, p), AXES.z, y);
+  return { t: [o[0] ?? 0, o[1] ?? 0, o[2] ?? 0], R: [col(AXES.x), col(AXES.y), col(AXES.z)] };
+}
+
+// Sub-frame direction / point -> target frame.
+const fDir = (f: SubFrame, v: Vec3): Vec3 => [
+  f.R[0][0] * v[0] + f.R[1][0] * v[1] + f.R[2][0] * v[2],
+  f.R[0][1] * v[0] + f.R[1][1] * v[1] + f.R[2][1] * v[2],
+  f.R[0][2] * v[0] + f.R[1][2] * v[1] + f.R[2][2] * v[2],
+];
+const fPoint = (f: SubFrame, p: Vec3): Vec3 => {
+  const d = fDir(f, p);
+  return [d[0] + f.t[0], d[1] + f.t[1], d[2] + f.t[2]];
+};
+
 // Tool Z (tip direction) after q_target * Rz(yaw) * Ry(pitch) * Rx(roll), in target-local axes.
 function approachToolZ(rpy: Vec3): Vec3 {
   const [r, p, y] = rpy.map(rad);
@@ -162,26 +202,46 @@ function sampleArc(step: Step): { points: Vec3[]; toolZ: Vec3[] } {
 }
 
 // Builds the path polyline and the timed segments of a routine, starting from the approach pose.
+// Everything is returned in the target frame: each step's geometry is computed in the sub-frame in
+// force (set by `frame` steps; the target's own frame until the first one) and mapped back.
 function sample(
   steps: Step[],
   defaults: Record<string, Record<string, unknown>>,
   start: { p: Vec3; z: Vec3 }
 ): { points: Vec3[]; startToolZ: Vec3 | null; segments: Segment[] } {
   const merged = steps.map((raw) => ({ ...(defaults[raw.type] ?? {}), ...raw }) as Step);
+  const frames: SubFrame[] = [];
+  let current = ID_FRAME;
+  merged.forEach((step) => {
+    if (step.type === 'frame') current = subFrame(step.offset_m, step.rpy_deg);
+    frames.push(current);
+  });
+  // Arc step j sampled in its own sub-frame, in target-frame coordinates.
+  const arcAt = (j: number) => {
+    const arc = sampleArc(merged[j]);
+    return {
+      points: arc.points.map((p) => fPoint(frames[j], p)),
+      toolZ: arc.toolZ.map((z) => fDir(frames[j], z)),
+    };
+  };
+
   const pts: Vec3[] = [start.p];
   const segments: Segment[] = [];
   let curP: Vec3 = start.p;
   let curZ: Vec3 = start.z;
 
   merged.forEach((step, idx) => {
+    const f = frames[idx];
+    const part = step.__part as SegmentPart | undefined;
     const num = (key: string, fallback: number) => {
       const x = Number(step[key]);
       return Number.isFinite(x) ? x : fallback;
     };
+    const push = (seg: Segment) => segments.push(part ? { ...seg, part } : seg);
     if (step.type === 'arc') {
-      const arc = sampleArc(step);
+      const arc = arcAt(idx);
       pts.push(...arc.points);
-      segments.push({ type: 'arc', duration: num('duration_s', 4), ...arc });
+      push({ type: 'arc', duration: num('duration_s', 4), ...arc });
       curP = arc.points[arc.points.length - 1];
       curZ = arc.toolZ[arc.toolZ.length - 1];
     } else if (step.type === 'line' || step.type === 'retract') {
@@ -193,20 +253,21 @@ function sample(
         if (dist > 0) to = [off[0], off[1], off[2] - dist];
       }
       if (!to) return;
+      to = fPoint(f, to);
       pts.push(to);
       const keep = step.type === 'line' && step.orient === 'keep';
-      const base1 = keep ? curZ : IDENTITY_Z;
+      const base1 = keep ? curZ : fDir(f, IDENTITY_Z);
       const rotDeg = step.type === 'line' ? num('rotate_deg', 0) : 0;
-      const axis = parseAxis(step.rotate_axis);
-      // `orient` blends the tool to the target orientation (or keeps it); rotate_axis/rotate_deg
-      // turns it about a target-local axis on top, progressively over the move.
+      const axis = fDir(f, parseAxis(step.rotate_axis));
+      // `orient` blends the tool to the (sub-)frame orientation (or keeps it); rotate_axis/rotate_deg
+      // turns it about a frame-local axis on top, progressively over the move.
       const toolZ: Vec3[] = [];
       const n = rotDeg !== 0 ? 16 : 1;
       for (let i = 0; i <= n; i++) {
         const s = i / n;
         toolZ.push(rotateAbout(slerp(curZ, base1, s), axis, rad(rotDeg) * s));
       }
-      segments.push({
+      push({
         type: step.type,
         duration: num('duration_s', 1.5),
         points: [curP, to],
@@ -215,13 +276,14 @@ function sample(
       curP = to;
       curZ = toolZ[toolZ.length - 1];
     } else if (step.type === 'move_to_start') {
-      // Blend from the current pose (the approach pose, or the previous step's end) to the arc start.
-      const next = merged.slice(idx + 1).find((s) => s.type === 'arc');
-      if (!next) return;
-      const arc = sampleArc(next);
+      // Blend from the current pose (the approach pose, or the previous step's end) to the start of
+      // the next arc, which may sit in another sub-frame.
+      const j = merged.findIndex((s, k) => k > idx && s.type === 'arc');
+      if (j < 0) return;
+      const arc = arcAt(j);
       const toolZ: Vec3[] = [];
       for (let i = 0; i <= 8; i++) toolZ.push(slerp(curZ, arc.toolZ[0], i / 8));
-      segments.push({
+      push({
         type: 'move_to_start',
         duration: num('blend_s', 1.5),
         points: [curP, arc.points[0]],
@@ -230,20 +292,21 @@ function sample(
       curP = arc.points[0];
       curZ = arc.toolZ[0];
     } else if (step.type === 'rotate') {
-      // Turn the tool in place about a target-local axis (right-hand rule).
-      const axis = parseAxis(step.axis);
+      // Turn the tool in place about a frame-local axis (right-hand rule).
+      const axis = fDir(f, parseAxis(step.axis));
       const angle = rad(num('angle_deg', 0));
       const toolZ: Vec3[] = [];
       for (let i = 0; i <= 16; i++) toolZ.push(rotateAbout(curZ, axis, (angle * i) / 16));
-      segments.push({ type: 'rotate', duration: num('duration_s', 1.5), points: [curP, curP], toolZ });
+      push({ type: 'rotate', duration: num('duration_s', 1.5), points: [curP, curP], toolZ });
       curZ = toolZ[toolZ.length - 1];
     } else if (step.type === 'pause' || step.type === 'settle') {
       const duration = step.type === 'pause' ? num('duration_s', 0) : num('timeout_s', 2);
-      segments.push({ type: step.type, duration, points: [curP, curP], toolZ: [curZ, curZ] });
+      push({ type: step.type, duration, points: [curP, curP], toolZ: [curZ, curZ] });
     } else if (step.type === 'handover' || step.type === 'release') {
       // Zero-time markers: the scan is done / the next target's approach may take over.
-      segments.push({ type: step.type, duration: 0, points: [curP, curP], toolZ: [curZ, curZ] });
+      push({ type: step.type, duration: 0, points: [curP, curP], toolZ: [curZ, curZ] });
     }
+    // `frame` steps take no time; they only set the sub-frame of the following steps (above).
   });
   return { points: pts, startToolZ: start.z, segments };
 }
@@ -263,14 +326,38 @@ export async function GET(req: NextRequest) {
     const doc = parse(await fs.readFile(file, 'utf8')) as {
       defaults?: Record<string, Record<string, unknown>>;
       templates?: Record<string, Step[]>;
-      targets?: Record<string, { use?: string; with?: Record<string, unknown>; steps?: Step[] }>;
+      targets?: Record<string, TargetDef>;
       approach_views?: Record<string, ApproachView>;
+      target_selection?: Record<string, boolean>;
     };
     const defaults = doc.defaults ?? {};
-    const targets = Object.entries(doc.targets ?? {}).map(([index, def]) => {
+    const defs = doc.targets ?? {};
+    // { use (+ with) } or { steps } -> its step list, placeholders filled in.
+    const body = (def: RoutineBody): Step[] => {
+      const steps = (def.steps ?? (def.use ? doc.templates?.[def.use] : []) ?? []) as Step[];
+      return substitute(steps, def.with ?? {}) as Step[];
+    };
+    // `segments:` targets run several routines back to back, each in a fixed sub-frame of the
+    // target (a frame step in front of every part, as ee_app's loader does). `target: N` reuses
+    // target N's routine. handover / release markers are kept only from the last part.
+    const resolve = (def: TargetDef): Step[] => {
+      if (!Array.isArray(def.segments)) return body(def);
+      const parts = def.segments;
+      return parts.flatMap((seg, n) => {
+        const ref = seg.target !== undefined ? defs[String(seg.target)] : undefined;
+        const steps = seg.target === undefined ? body(seg) : ref && !ref.segments ? body(ref) : [];
+        const part: SegmentPart = { n: n + 1, of: parts.length, target: seg.target ?? null };
+        const last = n === parts.length - 1;
+        return [
+          { type: 'frame', offset_m: seg.frame_offset_m, rpy_deg: seg.frame_rpy_deg },
+          ...steps.filter((s) => last || (s.type !== 'handover' && s.type !== 'release')),
+        ].map((s) => ({ ...s, __part: part }) as Step);
+      });
+    };
+    const selection = doc.target_selection;
+    const targets = Object.entries(defs).map(([index, def]) => {
       const template = def.use ?? null;
-      const steps = (def.steps ?? (template ? doc.templates?.[template] : []) ?? []) as Step[];
-      const resolved = substitute(steps, def.with ?? {}) as Step[];
+      const resolved = resolve(def);
       const view = doc.approach_views?.[index];
       const startP = view?.offset_fine_m ?? view?.offset_m ?? FALLBACK_START;
       const startRpy = view?.rpy_fine_deg ?? view?.rpy_deg ?? [0, 0, 0];
@@ -285,6 +372,16 @@ export async function GET(req: NextRequest) {
         points,
         startToolZ,
         segments,
+        // No target_selection = every target enabled (as in ee_app).
+        enabled: selection ? selection[index] === true : true,
+        // Composed targets: per part, the target it sweeps (this target for use / steps parts) and
+        // its sub-frame (origin + x, y, z axes), target-local.
+        parts: Array.isArray(def.segments)
+          ? def.segments.map((seg) => {
+              const f = subFrame(seg.frame_offset_m, seg.frame_rpy_deg);
+              return { target: seg.target ?? Number(index), origin: f.t, axes: f.R };
+            })
+          : null,
       };
     });
     return NextResponse.json({ file, targets });

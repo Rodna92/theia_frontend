@@ -125,7 +125,9 @@ export function layoutPlacements(
     return targets.map((target) => {
       const pose = poseInAnchor(target.index, groups);
       const gi = order.indexOf(groupOf(target.index, groups));
-      return { target, ox: (gi - (order.length - 1) / 2) * TARGET_SPACING, ...pose, primary: true };
+      // Only enabled targets are played (disabled ones are usually swept by a composed routine).
+      const primary = target.enabled !== false;
+      return { target, ox: (gi - (order.length - 1) / 2) * TARGET_SPACING, ...pose, primary };
     });
   }
   const sel = targets.find((tg) => String(tg.index) === selected);
@@ -176,10 +178,15 @@ export function buildPlayback(placements: Placement[]): Playback {
     const u = entry.seg.duration > 0 ? (clamped - entry.start) / entry.seg.duration : 1;
     const s = smootherstep(u);
     const tip = unit(placeDir(entry.placement, unit(atParam(entry.seg.toolZ, s))));
+    const part = entry.seg.part;
+    // Composed routines: "5 · 1/3 → 4 · arc" (part 1 of 3, sweeping target 4).
+    const partLabel = part
+      ? ` · ${part.n}/${part.of}${part.target !== null ? ` → ${part.target}` : ''}`
+      : '';
     return {
       position: place(entry.placement, atParam(entry.seg.points, s)),
       bodyDir: [-tip[0], -tip[1], -tip[2]],
-      label: `${entry.placement.target.index} · ${entry.seg.type}`,
+      label: `${entry.placement.target.index}${partLabel} · ${entry.seg.type}`,
     };
   };
   return { total, poseAt };

@@ -329,7 +329,8 @@
       "reset": "Restart",
       "model": "Model (STL)",
       "modelSaved": "Model saved",
-      "fitView": "Center and zoom to fit"
+      "fitView": "Center and zoom to fit",
+      "disabled": "Disabled"
     }
   },
   "fluidDoser": {

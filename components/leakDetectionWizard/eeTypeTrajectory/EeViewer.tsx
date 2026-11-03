@@ -219,6 +219,15 @@ export function EeViewer({ endEffector, placements, pose, models }: EeViewerProp
         );
       };
       if (!dim) {
+        // Composed routines: a small x/y/z triad (red/green/blue) at each part's sub-frame origin,
+        // i.e. where the reused routine's target is assumed to be.
+        tg.parts?.forEach((part) => {
+          const o = new THREE.Vector3(...place(pl, part.origin));
+          [0xef4444, 0x22c55e, 0x3b82f6].forEach((color, k) => {
+            const d = new THREE.Vector3(...placeDir(pl, part.axes[k])).normalize();
+            content.add(new THREE.ArrowHelper(d, o, 0.012, color, 0.004, 0.002));
+          });
+        });
         tg.segments.forEach((seg) => {
           if (seg.type === 'pause' || seg.type === 'settle') return; // no motion
           if (seg.type === 'handover' || seg.type === 'release') {

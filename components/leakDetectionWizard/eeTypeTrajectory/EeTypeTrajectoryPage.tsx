@@ -268,8 +268,18 @@ export function EeTypeTrajectoryPage() {
                       className="px-3 py-2 text-left hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-l-lg"
                       onClick={() => setTrajId(String(tg.index))}
                     >
-                      <span className="block">
+                      <span className={`block ${tg.enabled === false ? 'opacity-60' : ''}`}>
                         {t('leakDetection.eeTrajectory.target')} {tg.index}
+                        {tg.parts && (
+                          <span className="ml-1 text-xs opacity-80">
+                            ({tg.parts.map((p) => p.target).join(' + ')})
+                          </span>
+                        )}
+                        {tg.enabled === false && (
+                          <span className="ml-1 text-xs italic">
+                            · {t('leakDetection.eeTrajectory.disabled')}
+                          </span>
+                        )}
                       </span>
                       <span className="block text-xs opacity-70">{modelName(tg.index) ?? '—'}</span>
                     </button>
