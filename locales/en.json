@@ -65,11 +65,98 @@
         },
         "automations": {
           "title": "Workflow Automation",
-          "description": "Set triggers for process starts, completions, and status indicators."
+          "description": "Set triggers for process starts, completions, and status indicators.",
+          "open": "Open behavior tree parameters",
+          "page": {
+            "title": "Workflow Automation",
+            "description": "Behavior tree of the ALDM control node: trees, node parameters and port definitions.",
+            "folder": "Behavior tree folder",
+            "reload": "Reload",
+            "fileNotes": "File notes",
+            "treeNotes": "Notes",
+            "mainTree": "Main",
+            "nodeCount": "{count, plural, one {# node} other {# nodes}}",
+            "filter": "Filter {count} parameters…",
+            "noMatches": "No matching parameters",
+            "tabs": {
+              "label": "Section",
+              "trees": "Behavior trees",
+              "models": "Node models",
+              "blackboard": "Blackboard",
+              "raw": "Raw XML"
+            },
+            "legend": {
+              "title": "Legend",
+              "model": "custom node (in model)",
+              "builtin": "built-in node",
+              "blackboard": "blackboard variable",
+              "script": "script condition"
+            },
+            "notInModel": "Not in model",
+            "notInModelHint": "This node is not declared in tree_nodes_model.xml",
+            "portNotInModel": "This port is not declared in tree_nodes_model.xml",
+            "usedIn": "Used in",
+            "unused": "Not used in aldm_target_loop.xml",
+            "noPorts": "No ports",
+            "colPort": "Port",
+            "colDirection": "Direction",
+            "colType": "Type",
+            "colDefault": "Default",
+            "colDescription": "Description",
+            "direction": {
+              "input": "In",
+              "output": "Out",
+              "inout": "In/Out"
+            },
+            "blackboardHint": "Variables that nodes share through the blackboard: port values in braces and script expressions. R = read, W = written.",
+            "colKey": "Variable",
+            "colUsedBy": "Used by",
+            "access": {
+              "read": "R",
+              "write": "W"
+            }
+          }
         },
         "errorHandling": {
           "title": "Error Management",
           "description": "Define system behavior and recovery protocols when faults occur."
+        }
+      },
+      "robot": {
+        "params": {
+          "title": "Robot Parameters",
+          "description": "Load the phase parameter files of the robot control node and review the values it starts with.",
+          "menuDescription": "Review the control node phase parameters (approach, insertion, extraction, PTP…).",
+          "open": "Open robot parameters",
+          "folder": "Config folder",
+          "load": "Load",
+          "upload": "Upload",
+          "fileCount": "{count, plural, one {# file} other {# files}}",
+          "view": "View",
+          "viewParams": "Parameters",
+          "viewRaw": "Raw YAML",
+          "filter": "Filter {count} parameters…",
+          "noMatches": "No matching parameters",
+          "filesTitle": "Files",
+          "allFiles": "All files",
+          "fileNotes": "File notes",
+          "colParam": "Parameter",
+          "colValue": "Value",
+          "colNote": "Note",
+          "picker": {
+            "title": "Select robot parameters folder",
+            "description": "Type a folder or a .yaml file path, or browse the files on this computer.",
+            "pathLabel": "Folder or file path",
+            "pathHint": "A folder loads all of its .yaml files. A .yaml/.yml path loads only that file.",
+            "browse": "Browse…",
+            "up": "Up one folder",
+            "drives": "Drives",
+            "useFolder": "Use this folder",
+            "emptyFolder": "No folders or YAML files here",
+            "useDefault": "Use default path",
+            "cancel": "Cancel",
+            "apply": "Apply"
+          }
         }
       },
       "vision": {
@@ -103,11 +190,11 @@
             "cancel": "Cancel",
             "apply": "Apply"
           },
-          "viewTable": "Parameters",
           "viewRaw": "Raw YAML",
           "infoView": "Info view",
           "viewFullInfo": "Full info",
           "viewFocusedInfo": "Focused info",
+          "neuralNetworkModel": "Neural Network Model",
           "filter": "Filter {count} parameters…",
           "noMatches": "No matching parameters",
           "open": "Open vision parameters",
@@ -178,6 +265,7 @@
             "groupRegistration": { "title": "Target groups · Registration", "description": "Merged-cloud registration: references, bounds, fitness, timing and ICP settings." },
             "scenePlane": { "title": "Scene plane & composition", "description": "Plane RANSAC fit and how often the scene composition is refreshed." },
             "sceneCorrection": { "title": "Scene entry correction", "description": "Fixed correction applied to the scene entry pose." },
+            "generalInfo": { "title": "General information", "description": "Operating mode, number of targets and active scenery." },
             "approachEkf": { "title": "Approaching EKF", "description": "Noise, initial covariance and convergence criteria of the approaching filter." },
             "trackingEkf": { "title": "Tracking EKF", "description": "Noise, initial covariance and convergence criteria of the tracking filter." },
             "poseEstimation": { "title": "Pose estimation", "description": "6D pose estimation: settings shared by every pipeline and the Quick Coupler Plug (Hansen style) estimator." },
@@ -479,6 +567,7 @@
             "groupRegistration": { "title": "Target groups · Registration", "description": "Merged-cloud registration: references, bounds, fitness, timing and ICP settings." },
             "scenePlane": { "title": "Scene plane & composition", "description": "Plane RANSAC fit and how often the scene composition is refreshed." },
             "sceneCorrection": { "title": "Scene entry correction", "description": "Fixed correction applied to the scene entry pose." },
+            "generalInfo": { "title": "General information", "description": "Operating mode, number of targets and active scenery." },
             "approachEkf": { "title": "Approaching EKF", "description": "Noise, initial covariance and convergence criteria of the approaching filter." },
             "trackingEkf": { "title": "Tracking EKF", "description": "Noise, initial covariance and convergence criteria of the tracking filter." },
             "poseEstimation": { "title": "Pose estimation", "description": "6D pose estimation: settings shared by every pipeline and the Quick Coupler Plug (Hansen style) estimator." },

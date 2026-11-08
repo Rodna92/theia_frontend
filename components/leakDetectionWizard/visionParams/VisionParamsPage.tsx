@@ -15,7 +15,7 @@ import {
   IconInfoCircleFilled,
   IconHelpCircle,
 } from '@tabler/icons-react';
-import { SECTIONS, sceneryOf, sectionOf, subgroupsOf, type SectionId } from './sections';
+import { GENERAL_INFO_KEYS, SECTIONS, sceneryOf, sectionOf, subgroupsOf, type SectionId } from './sections';
 import { discardParamEdits, editKey, setParamEdit, useParamEdits } from './editsStore';
 import { PARAM_DOCS } from './paramDocs';
 import { PathPickerModal } from './PathPickerModal';
@@ -25,6 +25,19 @@ import { CORRECTION_FIELDS, SceneCorrectionView, type CorrectionField, type Corr
 
 const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/config';
 const DEFAULT_FILE = 'vision_params.yaml';
+
+// Focused view: sections that show only these params, in this order.
+const FOCUSED_PARAMS: Partial<Record<SectionId, string[]>> = {
+  aristonDetection: [
+    'ariston_a_model_path',
+    'ariston_a_expected_tre',
+    'ariston_a_tappi_per_tre',
+    'ariston_a_unassociated_tappi',
+    'ariston_a_expected_classes',
+  ],
+};
+// Focused view: params shown under a friendly label, with the value cut to the file name.
+const FOCUSED_FILE_PARAMS: Record<string, string> = { ariston_a_model_path: 'neuralNetworkModel' };
 // Holds a folder or a .yaml file path (older saves are always folders).
 const DIR_STORAGE_KEY = 'leakDetection.visionParamsDir';
 
@@ -175,8 +188,8 @@ export function VisionParamsPage() {
   const [data, setData] = useState<VisionParamsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('');
-  const [view, setView] = useState<'table' | 'raw'>('table');
-  const [infoView, setInfoView] = useState<'full' | 'focused'>('full');
+  const [view, setView] = useState<'full' | 'focused' | 'raw'>('full');
+  const infoView = view === 'focused' ? 'focused' : 'full';
   const [selected, setSelected] = useState<string | null>(null);
   const [openDocs, setOpenDocs] = useState<Set<string>>(new Set());
   // Folded subgroup headings, keyed `<group id><subgroup path>`; ignored while filtering.
@@ -274,7 +287,9 @@ export function VisionParamsPage() {
         const id = sectionOf(p.key);
         bySection.set(id, [...(bySection.get(id) ?? []), p]);
       }
-      return SECTIONS.filter((id) => bySection.has(id)).map((id) => {
+      const general = GENERAL_INFO_KEYS.flatMap((k) => (bySection.get('mode') ?? []).filter((p) => p.key === k));
+      if (general.length) bySection.set('generalInfo', general);
+      return (['generalInfo', ...SECTIONS] as SectionId[]).filter((id) => bySection.has(id)).map((id) => {
         const params = bySection.get(id)!;
         const scenery = sceneryOf(params[0].key);
         return {
@@ -292,8 +307,14 @@ export function VisionParamsPage() {
     });
   }, [data, query]);
 
-  const visibleGroups =
-    infoView === 'focused' ? groups.filter((g) => g.section === 'groupGeometry' || g.section === 'sceneCorrection') : groups;
+  const focusedSections: SectionId[] = ['generalInfo', 'aristonDetection', 'groupGeometry', 'sceneCorrection'];
+  const visibleGroups = groups
+    .filter((g) => (infoView === 'focused' ? focusedSections.includes(g.section) : g.section !== 'generalInfo'))
+    .map((g) => {
+      const keys = infoView === 'focused' ? FOCUSED_PARAMS[g.section] : undefined;
+      return keys ? { ...g, params: keys.flatMap((k) => g.params.filter((p) => p.key === k)) } : g;
+    })
+    .filter((g) => g.params.length > 0);
   const total = data?.nodes?.reduce((s, n) => s + n.params.length, 0) ?? 0;
 
   const shownPath = data?.path ?? currentPath;
@@ -396,44 +417,24 @@ export function VisionParamsPage() {
         {data && !data.error && (
           <>
             <div className="flex flex-col sm:flex-row gap-2 sm:items-center justify-between mb-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{t('infoView')}</span>
-                  <div role="group" aria-label={t('infoView')} className="flex p-1 bg-slate-200/50 dark:bg-slate-900/50 rounded-lg w-fit">
-                    {(['full', 'focused'] as const).map((v) => (
-                      <button
-                        key={v}
-                        type="button"
-                        aria-pressed={infoView === v}
-                        onClick={() => setInfoView(v)}
-                        className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                          infoView === v
-                            ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm'
-                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                        }`}
-                      >
-                        {t(v === 'full' ? 'viewFullInfo' : 'viewFocusedInfo')}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex p-1 bg-slate-200/50 dark:bg-slate-900/50 rounded-lg w-fit">
-                  {(['table', 'raw'] as const).map((v) => (
-                    <button
-                      key={v}
-                      onClick={() => setView(v)}
-                      className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                        view === v
-                          ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm'
-                          : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                      }`}
-                    >
-                      {t(v === 'table' ? 'viewTable' : 'viewRaw')}
-                    </button>
-                  ))}
-                </div>
+              <div role="group" aria-label={t('infoView')} className="flex p-1 bg-slate-200/50 dark:bg-slate-900/50 rounded-lg w-fit">
+                {(['full', 'focused', 'raw'] as const).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    aria-pressed={view === v}
+                    onClick={() => setView(v)}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                      view === v
+                        ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                    }`}
+                  >
+                    {t(v === 'full' ? 'viewFullInfo' : v === 'focused' ? 'viewFocusedInfo' : 'viewRaw')}
+                  </button>
+                ))}
               </div>
-              {view === 'table' && (
+              {view !== 'raw' && (
                 <div className="relative">
                   <IconSearch size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
@@ -653,6 +654,7 @@ export function VisionParamsPage() {
                                     // Short translated hint (paramHints.<key>) first, then the file's comment.
                                     const hint = t.has(`paramHints.${p.key}`) ? t(`paramHints.${p.key}`) : undefined;
                                     const tooltip = [hint, p.comment].filter(Boolean).join('\n\n');
+                                    const fileLabel = infoView === 'focused' ? FOCUSED_FILE_PARAMS[p.key] : undefined;
                                     return (
                                       <Fragment key={p.key}>
                                         <tr
@@ -671,7 +673,7 @@ export function VisionParamsPage() {
                                                   className="mt-1 w-1.5 h-1.5 shrink-0 rounded-full bg-amber-500"
                                                 />
                                               )}
-                                              {p.key}
+                                              {fileLabel ? <span className="font-sans">{t(fileLabel)}</span> : p.key}
                                               {doc ? (
                                                 <button
                                                   onClick={() => toggleDoc(ek)}
@@ -708,7 +710,10 @@ export function VisionParamsPage() {
                                                 onChange={(v) => data.path && setParamEdit(data.path, ek, v, p.value)}
                                               />
                                             ) : (
-                                              <ValueCell value={value} onOpenPly={setPlyPath} />
+                                              <ValueCell
+                                                value={fileLabel && typeof value === 'string' ? value.split(/[\\/]/).pop()! : value}
+                                                onOpenPly={setPlyPath}
+                                              />
                                             )}
                                           </td>
                                         </tr>

@@ -65,11 +65,98 @@
         },
         "automations": {
           "title": "Automatización del flujo de trabajo",
-          "description": "Establece los disparadores para el inicio del proceso, las finalizaciones y los indicadores de estado."
+          "description": "Establece los disparadores para el inicio del proceso, las finalizaciones y los indicadores de estado.",
+          "open": "Abrir parámetros del árbol de comportamiento",
+          "page": {
+            "title": "Automatización del flujo de trabajo",
+            "description": "Árbol de comportamiento del nodo de control ALDM: árboles, parámetros de nodos y definición de puertos.",
+            "folder": "Carpeta del árbol de comportamiento",
+            "reload": "Recargar",
+            "fileNotes": "Notas del archivo",
+            "treeNotes": "Notas",
+            "mainTree": "Principal",
+            "nodeCount": "{count, plural, one {# nodo} other {# nodos}}",
+            "filter": "Filtrar {count} parámetros…",
+            "noMatches": "No hay parámetros coincidentes",
+            "tabs": {
+              "label": "Sección",
+              "trees": "Árboles de comportamiento",
+              "models": "Modelos de nodos",
+              "blackboard": "Blackboard",
+              "raw": "XML sin procesar"
+            },
+            "legend": {
+              "title": "Leyenda",
+              "model": "nodo propio (en el modelo)",
+              "builtin": "nodo integrado",
+              "blackboard": "variable del blackboard",
+              "script": "condición de script"
+            },
+            "notInModel": "No está en el modelo",
+            "notInModelHint": "Este nodo no está declarado en tree_nodes_model.xml",
+            "portNotInModel": "Este puerto no está declarado en tree_nodes_model.xml",
+            "usedIn": "Usado en",
+            "unused": "No se usa en aldm_target_loop.xml",
+            "noPorts": "Sin puertos",
+            "colPort": "Puerto",
+            "colDirection": "Dirección",
+            "colType": "Tipo",
+            "colDefault": "Por defecto",
+            "colDescription": "Descripción",
+            "direction": {
+              "input": "Ent",
+              "output": "Sal",
+              "inout": "Ent/Sal"
+            },
+            "blackboardHint": "Variables que los nodos comparten a través del blackboard: valores de puertos entre llaves y expresiones de script. L = leída, E = escrita.",
+            "colKey": "Variable",
+            "colUsedBy": "Usada por",
+            "access": {
+              "read": "L",
+              "write": "E"
+            }
+          }
         },
         "errorHandling": {
           "title": "Gestión de errores",
           "description": "Define el comportamiento del sistema y los protocolos de recuperación cuando ocurren fallos."
+        }
+      },
+      "robot": {
+        "params": {
+          "title": "Parámetros del robot",
+          "description": "Carga los archivos de parámetros de fases del nodo de control del robot y revisa sus valores de inicio.",
+          "menuDescription": "Revisa los parámetros de fases del nodo de control (aproximación, inserción, extracción, PTP…).",
+          "open": "Abrir parámetros del robot",
+          "folder": "Carpeta de configuración",
+          "load": "Cargar",
+          "upload": "Subir",
+          "fileCount": "{count, plural, one {# archivo} other {# archivos}}",
+          "view": "Vista",
+          "viewParams": "Parámetros",
+          "viewRaw": "YAML sin procesar",
+          "filter": "Filtrar {count} parámetros…",
+          "noMatches": "Ningún parámetro coincide",
+          "filesTitle": "Archivos",
+          "allFiles": "Todos los archivos",
+          "fileNotes": "Notas del archivo",
+          "colParam": "Parámetro",
+          "colValue": "Valor",
+          "colNote": "Nota",
+          "picker": {
+            "title": "Seleccionar carpeta de parámetros del robot",
+            "description": "Escribe la ruta de una carpeta o de un archivo .yaml, o explora los archivos de este equipo.",
+            "pathLabel": "Ruta de carpeta o archivo",
+            "pathHint": "Una carpeta carga todos sus archivos .yaml. Una ruta .yaml/.yml carga solo ese archivo.",
+            "browse": "Explorar…",
+            "up": "Subir una carpeta",
+            "drives": "Unidades",
+            "useFolder": "Usar esta carpeta",
+            "emptyFolder": "No hay carpetas ni archivos YAML aquí",
+            "useDefault": "Usar ruta predeterminada",
+            "cancel": "Cancelar",
+            "apply": "Aplicar"
+          }
         }
       },
       "vision": {
@@ -103,11 +190,11 @@
             "cancel": "Cancelar",
             "apply": "Aplicar"
           },
-          "viewTable": "Parámetros",
           "viewRaw": "YAML sin procesar",
           "infoView": "Vista de información",
           "viewFullInfo": "Información completa",
           "viewFocusedInfo": "Información enfocada",
+          "neuralNetworkModel": "Modelo de red neuronal",
           "filter": "Filtrar {count} parámetros…",
           "noMatches": "Ningún parámetro coincide",
           "open": "Abrir parámetros de visión",
@@ -178,6 +265,7 @@
             "groupRegistration": { "title": "Grupos de objetivos · Registro", "description": "Registro de la nube fusionada: referencias, límites, fitness, tiempos e ICP." },
             "scenePlane": { "title": "Plano y composición de la escena", "description": "Ajuste RANSAC del plano y frecuencia de actualización de la composición de la escena." },
             "sceneCorrection": { "title": "Corrección de entrada a escena", "description": "Corrección fija aplicada a la pose de entrada a la escena." },
+            "generalInfo": { "title": "Información general", "description": "Modo de operación, número de objetivos y escenario activo." },
             "approachEkf": { "title": "EKF de aproximación", "description": "Ruido, covarianza inicial y criterios de convergencia del filtro de aproximación." },
             "trackingEkf": { "title": "EKF de seguimiento", "description": "Ruido, covarianza inicial y criterios de convergencia del filtro de seguimiento." },
             "poseEstimation": { "title": "Estimación de pose", "description": "Estimación de pose 6D: ajustes comunes a todas las pipelines y estimador del Quick Coupler Plug (estilo Hansen)." },
@@ -476,6 +564,7 @@
             "groupRegistration": { "title": "Grupos de objetivos · Registro", "description": "Registro de la nube fusionada: referencias, límites, fitness, tiempos e ICP." },
             "scenePlane": { "title": "Plano y composición de la escena", "description": "Ajuste RANSAC del plano y frecuencia de actualización de la composición de la escena." },
             "sceneCorrection": { "title": "Corrección de entrada a escena", "description": "Corrección fija aplicada a la pose de entrada a la escena." },
+            "generalInfo": { "title": "Información general", "description": "Modo de operación, número de objetivos y escenario activo." },
             "approachEkf": { "title": "EKF de aproximación", "description": "Ruido, covarianza inicial y criterios de convergencia del filtro de aproximación." },
             "trackingEkf": { "title": "EKF de seguimiento", "description": "Ruido, covarianza inicial y criterios de convergencia del filtro de seguimiento." },
             "poseEstimation": { "title": "Estimación de pose", "description": "Estimación de pose 6D: ajustes comunes a todas las pipelines y estimador del Quick Coupler Plug (estilo Hansen)." },

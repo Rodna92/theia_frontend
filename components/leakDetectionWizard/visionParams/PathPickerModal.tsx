@@ -36,10 +36,18 @@ interface PathPickerModalProps {
   // Resolves to an error message when the path cannot be loaded, or null on success.
   onApply: (path: string) => Promise<string | null>;
   onClose: () => void;
+  // Translation namespace for the dialog texts (title, hints, buttons).
+  i18nNamespace?: string;
 }
 
-export function PathPickerModal({ initialPath, defaultPath, onApply, onClose }: PathPickerModalProps) {
-  const t = useTranslations('leakDetection.configure.vision.params.picker');
+export function PathPickerModal({
+  initialPath,
+  defaultPath,
+  onApply,
+  onClose,
+  i18nNamespace = 'leakDetection.configure.vision.params.picker',
+}: PathPickerModalProps) {
+  const t = useTranslations(i18nNamespace);
   const [value, setValue] = useState(initialPath);
   const [listing, setListing] = useState<Listing | null>(null);
   const [browsing, setBrowsing] = useState(false);

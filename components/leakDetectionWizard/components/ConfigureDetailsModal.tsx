@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
-import { IconX, IconChevronLeft, IconCube3dSphere, IconPlayerPlay, IconAdjustments, IconSearch, IconBolt, IconAlertTriangle, IconSettings, IconTarget } from '@tabler/icons-react';
+import { IconX, IconChevronLeft, IconCube3dSphere, IconPlayerPlay, IconAdjustments, IconSearch, IconBolt, IconAlertTriangle, IconSettings, IconTarget, IconRobot } from '@tabler/icons-react';
 import Link from 'next/link';
 import { EndEffectorIcon } from '../eeTypeTrajectory/EndEffectorIcon';
 
@@ -22,6 +22,8 @@ export function ConfigureDetailsModal({
   const locale = useLocale();
   const isProcess = selectedItemId === 'process';
   const isVision = selectedItemId === 'vision';
+  const isRobot = selectedItemId === 'robot';
+  const isEndEffector = selectedItemId === 'endeffector';
 
   return (
     <div className="w-full max-w-2xl bg-white/70 dark:bg-slate-950/60 rounded-2xl border border-slate-200/70 dark:border-white/10 shadow-2xl backdrop-blur-xl overflow-hidden transition-all duration-200 max-h-[90vh] flex flex-col">
@@ -78,10 +80,13 @@ export function ConfigureDetailsModal({
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                 {t('leakDetection.configure.process.automations.description')}
               </p>
-              <button type="button" disabled className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200/70 dark:border-white/10 text-slate-400 dark:text-slate-500 text-sm font-medium cursor-not-allowed">
+              <Link
+                href={`/${locale}/process/leak-detection/workflow-automation`}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-green-500/20 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/30 transition-colors text-sm font-medium"
+              >
                 <IconBolt size={18} />
-                {t('leakDetection.configure.comingSoon')}
-              </button>
+                {t('leakDetection.configure.process.automations.open')}
+              </Link>
             </div>
 
             <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
@@ -149,21 +154,41 @@ export function ConfigureDetailsModal({
           </>
         ) : (
           <>
-            <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                {t('leakDetection.configure.endEffectorTitle')}
-              </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                {t('leakDetection.configure.endEffectorSubtitle')}
-              </p>
-              <Link
-                href={`/${locale}/process/leak-detection/ee-type-trajectory`}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-green-500/20 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/30 transition-colors text-sm font-medium"
-              >
-                <EndEffectorIcon size={18} />
-                {t('leakDetection.configure.endEffectorOpen')}
-              </Link>
-            </div>
+            {isRobot && (
+              <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  {t('leakDetection.configure.robot.params.title')}
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                  {t('leakDetection.configure.robot.params.menuDescription')}
+                </p>
+                <Link
+                  href={`/${locale}/process/leak-detection/robot-params`}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-green-500/20 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/30 transition-colors text-sm font-medium"
+                >
+                  <IconRobot size={18} />
+                  {t('leakDetection.configure.robot.params.open')}
+                </Link>
+              </div>
+            )}
+
+            {isEndEffector && (
+              <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  {t('leakDetection.configure.endEffectorTitle')}
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                  {t('leakDetection.configure.endEffectorSubtitle')}
+                </p>
+                <Link
+                  href={`/${locale}/process/leak-detection/ee-type-trajectory`}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-green-500/20 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/30 transition-colors text-sm font-medium"
+                >
+                  <EndEffectorIcon size={18} />
+                  {t('leakDetection.configure.endEffectorOpen')}
+                </Link>
+              </div>
+            )}
 
             <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">

@@ -18,7 +18,12 @@ export type SectionId =
   | 'approachEkf'
   | 'trackingEkf'
   | 'poseEstimation'
-  | 'other';
+  | 'other'
+  // Focused view only: a summary of key `mode` params, never assigned by sectionOf.
+  | 'generalInfo';
+
+// Params shown in the focused view's General information tab, in this order.
+export const GENERAL_INFO_KEYS = ['theia_mode', 'n_targets', 'scenery'];
 
 type Rule = [SectionId, RegExp];
 

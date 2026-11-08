@@ -65,11 +65,98 @@
         },
         "automations": {
           "title": "Workflow-Automatisierung",
-          "description": "Legen Sie Trigger für Prozessstarts, -abschlüsse und Statusanzeigen fest."
+          "description": "Legen Sie Trigger für Prozessstarts, -abschlüsse und Statusanzeigen fest.",
+          "open": "Behavior-Tree-Parameter öffnen",
+          "page": {
+            "title": "Workflow-Automatisierung",
+            "description": "Behavior Tree des ALDM-Steuerknotens: Bäume, Knotenparameter und Port-Definitionen.",
+            "folder": "Behavior-Tree-Ordner",
+            "reload": "Neu laden",
+            "fileNotes": "Dateihinweise",
+            "treeNotes": "Hinweise",
+            "mainTree": "Haupt",
+            "nodeCount": "{count, plural, one {# Knoten} other {# Knoten}}",
+            "filter": "{count} Parameter filtern…",
+            "noMatches": "Keine passenden Parameter",
+            "tabs": {
+              "label": "Bereich",
+              "trees": "Behavior Trees",
+              "models": "Knotenmodelle",
+              "blackboard": "Blackboard",
+              "raw": "XML-Rohdaten"
+            },
+            "legend": {
+              "title": "Legende",
+              "model": "eigener Knoten (im Modell)",
+              "builtin": "integrierter Knoten",
+              "blackboard": "Blackboard-Variable",
+              "script": "Skriptbedingung"
+            },
+            "notInModel": "Nicht im Modell",
+            "notInModelHint": "Dieser Knoten ist nicht in tree_nodes_model.xml deklariert",
+            "portNotInModel": "Dieser Port ist nicht in tree_nodes_model.xml deklariert",
+            "usedIn": "Verwendet in",
+            "unused": "Nicht in aldm_target_loop.xml verwendet",
+            "noPorts": "Keine Ports",
+            "colPort": "Port",
+            "colDirection": "Richtung",
+            "colType": "Typ",
+            "colDefault": "Standard",
+            "colDescription": "Beschreibung",
+            "direction": {
+              "input": "Ein",
+              "output": "Aus",
+              "inout": "Ein/Aus"
+            },
+            "blackboardHint": "Variablen, die Knoten über das Blackboard teilen: Port-Werte in geschweiften Klammern und Skriptausdrücke. L = gelesen, S = geschrieben.",
+            "colKey": "Variable",
+            "colUsedBy": "Verwendet von",
+            "access": {
+              "read": "L",
+              "write": "S"
+            }
+          }
         },
         "errorHandling": {
           "title": "Fehlermanagement",
           "description": "Definieren Sie das Systemverhalten und Wiederherstellungsprotokolle bei Störungen."
+        }
+      },
+      "robot": {
+        "params": {
+          "title": "Roboter-Parameter",
+          "description": "Lädt die Phasen-Parameterdateien des Roboter-Steuerknotens und zeigt die Startwerte.",
+          "menuDescription": "Phasenparameter des Steuerknotens prüfen (Anfahrt, Einführen, Herausziehen, PTP…).",
+          "open": "Roboter-Parameter öffnen",
+          "folder": "Konfigurationsordner",
+          "load": "Laden",
+          "upload": "Hochladen",
+          "fileCount": "{count, plural, one {# Datei} other {# Dateien}}",
+          "view": "Ansicht",
+          "viewParams": "Parameter",
+          "viewRaw": "Roh-YAML",
+          "filter": "{count} Parameter filtern…",
+          "noMatches": "Keine passenden Parameter",
+          "filesTitle": "Dateien",
+          "allFiles": "Alle Dateien",
+          "fileNotes": "Hinweise in der Datei",
+          "colParam": "Parameter",
+          "colValue": "Wert",
+          "colNote": "Hinweis",
+          "picker": {
+            "title": "Ordner der Roboter-Parameter wählen",
+            "description": "Ordner- oder .yaml-Dateipfad eingeben oder die Dateien dieses Computers durchsuchen.",
+            "pathLabel": "Ordner- oder Dateipfad",
+            "pathHint": "Ein Ordner lädt alle seine .yaml-Dateien. Ein .yaml/.yml-Pfad lädt nur diese Datei.",
+            "browse": "Durchsuchen…",
+            "up": "Einen Ordner höher",
+            "drives": "Laufwerke",
+            "useFolder": "Diesen Ordner verwenden",
+            "emptyFolder": "Keine Ordner oder YAML-Dateien hier",
+            "useDefault": "Standardpfad verwenden",
+            "cancel": "Abbrechen",
+            "apply": "Übernehmen"
+          }
         }
       },
       "vision": {
@@ -103,11 +190,11 @@
             "cancel": "Abbrechen",
             "apply": "Übernehmen"
           },
-          "viewTable": "Parameter",
           "viewRaw": "Roh-YAML",
           "infoView": "Informationsansicht",
           "viewFullInfo": "Alle Infos",
           "viewFocusedInfo": "Fokussierte Infos",
+          "neuralNetworkModel": "Neuronales Netzmodell",
           "filter": "{count} Parameter filtern…",
           "noMatches": "Keine passenden Parameter",
           "open": "Vision-Parameter öffnen",
@@ -178,6 +265,7 @@
             "groupRegistration": { "title": "Zielgruppen · Registrierung", "description": "Registrierung der zusammengeführten Wolke: Referenzen, Grenzen, Fitness, Timing und ICP." },
             "scenePlane": { "title": "Szenenebene & Komposition", "description": "RANSAC-Ebenenanpassung und Aktualisierungsrate der Szenenkomposition." },
             "sceneCorrection": { "title": "Korrektur Szeneneintritt", "description": "Feste Korrektur der Szeneneintrittspose." },
+            "generalInfo": { "title": "Allgemeine Informationen", "description": "Betriebsmodus, Anzahl der Ziele und aktives Szenario." },
             "approachEkf": { "title": "Annäherungs-EKF", "description": "Rauschen, Anfangskovarianz und Konvergenzkriterien des Annäherungsfilters." },
             "trackingEkf": { "title": "Tracking-EKF", "description": "Rauschen, Anfangskovarianz und Konvergenzkriterien des Tracking-Filters." },
             "poseEstimation": { "title": "Posenschätzung", "description": "6D-Posenschätzung: Einstellungen für alle Pipelines und der Schätzer für den Quick Coupler Plug (Hansen-Stil)." },
@@ -476,6 +564,7 @@
             "groupRegistration": { "title": "Zielgruppen · Registrierung", "description": "Registrierung der zusammengeführten Wolke: Referenzen, Grenzen, Fitness, Timing und ICP." },
             "scenePlane": { "title": "Szenenebene & Komposition", "description": "RANSAC-Ebenenanpassung und Aktualisierungsrate der Szenenkomposition." },
             "sceneCorrection": { "title": "Korrektur Szeneneintritt", "description": "Feste Korrektur der Szeneneintrittspose." },
+            "generalInfo": { "title": "Allgemeine Informationen", "description": "Betriebsmodus, Anzahl der Ziele und aktives Szenario." },
             "approachEkf": { "title": "Annäherungs-EKF", "description": "Rauschen, Anfangskovarianz und Konvergenzkriterien des Annäherungsfilters." },
             "trackingEkf": { "title": "Tracking-EKF", "description": "Rauschen, Anfangskovarianz und Konvergenzkriterien des Tracking-Filters." },
             "poseEstimation": { "title": "Posenschätzung", "description": "6D-Posenschätzung: Einstellungen für alle Pipelines und der Schätzer für den Quick Coupler Plug (Hansen-Stil)." },

@@ -65,11 +65,98 @@
         },
         "automations": {
           "title": "Automatisation du flux de travail",
-          "description": "Définissez des déclencheurs pour les démarrages de processus, les achèvements et les indicateurs d'état."
+          "description": "Définissez des déclencheurs pour les démarrages de processus, les achèvements et les indicateurs d'état.",
+          "open": "Ouvrir les paramètres de l’arbre de comportement",
+          "page": {
+            "title": "Automatisation du flux de travail",
+            "description": "Arbre de comportement du nœud de contrôle ALDM : arbres, paramètres des nœuds et définition des ports.",
+            "folder": "Dossier de l’arbre de comportement",
+            "reload": "Recharger",
+            "fileNotes": "Notes du fichier",
+            "treeNotes": "Notes",
+            "mainTree": "Principal",
+            "nodeCount": "{count, plural, one {# nœud} other {# nœuds}}",
+            "filter": "Filtrer {count} paramètres…",
+            "noMatches": "Aucun paramètre correspondant",
+            "tabs": {
+              "label": "Section",
+              "trees": "Arbres de comportement",
+              "models": "Modèles de nœuds",
+              "blackboard": "Blackboard",
+              "raw": "XML brut"
+            },
+            "legend": {
+              "title": "Légende",
+              "model": "nœud personnalisé (dans le modèle)",
+              "builtin": "nœud intégré",
+              "blackboard": "variable du blackboard",
+              "script": "condition de script"
+            },
+            "notInModel": "Absent du modèle",
+            "notInModelHint": "Ce nœud n’est pas déclaré dans tree_nodes_model.xml",
+            "portNotInModel": "Ce port n’est pas déclaré dans tree_nodes_model.xml",
+            "usedIn": "Utilisé dans",
+            "unused": "Non utilisé dans aldm_target_loop.xml",
+            "noPorts": "Aucun port",
+            "colPort": "Port",
+            "colDirection": "Direction",
+            "colType": "Type",
+            "colDefault": "Défaut",
+            "colDescription": "Description",
+            "direction": {
+              "input": "Ent",
+              "output": "Sort",
+              "inout": "Ent/Sort"
+            },
+            "blackboardHint": "Variables partagées entre les nœuds via le blackboard : valeurs de ports entre accolades et expressions de script. L = lue, É = écrite.",
+            "colKey": "Variable",
+            "colUsedBy": "Utilisée par",
+            "access": {
+              "read": "L",
+              "write": "É"
+            }
+          }
         },
         "errorHandling": {
           "title": "Gestion des erreurs",
           "description": "Définissez le comportement du système et les protocolli de récupération en cas de pannes."
+        }
+      },
+      "robot": {
+        "params": {
+          "title": "Paramètres du robot",
+          "description": "Charge les fichiers de paramètres de phases du nœud de contrôle du robot et affiche ses valeurs de démarrage.",
+          "menuDescription": "Consulter les paramètres de phases du nœud de contrôle (approche, insertion, extraction, PTP…).",
+          "open": "Ouvrir les paramètres du robot",
+          "folder": "Dossier de configuration",
+          "load": "Charger",
+          "upload": "Importer",
+          "fileCount": "{count, plural, one {# fichier} other {# fichiers}}",
+          "view": "Vue",
+          "viewParams": "Paramètres",
+          "viewRaw": "YAML brut",
+          "filter": "Filtrer {count} paramètres…",
+          "noMatches": "Aucun paramètre correspondant",
+          "filesTitle": "Fichiers",
+          "allFiles": "Tous les fichiers",
+          "fileNotes": "Notes du fichier",
+          "colParam": "Paramètre",
+          "colValue": "Valeur",
+          "colNote": "Note",
+          "picker": {
+            "title": "Choisir le dossier des paramètres du robot",
+            "description": "Saisissez le chemin d'un dossier ou d'un fichier .yaml, ou parcourez les fichiers de cet ordinateur.",
+            "pathLabel": "Chemin du dossier ou du fichier",
+            "pathHint": "Un dossier charge tous ses fichiers .yaml. Un chemin .yaml/.yml charge uniquement ce fichier.",
+            "browse": "Parcourir…",
+            "up": "Dossier parent",
+            "drives": "Lecteurs",
+            "useFolder": "Utiliser ce dossier",
+            "emptyFolder": "Aucun dossier ni fichier YAML ici",
+            "useDefault": "Utiliser le chemin par défaut",
+            "cancel": "Annuler",
+            "apply": "Appliquer"
+          }
         }
       },
       "vision": {
@@ -103,11 +190,11 @@
             "cancel": "Annuler",
             "apply": "Appliquer"
           },
-          "viewTable": "Paramètres",
           "viewRaw": "YAML brut",
           "infoView": "Vue des informations",
           "viewFullInfo": "Informations complètes",
           "viewFocusedInfo": "Informations ciblées",
+          "neuralNetworkModel": "Modèle de réseau neuronal",
           "filter": "Filtrer {count} paramètres…",
           "noMatches": "Aucun paramètre correspondant",
           "open": "Ouvrir les paramètres de vision",
@@ -178,6 +265,7 @@
             "groupRegistration": { "title": "Groupes de cibles · Recalage", "description": "Recalage du nuage fusionné : références, bornes, fitness, délais et ICP." },
             "scenePlane": { "title": "Plan & composition de la scène", "description": "Ajustement RANSAC du plan et fréquence de mise à jour de la composition de la scène." },
             "sceneCorrection": { "title": "Correction d’entrée en scène", "description": "Correction fixe appliquée à la pose d’entrée en scène." },
+            "generalInfo": { "title": "Informations générales", "description": "Mode de fonctionnement, nombre de cibles et scénario actif." },
             "approachEkf": { "title": "EKF d’approche", "description": "Bruit, covariance initiale et critères de convergence du filtre d’approche." },
             "trackingEkf": { "title": "EKF de suivi", "description": "Bruit, covariance initiale et critères de convergence du filtre de suivi." },
             "poseEstimation": { "title": "Estimation de pose", "description": "Estimation de pose 6D : réglages communs à toutes les pipelines et estimateur du Quick Coupler Plug (style Hansen)." },
@@ -476,6 +564,7 @@
             "groupRegistration": { "title": "Groupes de cibles · Recalage", "description": "Recalage du nuage fusionné : références, bornes, fitness, délais et ICP." },
             "scenePlane": { "title": "Plan & composition de la scène", "description": "Ajustement RANSAC du plan et fréquence de mise à jour de la composition de la scène." },
             "sceneCorrection": { "title": "Correction d’entrée en scène", "description": "Correction fixe appliquée à la pose d’entrée en scène." },
+            "generalInfo": { "title": "Informations générales", "description": "Mode de fonctionnement, nombre de cibles et scénario actif." },
             "approachEkf": { "title": "EKF d’approche", "description": "Bruit, covariance initiale et critères de convergence du filtre d’approche." },
             "trackingEkf": { "title": "EKF de suivi", "description": "Bruit, covariance initiale et critères de convergence du filtre de suivi." },
             "poseEstimation": { "title": "Estimation de pose", "description": "Estimation de pose 6D : réglages communs à toutes les pipelines et estimateur du Quick Coupler Plug (style Hansen)." },
