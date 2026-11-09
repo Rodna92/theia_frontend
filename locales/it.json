@@ -108,6 +108,32 @@
               "output": "Out",
               "inout": "In/Out"
             },
+            "view": {
+              "label": "Vista dell’albero",
+              "diagram": "Diagramma",
+              "list": "Elenco"
+            },
+            "diagram": {
+              "zoomIn": "Ingrandisci",
+              "zoomOut": "Riduci",
+              "fit": "Adatta alla vista",
+              "expandAll": "Espandi i sottoalberi",
+              "collapseAll": "Comprimi i sottoalberi",
+              "rootColumn": "Radice",
+              "level": "Livello {n}",
+              "expand": "Espandi il sottoalbero qui",
+              "collapse": "Comprimi il sottoalbero",
+              "openTree": "Apri questo albero",
+              "hint": "Trascina per spostare · rotella per lo zoom",
+              "category": {
+                "control": "Controllo",
+                "decorator": "Decoratore",
+                "action": "Azione",
+                "condition": "Condizione",
+                "subtree": "SubTree",
+                "unknown": "Non nel modello"
+              }
+            },
             "blackboardHint": "Variabili condivise tra i nodi tramite il blackboard: valori delle porte tra graffe ed espressioni di script. L = letta, S = scritta.",
             "colKey": "Variabile",
             "colUsedBy": "Usata da",

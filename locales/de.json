@@ -108,6 +108,32 @@
               "output": "Aus",
               "inout": "Ein/Aus"
             },
+            "view": {
+              "label": "Baumansicht",
+              "diagram": "Diagramm",
+              "list": "Liste"
+            },
+            "diagram": {
+              "zoomIn": "Vergrößern",
+              "zoomOut": "Verkleinern",
+              "fit": "An Ansicht anpassen",
+              "expandAll": "Teilbäume aufklappen",
+              "collapseAll": "Teilbäume zuklappen",
+              "rootColumn": "Wurzel",
+              "level": "Ebene {n}",
+              "expand": "Teilbaum hier aufklappen",
+              "collapse": "Teilbaum zuklappen",
+              "openTree": "Diesen Baum öffnen",
+              "hint": "Ziehen zum Verschieben · Scrollen zum Zoomen",
+              "category": {
+                "control": "Steuerung",
+                "decorator": "Dekorator",
+                "action": "Aktion",
+                "condition": "Bedingung",
+                "subtree": "SubTree",
+                "unknown": "Nicht im Modell"
+              }
+            },
             "blackboardHint": "Variablen, die Knoten über das Blackboard teilen: Port-Werte in geschweiften Klammern und Skriptausdrücke. L = gelesen, S = geschrieben.",
             "colKey": "Variable",
             "colUsedBy": "Verwendet von",

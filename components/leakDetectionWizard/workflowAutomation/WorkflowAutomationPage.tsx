@@ -12,37 +12,23 @@ import {
   IconSearch,
   IconInfoCircle,
   IconPlayerPlay,
+  IconListTree,
+  IconSitemap,
 } from '@tabler/icons-react';
+import { BehaviorTreeDiagram } from './BehaviorTreeDiagram';
+import {
+  BUILTIN,
+  blackboardKey,
+  isScriptAttr,
+  nodeMatches,
+  portTooltip,
+  type BehaviorTree,
+  type NodeModel,
+  type TreeNode,
+} from './btShared';
 
 const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Robotics_ALDM_1.0.3/aldm_control/config/BehaviorTree';
 const INDENT_PX = 16;
-
-interface TreeNode {
-  tag: string;
-  attrs: { name: string; value: string }[];
-  comment?: string;
-  children: TreeNode[];
-}
-
-interface BehaviorTree {
-  id: string;
-  comment?: string;
-  nodes: TreeNode[];
-}
-
-interface Port {
-  direction: 'input' | 'output' | 'inout';
-  name: string;
-  type?: string;
-  default?: string;
-  description?: string;
-}
-
-interface NodeModel {
-  kind: string;
-  id: string;
-  ports: Port[];
-}
 
 interface SourceFile {
   name: string;
@@ -64,35 +50,11 @@ interface BehaviorTreeResponse {
 
 type Section = 'trees' | 'models' | 'blackboard' | 'raw';
 
-// Nodes that ship with BehaviorTree.CPP and so are not listed in tree_nodes_model.xml.
-const BUILTIN = new Set([
-  'Sequence', 'SequenceWithMemory', 'ReactiveSequence', 'Fallback', 'ReactiveFallback', 'Parallel', 'ParallelAll',
-  'IfThenElse', 'WhileDoElse', 'Switch2', 'Switch3', 'Switch4', 'Switch5', 'Switch6', 'Repeat', 'RetryUntilSuccessful',
-  'Inverter', 'ForceSuccess', 'ForceFailure', 'KeepRunningUntilFailure', 'Timeout', 'Delay', 'RunOnce', 'Precondition',
-  'Script', 'ScriptCondition', 'SetBlackboard', 'UnsetBlackboard', 'AlwaysSuccess', 'AlwaysFailure', 'Sleep', 'SubTree',
-  'WasEntryUpdated', 'SkipUnlessUpdated', 'WaitValueUpdate', 'LoopInt', 'LoopDouble', 'LoopString', 'LoopBool',
-]);
-
-// "{current_target}" -> "current_target"
-const blackboardKey = (v: string) => v.match(/^\{([^{}]+)\}$/)?.[1];
-
 // Blackboard keys named inside script expressions, e.g. "current_scene := current_scene + 1".
 const scriptKeys = (code: string) =>
   Array.from(new Set(code.replace(/'[^']*'/g, '').match(/[A-Za-z_][A-Za-z0-9_]*/g) ?? [])).filter(
     (w) => !['true', 'false', 'and', 'or', 'not'].includes(w),
   );
-
-// Attributes that hold script code rather than a plain value.
-const isScriptAttr = (tag: string, name: string) =>
-  (tag === 'Script' && name === 'code') || /^_(skipIf|successIf|failureIf|while|onSuccess|onFailure|onHalted|post)$/.test(name);
-
-function nodeMatches(node: TreeNode, q: string) {
-  return (
-    node.tag.toLowerCase().includes(q) ||
-    node.attrs.some((a) => a.name.toLowerCase().includes(q) || a.value.toLowerCase().includes(q)) ||
-    !!node.comment?.toLowerCase().includes(q)
-  );
-}
 
 // Keeps matching nodes with their whole subtree, plus the ancestors that lead to them.
 function filterNodes(nodes: TreeNode[], q: string): TreeNode[] {
@@ -134,24 +96,16 @@ function AttrValue({ tag, name, value }: { tag: string; name: string; value: str
   return <span className="text-amber-700 dark:text-amber-300 break-all">{value}</span>;
 }
 
-function portTooltip(port?: Port) {
-  if (!port) return undefined;
-  return [
-    `${port.direction} · ${port.type ?? '?'}${port.default !== undefined ? ` · default ${port.default || '""'}` : ''}`,
-    port.description,
-  ]
-    .filter(Boolean)
-    .join('\n');
-}
-
 function NodeRows({
   nodes,
   depth,
   models,
+  onOpenTree,
 }: {
   nodes: TreeNode[];
   depth: number;
   models: Map<string, NodeModel>;
+  onOpenTree: (e: MouseEvent, id: string) => void;
 }) {
   const t = useTranslations('leakDetection.configure.process.automations.page');
   return (
@@ -182,6 +136,7 @@ function NodeRows({
                 {subTreeId && (
                   <a
                     href={`#tree-${subTreeId}`}
+                    onClick={(e) => onOpenTree(e, subTreeId)}
                     className="font-mono text-[11px] text-cyan-700 dark:text-cyan-300 underline decoration-dotted underline-offset-2"
                   >
                     {subTreeId}
@@ -231,7 +186,7 @@ function NodeRows({
             </div>
             {n.children.length > 0 && (
               <ul>
-                <NodeRows nodes={n.children} depth={depth + 1} models={models} />
+                <NodeRows nodes={n.children} depth={depth + 1} models={models} onOpenTree={onOpenTree} />
               </ul>
             )}
           </li>
@@ -268,11 +223,13 @@ function TreeSection({
   nodes,
   isMain,
   models,
+  onOpenTree,
 }: {
   tree: BehaviorTree;
   nodes: TreeNode[];
   isMain: boolean;
   models: Map<string, NodeModel>;
+  onOpenTree: (e: MouseEvent, id: string) => void;
 }) {
   const t = useTranslations('leakDetection.configure.process.automations.page');
   return (
@@ -296,7 +253,7 @@ function TreeSection({
         {tree.comment && <Notes text={tree.comment} label={t('treeNotes')} />}
       </div>
       <ul className="pb-1">
-        <NodeRows nodes={nodes} depth={0} models={models} />
+        <NodeRows nodes={nodes} depth={0} models={models} onOpenTree={onOpenTree} />
       </ul>
     </section>
   );
@@ -445,6 +402,10 @@ export function WorkflowAutomationPage() {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('');
   const [section, setSection] = useState<Section>('trees');
+  // Tree and node model shown on their tabs; null shows the first one in the list.
+  const [selectedTree, setSelectedTree] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [treeView, setTreeView] = useState<'diagram' | 'list'>('diagram');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -467,12 +428,13 @@ export function WorkflowAutomationPage() {
   const models = useMemo(() => data?.models ?? [], [data]);
   const modelMap = useMemo(() => new Map(models.map((m) => [m.id, m])), [models]);
 
-  // Switches to the trees tab, then scrolls to the tree once it is rendered.
+  // Switches to the trees tab and shows the given tree.
   const goToTree = (e: MouseEvent, id: string) => {
     e.preventDefault();
     setSection('trees');
     setFilter('');
-    requestAnimationFrame(() => document.getElementById(`tree-${id}`)?.scrollIntoView({ behavior: 'smooth' }));
+    setSelectedTree(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const filteredTrees = useMemo(
@@ -532,15 +494,25 @@ export function WorkflowAutomationPage() {
     { id: 'raw', label: t('tabs.raw') },
   ];
 
-  const navLink = (href: string, label: string, count?: number) => (
-    <a
-      key={href}
-      href={href}
-      className="shrink-0 flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-left text-xs text-slate-600 dark:text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors"
+  // The selected item, or the first one when the selection is filtered out or not set.
+  const activeTree = filteredTrees.find((g) => g.tree.id === selectedTree) ?? filteredTrees[0];
+  const activeModel = filteredModels.find((m) => m.id === selectedModel) ?? filteredModels[0];
+
+  const navItem = (id: string, label: string, active: boolean, onSelect: (id: string) => void, count?: number) => (
+    <button
+      key={id}
+      type="button"
+      onClick={() => onSelect(id)}
+      aria-current={active ? 'true' : undefined}
+      className={`shrink-0 flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-left text-xs transition-colors ${
+        active
+          ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-semibold'
+          : 'text-slate-600 dark:text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-700 dark:hover:text-cyan-300'
+      }`}
     >
       <span className="truncate font-mono">{label}</span>
       {count !== undefined && <span className="text-[10px] tabular-nums text-slate-400">{count}</span>}
-    </a>
+    </button>
   );
 
   return (
@@ -661,7 +633,9 @@ export function WorkflowAutomationPage() {
                     aria-label={t('tabs.trees')}
                     className="lg:sticky lg:top-4 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0"
                   >
-                    {filteredTrees.map((g) => navLink(`#tree-${g.tree.id}`, g.tree.id, countNodes(g.nodes)))}
+                    {filteredTrees.map((g) =>
+                      navItem(g.tree.id, g.tree.id, g === activeTree, setSelectedTree, countNodes(g.nodes)),
+                    )}
                     <div className="hidden lg:block mt-3 px-2 space-y-1 text-[10px] text-slate-400">
                       <div className="font-bold uppercase tracking-widest">{t('legend.title')}</div>
                       <div><span className="font-semibold text-cyan-700 dark:text-cyan-300">Action</span> — {t('legend.model')}</div>
@@ -670,16 +644,50 @@ export function WorkflowAutomationPage() {
                       <div><span className="font-mono text-emerald-600 dark:text-emerald-400">_skipIf</span> — {t('legend.script')}</div>
                     </div>
                   </nav>
-                  <div className="min-w-0 space-y-4">
-                    {filteredTrees.map((g) => (
-                      <TreeSection
-                        key={g.tree.id}
-                        tree={g.tree}
-                        nodes={g.nodes}
-                        isMain={g.tree.id === data.mainTree}
+                  <div className="min-w-0 space-y-3">
+                    <div role="group" aria-label={t('view.label')} className="flex p-1 bg-slate-200/50 dark:bg-slate-900/50 rounded-lg w-fit">
+                      {(
+                        [
+                          ['diagram', IconSitemap],
+                          ['list', IconListTree],
+                        ] as const
+                      ).map(([v, Icon]) => (
+                        <button
+                          key={v}
+                          type="button"
+                          aria-pressed={treeView === v}
+                          onClick={() => setTreeView(v)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                            treeView === v
+                              ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm'
+                              : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                          }`}
+                        >
+                          <Icon size={14} />
+                          {t(`view.${v}`)}
+                        </button>
+                      ))}
+                    </div>
+                    {activeTree && treeView === 'diagram' && (
+                      <BehaviorTreeDiagram
+                        key={activeTree.tree.id}
+                        tree={activeTree.tree}
+                        trees={trees}
                         models={modelMap}
+                        query={filter}
+                        onOpenTree={goToTree}
                       />
-                    ))}
+                    )}
+                    {activeTree && treeView === 'list' && (
+                      <TreeSection
+                        key={activeTree.tree.id}
+                        tree={activeTree.tree}
+                        nodes={activeTree.nodes}
+                        isMain={activeTree.tree.id === data.mainTree}
+                        models={modelMap}
+                        onOpenTree={goToTree}
+                      />
+                    )}
                   </div>
                 </div>
               ))}
@@ -693,12 +701,17 @@ export function WorkflowAutomationPage() {
                     aria-label={t('tabs.models')}
                     className="lg:sticky lg:top-4 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto"
                   >
-                    {filteredModels.map((m) => navLink(`#model-${m.id}`, m.id, m.ports.length))}
+                    {filteredModels.map((m) => navItem(m.id, m.id, m === activeModel, setSelectedModel, m.ports.length))}
                   </nav>
-                  <div className="min-w-0 space-y-4">
-                    {filteredModels.map((m) => (
-                      <ModelSection key={m.id} model={m} usedIn={Array.from(usage.get(m.id) ?? [])} onGoToTree={goToTree} />
-                    ))}
+                  <div className="min-w-0">
+                    {activeModel && (
+                      <ModelSection
+                        key={activeModel.id}
+                        model={activeModel}
+                        usedIn={Array.from(usage.get(activeModel.id) ?? [])}
+                        onGoToTree={goToTree}
+                      />
+                    )}
                   </div>
                 </div>
               ))}

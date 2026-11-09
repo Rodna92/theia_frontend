@@ -108,6 +108,32 @@
               "output": "Sal",
               "inout": "Ent/Sal"
             },
+            "view": {
+              "label": "Vista del árbol",
+              "diagram": "Diagrama",
+              "list": "Lista"
+            },
+            "diagram": {
+              "zoomIn": "Acercar",
+              "zoomOut": "Alejar",
+              "fit": "Ajustar a la vista",
+              "expandAll": "Expandir subárboles",
+              "collapseAll": "Contraer subárboles",
+              "rootColumn": "Raíz",
+              "level": "Nivel {n}",
+              "expand": "Expandir el subárbol aquí",
+              "collapse": "Contraer el subárbol",
+              "openTree": "Abrir este árbol",
+              "hint": "Arrastra para mover · rueda para hacer zoom",
+              "category": {
+                "control": "Control",
+                "decorator": "Decorador",
+                "action": "Acción",
+                "condition": "Condición",
+                "subtree": "SubTree",
+                "unknown": "No está en el modelo"
+              }
+            },
             "blackboardHint": "Variables que los nodos comparten a través del blackboard: valores de puertos entre llaves y expresiones de script. L = leída, E = escrita.",
             "colKey": "Variable",
             "colUsedBy": "Usada por",

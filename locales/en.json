@@ -108,6 +108,32 @@
               "output": "Out",
               "inout": "In/Out"
             },
+            "view": {
+              "label": "Tree view",
+              "diagram": "Diagram",
+              "list": "List"
+            },
+            "diagram": {
+              "zoomIn": "Zoom in",
+              "zoomOut": "Zoom out",
+              "fit": "Fit to view",
+              "expandAll": "Expand subtrees",
+              "collapseAll": "Collapse subtrees",
+              "rootColumn": "Root",
+              "level": "Level {n}",
+              "expand": "Expand subtree here",
+              "collapse": "Collapse subtree",
+              "openTree": "Open this tree",
+              "hint": "Drag to pan · scroll to zoom",
+              "category": {
+                "control": "Control",
+                "decorator": "Decorator",
+                "action": "Action",
+                "condition": "Condition",
+                "subtree": "SubTree",
+                "unknown": "Not in model"
+              }
+            },
             "blackboardHint": "Variables that nodes share through the blackboard: port values in braces and script expressions. R = read, W = written.",
             "colKey": "Variable",
             "colUsedBy": "Used by",

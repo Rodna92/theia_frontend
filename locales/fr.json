@@ -108,6 +108,32 @@
               "output": "Sort",
               "inout": "Ent/Sort"
             },
+            "view": {
+              "label": "Vue de l’arbre",
+              "diagram": "Diagramme",
+              "list": "Liste"
+            },
+            "diagram": {
+              "zoomIn": "Zoom avant",
+              "zoomOut": "Zoom arrière",
+              "fit": "Ajuster à la vue",
+              "expandAll": "Déplier les sous-arbres",
+              "collapseAll": "Replier les sous-arbres",
+              "rootColumn": "Racine",
+              "level": "Niveau {n}",
+              "expand": "Déplier le sous-arbre ici",
+              "collapse": "Replier le sous-arbre",
+              "openTree": "Ouvrir cet arbre",
+              "hint": "Glisser pour déplacer · molette pour zoomer",
+              "category": {
+                "control": "Contrôle",
+                "decorator": "Décorateur",
+                "action": "Action",
+                "condition": "Condition",
+                "subtree": "SubTree",
+                "unknown": "Absent du modèle"
+              }
+            },
             "blackboardHint": "Variables partagées entre les nœuds via le blackboard : valeurs de ports entre accolades et expressions de script. L = lue, É = écrite.",
             "colKey": "Variable",
             "colUsedBy": "Utilisée par",
