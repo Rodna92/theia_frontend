@@ -20,6 +20,7 @@ import { discardParamEdits, editKey, setParamEdit, useParamEdits } from './edits
 import { PARAM_DOCS } from './paramDocs';
 import { PathPickerModal } from './PathPickerModal';
 import { PlyViewerModal } from './PlyViewerModal';
+import { OnnxInfoModal } from './OnnxInfoModal';
 import { GroupGeometryView } from './GroupGeometryView';
 import { CORRECTION_FIELDS, SceneCorrectionView, type CorrectionField, type CorrectionValue } from './SceneCorrectionView';
 
@@ -121,9 +122,17 @@ function BoolToggle({
 }
 
 const PLY_FILE = /\.ply$/i;
+const ONNX_FILE = /\.onnx$/i;
 
-// onOpenPly makes .ply paths (e.g. ariston_a_reference_clouds) open the point-cloud viewer.
-function ValueCell({ value, onOpenPly }: { value: unknown; onOpenPly?: (path: string) => void }) {
+interface FileOpeners {
+  // .ply paths (e.g. ariston_a_reference_clouds) open the point-cloud viewer.
+  onOpenPly?: (path: string) => void;
+  // .onnx paths (e.g. ariston_a_model_path) open the model metadata dialog.
+  onOpenOnnx?: (path: string) => void;
+}
+
+// label replaces the shown text of a string value (e.g. just the file name); clicks still use the full value.
+function ValueCell({ value, label, onOpenPly, onOpenOnnx }: { value: unknown; label?: string } & FileOpeners) {
   if (typeof value === 'boolean') {
     return (
       <span
@@ -139,21 +148,23 @@ function ValueCell({ value, onOpenPly }: { value: unknown; onOpenPly?: (path: st
     return <span className="text-cyan-700 dark:text-cyan-300 tabular-nums">{value}</span>;
   }
   if (typeof value === 'string') {
-    if (onOpenPly && PLY_FILE.test(value)) {
+    const open = PLY_FILE.test(value) ? onOpenPly : ONNX_FILE.test(value) ? onOpenOnnx : undefined;
+    if (open) {
       return (
         <button
           type="button"
-          onClick={() => onOpenPly(value)}
+          onClick={() => open(value)}
+          title={label ? value : undefined}
           className="text-left text-amber-700 dark:text-amber-300 break-all underline decoration-dotted underline-offset-2 hover:text-cyan-600 dark:hover:text-cyan-400"
         >
-          {value}
+          {label ?? value}
         </button>
       );
     }
     return value === '' ? (
       <span className="text-slate-400 italic">""</span>
     ) : (
-      <span className="text-amber-700 dark:text-amber-300 break-all">{value}</span>
+      <span className="text-amber-700 dark:text-amber-300 break-all">{label ?? value}</span>
     );
   }
   if (Array.isArray(value)) {
@@ -166,7 +177,7 @@ function ValueCell({ value, onOpenPly }: { value: unknown; onOpenPly?: (path: st
         {value.map((v, i) => (
           <li key={i} className="flex gap-2">
             <span className="text-slate-400 tabular-nums w-4 text-right">{i}</span>
-            <ValueCell value={v} onOpenPly={onOpenPly} />
+            <ValueCell value={v} onOpenPly={onOpenPly} onOpenOnnx={onOpenOnnx} />
           </li>
         ))}
       </ol>
@@ -185,6 +196,7 @@ export function VisionParamsPage() {
   const [currentPath, setCurrentPath] = useState(DEFAULT_DIR);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [plyPath, setPlyPath] = useState<string | null>(null);
+  const [onnxPath, setOnnxPath] = useState<string | null>(null);
   const [data, setData] = useState<VisionParamsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('');
@@ -392,6 +404,15 @@ export function VisionParamsPage() {
 
         {plyPath && data?.path && (
           <PlyViewerModal plyPath={plyPath} yamlPath={data.path} onClose={() => setPlyPath(null)} />
+        )}
+
+        {onnxPath && data?.path && (
+          <OnnxInfoModal
+            onnxPath={onnxPath}
+            yamlPath={data.path}
+            initialView={infoView}
+            onClose={() => setOnnxPath(null)}
+          />
         )}
 
         {data?.error && (
@@ -711,8 +732,10 @@ export function VisionParamsPage() {
                                               />
                                             ) : (
                                               <ValueCell
-                                                value={fileLabel && typeof value === 'string' ? value.split(/[\\/]/).pop()! : value}
+                                                value={value}
+                                                label={fileLabel && typeof value === 'string' ? value.split(/[\\/]/).pop()! : undefined}
                                                 onOpenPly={setPlyPath}
+                                                onOpenOnnx={setOnnxPath}
                                               />
                                             )}
                                           </td>

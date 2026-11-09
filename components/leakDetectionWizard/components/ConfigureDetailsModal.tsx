@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
-import { IconX, IconChevronLeft, IconCube3dSphere, IconPlayerPlay, IconAdjustments, IconSearch, IconBolt, IconAlertTriangle, IconSettings, IconTarget, IconRobot } from '@tabler/icons-react';
+import { IconX, IconChevronLeft, IconCube3dSphere, IconPlayerPlay, IconAdjustments, IconSearch, IconBolt, IconAlertTriangle, IconSettings, IconTarget, IconRobot, IconListDetails } from '@tabler/icons-react';
 import Link from 'next/link';
 import { EndEffectorIcon } from '../eeTypeTrajectory/EndEffectorIcon';
 
@@ -186,6 +186,24 @@ export function ConfigureDetailsModal({
                 >
                   <EndEffectorIcon size={18} />
                   {t('leakDetection.configure.endEffectorOpen')}
+                </Link>
+              </div>
+            )}
+
+            {isEndEffector && (
+              <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  {t('leakDetection.configure.endEffectorManager.menuTitle')}
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                  {t('leakDetection.configure.endEffectorManager.menuDescription')}
+                </p>
+                <Link
+                  href={`/${locale}/process/leak-detection/end-effector-manager`}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-green-500/20 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/30 transition-colors text-sm font-medium"
+                >
+                  <IconListDetails size={18} />
+                  {t('leakDetection.configure.endEffectorManager.open')}
                 </Link>
               </div>
             )}
