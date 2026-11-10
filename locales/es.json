@@ -93,7 +93,35 @@
         "fileNotes": "Notas del archivo",
         "colParam": "Parámetro",
         "colValue": "Valor",
-        "colNote": "Nota"
+        "colNote": "Nota",
+        "spmHint": "Muñeca esférica paralela 3-RRR: tres motores mueven la plataforma mediante patas acopladas y los nueve ejes de las articulaciones se cruzan en el centro O, por lo que la herramienta solo gira alrededor de O. Elige una orientación de la plataforma; los ángulos de los motores salen de la cinemática inversa del solver.",
+        "spmPose": {
+          "tilt": "Inclinación",
+          "azimuth": "Dirección de inclinación",
+          "torsion": "Torsión"
+        },
+        "spmHome": "Volver a home",
+        "spmStatus": {
+          "valid": "Alcanzable",
+          "unreachable": "Inalcanzable",
+          "degenerate": "Degenerado",
+          "singular": "Cerca de una singularidad",
+          "limits": "Fuera de los límites del motor",
+          "servo": "Fuera de las cuentas de servo permitidas",
+          "branch": "Rama de ensamblaje incorrecta"
+        },
+        "spmTip": "Punta en tool0",
+        "spmParallelIndex": "Índice paralelo",
+        "spmMotor": "Motor",
+        "spmAngle": "Desde home",
+        "spmCounts": "Cuentas de servo",
+        "spmTravel": "Recorrido permitido",
+        "spmLinkAngles": "Ángulos de los eslabones",
+        "spmMotorShaft": "Eje del motor",
+        "spmUnverified": "Comandos de servo deshabilitados: indicadores de verificación sin activar ({items}).",
+        "spmSchematicNote": "Las direcciones de los ejes, los radios de las esferas, el centro O y las longitudes de la herramienta vienen del YAML. Los cuerpos de motores, eslabones y plataforma dibujados sobre ellos son esquemáticos.",
+        "spmModelError": "No se puede construir el modelo de la muñeca esférica",
+        "spmChainMismatch": "mount + tool_chain sitúan la punta en [{chain}] mm pero offset_x/y/z es [{offset}] mm (tolerancia 0,5 mm). El nodo no arranca en este caso."
       },
       "advancedSettings": "Configuración Avanzada",
       "calibration": "Calibración",

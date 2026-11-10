@@ -19,8 +19,10 @@ import {
 import { EndEffectorIcon } from '../eeTypeTrajectory/EndEffectorIcon';
 import { EeSchematic } from './EeSchematic';
 import { EeViewer3D } from './EeViewer3D';
+import { SpmSection } from './SpmSection';
 import { ValueEditor, applyEditsToYaml, getIn, sameValue, setIn } from './editing';
 import { type Dict, type EndEffectorFile, type EndEffectorsResponse, geometryOf, prettyName, mm, deg } from './geometry';
+import { SPM_SOLVER, type SpmModel, buildSpm } from './spherical3rrr';
 
 const TAB_STORAGE_KEY = 'leakDetection.endEffectorManagerTab';
 const INDENT_PX = 12;
@@ -106,8 +108,18 @@ function EndEffectorPanel({ ee, params, editing, onChange }: PanelProps) {
   const g = useMemo(() => geometryOf(params), [params]);
   const [view, setView] = useState<'params' | 'raw'>('params');
   const [notesOpen, setNotesOpen] = useState(false);
-  // Tools with joints (more than one link) get the 3D view and one slider per joint.
-  const articulated = g.joints.length > 0;
+  // The spherical parallel wrist has its own model: its motors are not a serial chain of joints.
+  const spm = useMemo((): { model: SpmModel } | { error: string } | null => {
+    if (g.solver !== SPM_SOLVER) return null;
+    try {
+      return { model: buildSpm(params) };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : String(e) };
+    }
+  }, [g.solver, params]);
+  const spmModel = spm && 'model' in spm ? spm.model : null;
+  // Serial tools with joints (more than one link) get the 3D view and one slider per joint.
+  const articulated = !spm && g.joints.length > 0;
   const [shape, setShape] = useState<'3d' | '2d'>('3d');
   // Only a change of the home values (or joint count) moves the sliders back home, not every edit.
   const homesKey = JSON.stringify(g.joints.map((j) => j.home));
@@ -121,6 +133,10 @@ function EndEffectorPanel({ ee, params, editing, onChange }: PanelProps) {
   const chainLength = g.chain ? g.chain.link1 + g.chain.link2 : null;
   // ik_solver rejects goals when the link model and offset_z disagree.
   const mismatch = chainLength !== null && Math.abs(chainLength - g.offset[2]) > 1e-4;
+  // The node refuses to start when mount + tool_chain and offset_* disagree by more than 0.5 mm.
+  const spmChain = spmModel?.chainTip ?? null;
+  const spmMismatch = spmChain !== null && Math.hypot(...spmChain.map((x, i) => x - g.offset[i])) > 5e-4;
+  const spmError = spm && 'error' in spm ? spm.error : null;
   const declared = typeof params.declared_end_effector_type === 'string' ? params.declared_end_effector_type : null;
   const nameMismatch = declared !== null && declared !== ee.id;
 
@@ -131,11 +147,11 @@ function EndEffectorPanel({ ee, params, editing, onChange }: PanelProps) {
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('schematic')}</h3>
           <div className="flex items-center gap-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
             <span className="inline-flex items-center gap-1"><span className="w-2.5 h-0.5 bg-red-500" />X</span>
-            {articulated && shape === '3d' && (
+            {(spmModel || (articulated && shape === '3d')) && (
               <span className="inline-flex items-center gap-1"><span className="w-2.5 h-0.5 bg-green-500" />Y</span>
             )}
             <span className="inline-flex items-center gap-1"><span className="w-2.5 h-0.5 bg-blue-500" />Z</span>
-            {articulated && (
+            {(spmModel || articulated) && (
               <span className="inline-flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full border-2 border-cyan-500" />{t('joint')}</span>
             )}
           </div>
@@ -155,7 +171,9 @@ function EndEffectorPanel({ ee, params, editing, onChange }: PanelProps) {
             ))}
           </div>
         )}
-        {articulated && shape === '3d' ? (
+        {spmModel ? (
+          <SpmSection id={ee.id} model={spmModel} jointNames={g.jointNames} />
+        ) : spm ? null : articulated && shape === '3d' ? (
           <EeViewer3D geometry={g} angles={angles} viewKey={ee.id} />
         ) : (
           <EeSchematic geometry={g} jointAngle={angles[0] ?? 0} />
@@ -202,15 +220,47 @@ function EndEffectorPanel({ ee, params, editing, onChange }: PanelProps) {
 
       <section className="flex flex-col gap-4 min-w-0">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <Stat label={t('tipLength')} value={`${mm(g.offset[2])} mm`} hint="offset_z" />
+          <Stat
+            label={t('tipLength')}
+            value={`${mm(g.offset[2])} mm`}
+            hint={spmModel ? `tool0→O ${mm(Math.hypot(...spmModel.center))} · O→tip ${mm(Math.hypot(...spmModel.tip))} mm` : 'offset_z'}
+          />
           <Stat label={t('solver')} value={g.solver ?? '—'} />
-          <Stat label={t('joints')} value={String(g.jointNames.length)} hint={g.jointNames.join(', ') || t('noJoints')} />
-          <Stat label={t('rotation')} value={`${deg(g.rpy[0])}° ${deg(g.rpy[1])}° ${deg(g.rpy[2])}°`} hint="roll · pitch · yaw" />
+          {spmModel ? (
+            <>
+              <Stat
+                label={t('spmLinkAngles')}
+                value={`α ${deg(spmModel.legs[0].alpha)}° · β ${deg(spmModel.legs[0].beta)}°`}
+                hint="∠(u, v) · ∠(v, c)"
+              />
+              <Stat
+                label={t('spmMotorShaft')}
+                value={spmModel.eta === null ? '—' : `η ${deg(spmModel.eta)}°`}
+                hint={`κ = ∠(u, c) ${deg(spmModel.kappaHome)}°`}
+              />
+            </>
+          ) : (
+            <>
+              <Stat label={t('joints')} value={String(g.jointNames.length)} hint={g.jointNames.join(', ') || t('noJoints')} />
+              <Stat label={t('rotation')} value={`${deg(g.rpy[0])}° ${deg(g.rpy[1])}° ${deg(g.rpy[2])}°`} hint="roll · pitch · yaw" />
+            </>
+          )}
         </div>
 
-        {(mismatch || nameMismatch || ee.error || ee.todos.length > 0) && (
+        {(mismatch || spmMismatch || spmError || nameMismatch || ee.error || ee.todos.length > 0) && (
           <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 space-y-1.5">
             {ee.error && <p className="text-xs text-red-700 dark:text-red-300 whitespace-pre-wrap">{ee.error}</p>}
+            {spmError && (
+              <p className="text-xs text-red-700 dark:text-red-300 whitespace-pre-wrap">
+                {t('spmModelError')}: {spmError}
+              </p>
+            )}
+            {spmMismatch && spmChain && (
+              <p className="flex gap-1.5 text-xs text-amber-800 dark:text-amber-200">
+                <IconAlertTriangle size={14} className="shrink-0 mt-px" />
+                {t('spmChainMismatch', { chain: spmChain.map(mm).join(', '), offset: g.offset.map(mm).join(', ') })}
+              </p>
+            )}
             {mismatch && chainLength !== null && (
               <p className="flex gap-1.5 text-xs text-amber-800 dark:text-amber-200">
                 <IconAlertTriangle size={14} className="shrink-0 mt-px" />

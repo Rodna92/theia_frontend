@@ -93,7 +93,35 @@
         "fileNotes": "File notes",
         "colParam": "Parameter",
         "colValue": "Value",
-        "colNote": "Note"
+        "colNote": "Note",
+        "spmHint": "3-RRR spherical parallel wrist: three motors drive the platform through coupled legs, and all nine joint axes meet at the centre O, so the tool only rotates about O. Set a platform orientation; the motor angles come from the solver's inverse kinematics.",
+        "spmPose": {
+          "tilt": "Tilt",
+          "azimuth": "Tilt direction",
+          "torsion": "Torsion"
+        },
+        "spmHome": "Back to home",
+        "spmStatus": {
+          "valid": "Reachable",
+          "unreachable": "Unreachable",
+          "degenerate": "Degenerate",
+          "singular": "Near a singularity",
+          "limits": "Outside motor limits",
+          "servo": "Outside permitted servo counts",
+          "branch": "Wrong assembly branch"
+        },
+        "spmTip": "Tip in tool0",
+        "spmParallelIndex": "Parallel index",
+        "spmMotor": "Motor",
+        "spmAngle": "From home",
+        "spmCounts": "Servo counts",
+        "spmTravel": "Permitted travel",
+        "spmLinkAngles": "Link angles",
+        "spmMotorShaft": "Motor shaft",
+        "spmUnverified": "Servo commands are disabled: verification flags not set ({items}).",
+        "spmSchematicNote": "Axis directions, sphere radii, the centre O and the tool lengths come from the YAML. The motor, link and platform bodies drawn on them are schematic.",
+        "spmModelError": "Cannot build the spherical wrist model",
+        "spmChainMismatch": "mount + tool_chain put the tip at [{chain}] mm but offset_x/y/z is [{offset}] mm (tolerance 0.5 mm). The node refuses to start in this case."
       },
       "advancedSettings": "Advanced Settings",
       "calibration": "Calibration",

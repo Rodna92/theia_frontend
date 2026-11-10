@@ -93,7 +93,35 @@
         "fileNotes": "Dateihinweise",
         "colParam": "Parameter",
         "colValue": "Wert",
-        "colNote": "Hinweis"
+        "colNote": "Hinweis",
+        "spmHint": "Sphärisches 3-RRR-Parallelhandgelenk: Drei Motoren bewegen die Plattform über gekoppelte Beine, und alle neun Gelenkachsen schneiden sich im Zentrum O, sodass sich das Werkzeug nur um O dreht. Plattformorientierung einstellen; die Motorwinkel liefert die inverse Kinematik des Solvers.",
+        "spmPose": {
+          "tilt": "Neigung",
+          "azimuth": "Neigungsrichtung",
+          "torsion": "Torsion"
+        },
+        "spmHome": "Zurück zu Home",
+        "spmStatus": {
+          "valid": "Erreichbar",
+          "unreachable": "Nicht erreichbar",
+          "degenerate": "Degeneriert",
+          "singular": "Nahe einer Singularität",
+          "limits": "Außerhalb der Motorgrenzen",
+          "servo": "Außerhalb der zulässigen Servo-Counts",
+          "branch": "Falscher Montagezweig"
+        },
+        "spmTip": "Spitze in tool0",
+        "spmParallelIndex": "Parallelindex",
+        "spmMotor": "Motor",
+        "spmAngle": "Ab Home",
+        "spmCounts": "Servo-Counts",
+        "spmTravel": "Zulässiger Weg",
+        "spmLinkAngles": "Gliedwinkel",
+        "spmMotorShaft": "Motorwelle",
+        "spmUnverified": "Servo-Befehle deaktiviert: Verifizierungs-Flags nicht gesetzt ({items}).",
+        "spmSchematicNote": "Achsrichtungen, Kugelradien, das Zentrum O und die Werkzeuglängen stammen aus der YAML. Die darauf gezeichneten Motor-, Glied- und Plattformkörper sind schematisch.",
+        "spmModelError": "Modell des sphärischen Handgelenks kann nicht erstellt werden",
+        "spmChainMismatch": "mount + tool_chain ergeben die Spitze bei [{chain}] mm, aber offset_x/y/z ist [{offset}] mm (Toleranz 0,5 mm). Der Knoten startet in diesem Fall nicht."
       },
       "advancedSettings": "Erweiterte Einstellungen",
       "calibration": "Kalibrierung",

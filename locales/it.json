@@ -93,7 +93,35 @@
         "fileNotes": "Note del file",
         "colParam": "Parametro",
         "colValue": "Valore",
-        "colNote": "Nota"
+        "colNote": "Nota",
+        "spmHint": "Polso sferico parallelo 3-RRR: tre motori muovono la piattaforma tramite gambe accoppiate e tutti i nove assi dei giunti si incontrano nel centro O, quindi l'utensile ruota soltanto attorno a O. Imposta un orientamento della piattaforma; gli angoli dei motori derivano dalla cinematica inversa del solver.",
+        "spmPose": {
+          "tilt": "Inclinazione",
+          "azimuth": "Direzione inclinazione",
+          "torsion": "Torsione"
+        },
+        "spmHome": "Torna a home",
+        "spmStatus": {
+          "valid": "Raggiungibile",
+          "unreachable": "Non raggiungibile",
+          "degenerate": "Degenere",
+          "singular": "Vicino a una singolarità",
+          "limits": "Fuori dai limiti del motore",
+          "servo": "Fuori dai conteggi servo consentiti",
+          "branch": "Ramo di assemblaggio errato"
+        },
+        "spmTip": "Punta in tool0",
+        "spmParallelIndex": "Indice parallelo",
+        "spmMotor": "Motore",
+        "spmAngle": "Da home",
+        "spmCounts": "Conteggi servo",
+        "spmTravel": "Corsa consentita",
+        "spmLinkAngles": "Angoli dei link",
+        "spmMotorShaft": "Albero motore",
+        "spmUnverified": "Comandi servo disabilitati: flag di verifica non impostati ({items}).",
+        "spmSchematicNote": "Direzioni degli assi, raggi delle sfere, centro O e lunghezze dell'utensile provengono dallo YAML. I corpi di motori, link e piattaforma disegnati su di essi sono schematici.",
+        "spmModelError": "Impossibile costruire il modello del polso sferico",
+        "spmChainMismatch": "mount + tool_chain portano la punta a [{chain}] mm ma offset_x/y/z è [{offset}] mm (tolleranza 0,5 mm). Il nodo non si avvia in questo caso."
       },
       "advancedSettings": "Impostazioni avanzate",
       "calibration": "Calibrazione",

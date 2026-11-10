@@ -93,7 +93,35 @@
         "fileNotes": "Notes du fichier",
         "colParam": "Paramètre",
         "colValue": "Valeur",
-        "colNote": "Note"
+        "colNote": "Note",
+        "spmHint": "Poignet sphérique parallèle 3-RRR : trois moteurs entraînent la plateforme par des jambes couplées et les neuf axes d'articulation se croisent au centre O, donc l'outil ne fait que tourner autour de O. Choisissez une orientation de la plateforme ; les angles des moteurs viennent de la cinématique inverse du solveur.",
+        "spmPose": {
+          "tilt": "Inclinaison",
+          "azimuth": "Direction d'inclinaison",
+          "torsion": "Torsion"
+        },
+        "spmHome": "Revenir à home",
+        "spmStatus": {
+          "valid": "Atteignable",
+          "unreachable": "Inatteignable",
+          "degenerate": "Dégénéré",
+          "singular": "Proche d'une singularité",
+          "limits": "Hors limites moteur",
+          "servo": "Hors des pas servo autorisés",
+          "branch": "Mauvaise branche d'assemblage"
+        },
+        "spmTip": "Pointe dans tool0",
+        "spmParallelIndex": "Indice parallèle",
+        "spmMotor": "Moteur",
+        "spmAngle": "Depuis home",
+        "spmCounts": "Pas servo",
+        "spmTravel": "Course autorisée",
+        "spmLinkAngles": "Angles des segments",
+        "spmMotorShaft": "Arbre moteur",
+        "spmUnverified": "Commandes servo désactivées : indicateurs de vérification non définis ({items}).",
+        "spmSchematicNote": "Les directions des axes, les rayons des sphères, le centre O et les longueurs de l'outil viennent du YAML. Les corps des moteurs, segments et plateforme dessinés dessus sont schématiques.",
+        "spmModelError": "Impossible de construire le modèle du poignet sphérique",
+        "spmChainMismatch": "mount + tool_chain placent la pointe à [{chain}] mm mais offset_x/y/z vaut [{offset}] mm (tolérance 0,5 mm). Le nœud refuse de démarrer dans ce cas."
       },
       "advancedSettings": "Paramètres avancés",
       "calibration": "Étalonnage",
