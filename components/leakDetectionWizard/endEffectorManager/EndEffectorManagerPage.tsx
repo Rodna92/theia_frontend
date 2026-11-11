@@ -19,6 +19,7 @@ import {
 import { EndEffectorIcon } from '../eeTypeTrajectory/EndEffectorIcon';
 import { EeSchematic } from './EeSchematic';
 import { EeViewer3D } from './EeViewer3D';
+import { EeTestPanel } from './EeTestPanel';
 import { SpmSection } from './SpmSection';
 import { ValueEditor, applyEditsToYaml, getIn, sameValue, setIn } from './editing';
 import { type Dict, type EndEffectorFile, type EndEffectorsResponse, geometryOf, prettyName, mm, deg } from './geometry';
@@ -462,6 +463,8 @@ export function EndEffectorManagerPage() {
           <p className="text-xs text-slate-500 dark:text-slate-500">{t('description')}</p>
         </div>
       </div>
+
+      <EeTestPanel />
 
       <div className="p-6 rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5">
         <div className="flex items-center gap-3 mb-4">

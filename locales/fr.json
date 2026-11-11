@@ -121,7 +121,42 @@
         "spmUnverified": "Commandes servo désactivées : indicateurs de vérification non définis ({items}).",
         "spmSchematicNote": "Les directions des axes, les rayons des sphères, le centre O et les longueurs de l'outil viennent du YAML. Les corps des moteurs, segments et plateforme dessinés dessus sont schématiques.",
         "spmModelError": "Impossible de construire le modèle du poignet sphérique",
-        "spmChainMismatch": "mount + tool_chain placent la pointe à [{chain}] mm mais offset_x/y/z vaut [{offset}] mm (tolérance 0,5 mm). Le nœud refuse de démarrer dans ce cas."
+        "spmChainMismatch": "mount + tool_chain placent la pointe à [{chain}] mm mais offset_x/y/z vaut [{offset}] mm (tolérance 0,5 mm). Le nœud refuse de démarrer dans ce cas.",
+        "test": {
+          "title": "Test de l'effecteur",
+          "description": "Déplacer à la main les articulations de l'outil monté pendant que le système est au repos.",
+          "state": {
+            "IDLE": "Au repos",
+            "BUSY": "Occupé",
+            "TEST": "Mode test",
+            "UNKNOWN": "Orchestrateur hors ligne",
+            "UNREACHABLE": "Injoignable"
+          },
+          "hint": {
+            "IDLE": "Le système attend un départ de cycle. Entrer en mode test verrouille le cycle jusqu'à la sortie.",
+            "BUSY": "Le système démarre, revient en position initiale ou exécute un cycle. Le mode test est disponible une fois au repos.",
+            "TEST": "Mode test : le cycle est verrouillé et les départs sont ignorés. En sortant, l'outil revient en position initiale et le système repart de son état initial.",
+            "UNKNOWN": "L'orchestrateur robotique ne tourne pas : impossible d'entrer en mode test.",
+            "UNREACHABLE": "Le nœud de test de l'effecteur ne répond pas. Vérifiez que la pile robotique tourne sur cette machine."
+          },
+          "enter": "Entrer en mode test",
+          "exit": "Quitter le mode test",
+          "working": "En cours…",
+          "exitForce": "Quitter sans retour initial",
+          "exitForceHint": "Quitte le mode test alors que l'outil n'a pas pu revenir en position initiale. Vérifiez l'outil avant de lancer un cycle.",
+          "tool": "Outil monté",
+          "step": "Pas",
+          "home": "Tout en position initiale",
+          "stop": "Stop",
+          "noServos": "Rien à déplacer sur cet outil :",
+          "busError": "Bus servo :",
+          "servo": "servo {id}",
+          "atHome": "position initiale",
+          "counts": "{counts} points",
+          "jogMinus": "Déplacer {joint} de −{step}°",
+          "jogPlus": "Déplacer {joint} de +{step}°",
+          "jogHint": "Cliquer pour un pas, maintenir pour continuer"
+        }
       },
       "advancedSettings": "Paramètres avancés",
       "calibration": "Étalonnage",

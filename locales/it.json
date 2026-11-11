@@ -121,7 +121,42 @@
         "spmUnverified": "Comandi servo disabilitati: flag di verifica non impostati ({items}).",
         "spmSchematicNote": "Direzioni degli assi, raggi delle sfere, centro O e lunghezze dell'utensile provengono dallo YAML. I corpi di motori, link e piattaforma disegnati su di essi sono schematici.",
         "spmModelError": "Impossibile costruire il modello del polso sferico",
-        "spmChainMismatch": "mount + tool_chain portano la punta a [{chain}] mm ma offset_x/y/z è [{offset}] mm (tolleranza 0,5 mm). Il nodo non si avvia in questo caso."
+        "spmChainMismatch": "mount + tool_chain portano la punta a [{chain}] mm ma offset_x/y/z è [{offset}] mm (tolleranza 0,5 mm). Il nodo non si avvia in questo caso.",
+        "test": {
+          "title": "Test end effector",
+          "description": "Muovi a mano i giunti dell'utensile montato mentre il sistema è inattivo.",
+          "state": {
+            "IDLE": "Inattivo",
+            "BUSY": "Occupato",
+            "TEST": "Modalità test",
+            "UNKNOWN": "Orchestratore offline",
+            "UNREACHABLE": "Non raggiungibile"
+          },
+          "hint": {
+            "IDLE": "Il sistema attende l'avvio di un ciclo. Entrando in modalità test il ciclo resta bloccato finché non esci.",
+            "BUSY": "Il sistema è in avvio, in homing o sta eseguendo un ciclo. La modalità test è disponibile quando è inattivo.",
+            "TEST": "Modalità test: il ciclo è bloccato e i comandi di avvio vengono ignorati. Uscendo l'utensile torna in home e il sistema riparte dallo stato iniziale.",
+            "UNKNOWN": "L'orchestratore della robotica non è in esecuzione: non è possibile entrare in modalità test.",
+            "UNREACHABLE": "Il nodo di test dell'end effector non risponde. Verifica che lo stack robotica sia in esecuzione su questa macchina."
+          },
+          "enter": "Entra in modalità test",
+          "exit": "Esci dalla modalità test",
+          "working": "In corso…",
+          "exitForce": "Esci senza homing",
+          "exitForceHint": "Esce dalla modalità test anche se non è stato possibile riportare l'utensile in home. Controlla l'utensile prima di avviare un ciclo.",
+          "tool": "Utensile montato",
+          "step": "Passo",
+          "home": "Tutti in home",
+          "stop": "Stop",
+          "noServos": "Niente da muovere su questo utensile:",
+          "busError": "Bus servo:",
+          "servo": "servo {id}",
+          "atHome": "in home",
+          "counts": "{counts} count",
+          "jogMinus": "Muovi {joint} di −{step}°",
+          "jogPlus": "Muovi {joint} di +{step}°",
+          "jogHint": "Clic per un passo, tieni premuto per continuare"
+        }
       },
       "advancedSettings": "Impostazioni avanzate",
       "calibration": "Calibrazione",

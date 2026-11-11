@@ -121,7 +121,42 @@
         "spmUnverified": "Servo commands are disabled: verification flags not set ({items}).",
         "spmSchematicNote": "Axis directions, sphere radii, the centre O and the tool lengths come from the YAML. The motor, link and platform bodies drawn on them are schematic.",
         "spmModelError": "Cannot build the spherical wrist model",
-        "spmChainMismatch": "mount + tool_chain put the tip at [{chain}] mm but offset_x/y/z is [{offset}] mm (tolerance 0.5 mm). The node refuses to start in this case."
+        "spmChainMismatch": "mount + tool_chain put the tip at [{chain}] mm but offset_x/y/z is [{offset}] mm (tolerance 0.5 mm). The node refuses to start in this case.",
+        "test": {
+          "title": "End effector test",
+          "description": "Move the joints of the mounted tool by hand while the system is idle.",
+          "state": {
+            "IDLE": "Idle",
+            "BUSY": "Busy",
+            "TEST": "Test mode",
+            "UNKNOWN": "Orchestrator offline",
+            "UNREACHABLE": "Not reachable"
+          },
+          "hint": {
+            "IDLE": "The system is waiting for a cycle start. Entering test mode locks the cycle until you leave it.",
+            "BUSY": "The system is starting up, homing or running a cycle. Test mode is available once it is idle.",
+            "TEST": "Test mode: the cycle is locked and start triggers are ignored. Leaving brings the tool home and restarts the system from its initial state.",
+            "UNKNOWN": "The robotics orchestrator is not running, so test mode cannot be entered.",
+            "UNREACHABLE": "The end-effector test node does not answer. Check that the robotics stack is running on this machine."
+          },
+          "enter": "Enter test mode",
+          "exit": "Exit test mode",
+          "working": "Working…",
+          "exitForce": "Exit without homing",
+          "exitForceHint": "Leaves test mode even though the tool could not be brought home. Check the tool before starting a cycle.",
+          "tool": "Mounted tool",
+          "step": "Step",
+          "home": "Home all",
+          "stop": "Stop",
+          "noServos": "Nothing to move on this tool:",
+          "busError": "Servo bus:",
+          "servo": "servo {id}",
+          "atHome": "at home",
+          "counts": "{counts} counts",
+          "jogMinus": "Jog {joint} by −{step}°",
+          "jogPlus": "Jog {joint} by +{step}°",
+          "jogHint": "Click for one step, hold to keep moving"
+        }
       },
       "advancedSettings": "Advanced Settings",
       "calibration": "Calibration",

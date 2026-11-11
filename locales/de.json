@@ -121,7 +121,42 @@
         "spmUnverified": "Servo-Befehle deaktiviert: Verifizierungs-Flags nicht gesetzt ({items}).",
         "spmSchematicNote": "Achsrichtungen, Kugelradien, das Zentrum O und die Werkzeuglängen stammen aus der YAML. Die darauf gezeichneten Motor-, Glied- und Plattformkörper sind schematisch.",
         "spmModelError": "Modell des sphärischen Handgelenks kann nicht erstellt werden",
-        "spmChainMismatch": "mount + tool_chain ergeben die Spitze bei [{chain}] mm, aber offset_x/y/z ist [{offset}] mm (Toleranz 0,5 mm). Der Knoten startet in diesem Fall nicht."
+        "spmChainMismatch": "mount + tool_chain ergeben die Spitze bei [{chain}] mm, aber offset_x/y/z ist [{offset}] mm (Toleranz 0,5 mm). Der Knoten startet in diesem Fall nicht.",
+        "test": {
+          "title": "Endeffektor-Test",
+          "description": "Die Gelenke des montierten Werkzeugs von Hand bewegen, während das System im Leerlauf ist.",
+          "state": {
+            "IDLE": "Leerlauf",
+            "BUSY": "Beschäftigt",
+            "TEST": "Testmodus",
+            "UNKNOWN": "Orchestrator offline",
+            "UNREACHABLE": "Nicht erreichbar"
+          },
+          "hint": {
+            "IDLE": "Das System wartet auf einen Zyklusstart. Der Testmodus sperrt den Zyklus, bis er verlassen wird.",
+            "BUSY": "Das System startet, fährt in die Grundstellung oder führt einen Zyklus aus. Der Testmodus ist im Leerlauf verfügbar.",
+            "TEST": "Testmodus: Der Zyklus ist gesperrt und Startsignale werden ignoriert. Beim Verlassen fährt das Werkzeug in die Grundstellung und das System startet aus dem Anfangszustand.",
+            "UNKNOWN": "Der Robotik-Orchestrator läuft nicht, der Testmodus kann nicht aktiviert werden.",
+            "UNREACHABLE": "Der Endeffektor-Testknoten antwortet nicht. Prüfen, ob der Robotik-Stack auf diesem Rechner läuft."
+          },
+          "enter": "Testmodus starten",
+          "exit": "Testmodus verlassen",
+          "working": "Läuft…",
+          "exitForce": "Ohne Grundstellung verlassen",
+          "exitForceHint": "Verlässt den Testmodus, obwohl das Werkzeug nicht in die Grundstellung gefahren werden konnte. Werkzeug vor dem Zyklusstart prüfen.",
+          "tool": "Montiertes Werkzeug",
+          "step": "Schritt",
+          "home": "Alle in Grundstellung",
+          "stop": "Stopp",
+          "noServos": "An diesem Werkzeug ist nichts zu bewegen:",
+          "busError": "Servo-Bus:",
+          "servo": "Servo {id}",
+          "atHome": "in Grundstellung",
+          "counts": "{counts} Counts",
+          "jogMinus": "{joint} um −{step}° bewegen",
+          "jogPlus": "{joint} um +{step}° bewegen",
+          "jogHint": "Klicken für einen Schritt, halten für Dauerbewegung"
+        }
       },
       "advancedSettings": "Erweiterte Einstellungen",
       "calibration": "Kalibrierung",

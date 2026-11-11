@@ -121,7 +121,42 @@
         "spmUnverified": "Comandos de servo deshabilitados: indicadores de verificación sin activar ({items}).",
         "spmSchematicNote": "Las direcciones de los ejes, los radios de las esferas, el centro O y las longitudes de la herramienta vienen del YAML. Los cuerpos de motores, eslabones y plataforma dibujados sobre ellos son esquemáticos.",
         "spmModelError": "No se puede construir el modelo de la muñeca esférica",
-        "spmChainMismatch": "mount + tool_chain sitúan la punta en [{chain}] mm pero offset_x/y/z es [{offset}] mm (tolerancia 0,5 mm). El nodo no arranca en este caso."
+        "spmChainMismatch": "mount + tool_chain sitúan la punta en [{chain}] mm pero offset_x/y/z es [{offset}] mm (tolerancia 0,5 mm). El nodo no arranca en este caso.",
+        "test": {
+          "title": "Prueba del efector final",
+          "description": "Mueve a mano las articulaciones de la herramienta montada mientras el sistema está en reposo.",
+          "state": {
+            "IDLE": "En reposo",
+            "BUSY": "Ocupado",
+            "TEST": "Modo prueba",
+            "UNKNOWN": "Orquestador sin conexión",
+            "UNREACHABLE": "No accesible"
+          },
+          "hint": {
+            "IDLE": "El sistema espera el inicio de un ciclo. Al entrar en modo prueba el ciclo queda bloqueado hasta que salgas.",
+            "BUSY": "El sistema está arrancando, volviendo a la posición inicial o ejecutando un ciclo. El modo prueba está disponible cuando esté en reposo.",
+            "TEST": "Modo prueba: el ciclo está bloqueado y las órdenes de inicio se ignoran. Al salir, la herramienta vuelve a su posición inicial y el sistema arranca desde su estado inicial.",
+            "UNKNOWN": "El orquestador de robótica no está en ejecución: no se puede entrar en modo prueba.",
+            "UNREACHABLE": "El nodo de prueba del efector final no responde. Comprueba que la pila de robótica se ejecuta en esta máquina."
+          },
+          "enter": "Entrar en modo prueba",
+          "exit": "Salir del modo prueba",
+          "working": "En curso…",
+          "exitForce": "Salir sin volver al inicio",
+          "exitForceHint": "Sale del modo prueba aunque la herramienta no haya podido volver a su posición inicial. Revisa la herramienta antes de iniciar un ciclo.",
+          "tool": "Herramienta montada",
+          "step": "Paso",
+          "home": "Todo a inicio",
+          "stop": "Parar",
+          "noServos": "No hay nada que mover en esta herramienta:",
+          "busError": "Bus de servos:",
+          "servo": "servo {id}",
+          "atHome": "en inicio",
+          "counts": "{counts} cuentas",
+          "jogMinus": "Mover {joint} −{step}°",
+          "jogPlus": "Mover {joint} +{step}°",
+          "jogHint": "Clic para un paso, mantén pulsado para seguir"
+        }
       },
       "advancedSettings": "Configuración Avanzada",
       "calibration": "Calibración",
