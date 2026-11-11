@@ -4,8 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const DEFAULT_MODELS_DIR =
-  'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds';
+// Windows development machine:
+// const DEFAULT_MODELS_DIR = 'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds';
+// Jetson (this workcell):
+const DEFAULT_MODELS_DIR = '/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/pointclouds';
 const STORE_FILE = path.join(process.cwd(), 'data', 'ee-target-models.json');
 const SAFE_NAME = /^[A-Za-z0-9_-]+$/;
 

@@ -15,7 +15,10 @@ import {
 } from '@tabler/icons-react';
 import { PathPickerModal } from '../visionParams/PathPickerModal';
 
-const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Robotics_ALDM_1.0.3/aldm_control/config/phases';
+// Windows development machine:
+// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Robotics_ALDM_1.0.3/aldm_control/config/phases';
+// Jetson (this workcell):
+const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/robot_app/aldm_control/config/phases';
 // Holds a folder or a .yaml file path.
 const DIR_STORAGE_KEY = 'leakDetection.robotParamsDir';
 const ALL = '__all__';

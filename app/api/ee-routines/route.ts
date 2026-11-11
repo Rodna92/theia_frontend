@@ -5,7 +5,10 @@ import { parse } from 'yaml';
 
 export const dynamic = 'force-dynamic';
 
-const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_End_Effector/config/routines/aldm';
+// Windows development machine:
+// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_End_Effector/config/routines/aldm';
+// Jetson (this workcell):
+const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/ee_app/config/routines/aldm';
 const SAFE_NAME = /^[A-Za-z0-9_-]+$/;
 
 type Vec3 = [number, number, number];

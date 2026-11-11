@@ -4,7 +4,10 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const DEFAULT_DIR = 'X:\\dev\\FT-Theia\\FT_Workcell_End_Effector\\config\\end_effectors';
+// Windows development machine:
+// const DEFAULT_DIR = 'X:\\dev\\FT-Theia\\FT_Workcell_End_Effector\\config\\end_effectors';
+// Jetson (this workcell):
+const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/ee_app/config/end_effectors';
 
 const num = (text: string, key: string): number => {
   const m = text.match(new RegExp(`^\\s*${key}:\\s*(-?[0-9.]+)`, 'm'));

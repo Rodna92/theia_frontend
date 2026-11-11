@@ -24,7 +24,10 @@ import { OnnxInfoModal } from './OnnxInfoModal';
 import { GroupGeometryView } from './GroupGeometryView';
 import { CORRECTION_FIELDS, SceneCorrectionView, type CorrectionField, type CorrectionValue } from './SceneCorrectionView';
 
-const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/config';
+// Windows development machine:
+// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/config';
+// Jetson (this workcell):
+const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/config';
 const DEFAULT_FILE = 'vision_params.yaml';
 
 // Focused view: sections that show only these params, in this order.

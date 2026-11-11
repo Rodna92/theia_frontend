@@ -4,7 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Robotics_ALDM_1.0.3/aldm_control/config/BehaviorTree';
+// Windows development machine:
+// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Robotics_ALDM_1.0.3/aldm_control/config/BehaviorTree';
+// Jetson (this workcell):
+const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/robot_app/aldm_control/config/BehaviorTree';
 const TREE_FILE = 'aldm_target_loop.xml';
 const MODEL_FILE = 'tree_nodes_model.xml';
 

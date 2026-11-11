@@ -5,7 +5,10 @@ import { parse } from 'yaml';
 
 export const dynamic = 'force-dynamic';
 
-const DEFAULT_DIR = 'X:\\dev\\FT-Theia\\FT_Workcell_End_Effector\\config\\end_effectors';
+// Windows development machine:
+// const DEFAULT_DIR = 'X:\\dev\\FT-Theia\\FT_Workcell_End_Effector\\config\\end_effectors';
+// Jetson (this workcell):
+const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/ee_app/config/end_effectors';
 
 type Dict = Record<string, unknown>;
 

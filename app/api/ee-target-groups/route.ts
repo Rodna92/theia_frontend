@@ -4,8 +4,10 @@ import { parse } from 'yaml';
 
 export const dynamic = 'force-dynamic';
 
-const DEFAULT_FILE =
-  'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/config/vision_params.yaml';
+// Windows development machine:
+// const DEFAULT_FILE = 'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/config/vision_params.yaml';
+// Jetson (this workcell):
+const DEFAULT_FILE = '/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/config/vision_params.yaml';
 
 const KEYS = {
   anchor: 'ariston_a_target_group_anchor',
