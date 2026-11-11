@@ -260,9 +260,13 @@ export function VisionParamsPage() {
       if (json.error && keepOnError) return json.error;
       setData(json);
       setCurrentPath(target);
-      try {
-        localStorage.setItem(DIR_STORAGE_KEY, target);
-      } catch {}
+      // Only a path that actually loads is remembered: a failing one (e.g. a path from another
+      // machine) must not come back on the next visit.
+      if (!json.error) {
+        try {
+          localStorage.setItem(DIR_STORAGE_KEY, target);
+        } catch {}
+      }
       return json.error ?? null;
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
@@ -278,7 +282,12 @@ export function VisionParamsPage() {
     try {
       saved = localStorage.getItem(DIR_STORAGE_KEY);
     } catch {}
-    load(saved || DEFAULT_DIR);
+    // A remembered path that no longer loads (e.g. the old Windows default) falls back to
+    // the default folder, which then replaces it.
+    (async () => {
+      if (saved && saved !== DEFAULT_DIR && !(await load(saved, true))) return;
+      load(DEFAULT_DIR);
+    })();
   }, [load]);
 
   const query = filter.trim().toLowerCase();

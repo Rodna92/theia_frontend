@@ -1,0 +1,9 @@
+{
+  "aldm/ariston_a/spherical_3d_end_effector/1": "/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/pointclouds/Tappo_1.stl",
+  "aldm/ariston_a/spherical_3d_end_effector/2": "/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/pointclouds/Tappo_2.stl",
+  "aldm/ariston_a/spherical_3d_end_effector/3": "/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/pointclouds/Tappo_3.stl",
+  "aldm/ariston_a/spherical_3d_end_effector/4": "/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/pointclouds/Tappo_4.stl",
+  "aldm/ariston_a/spherical_3d_end_effector/5": "/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/pointclouds/Tappo_5.stl",
+  "aldm/ariston_a/spherical_3d_end_effector/6": "/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/pointclouds/Tappo_6.stl",
+  "aldm/ariston_a/spherical_3d_end_effector/7": "/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/pointclouds/Tappo_7.stl"
+}
