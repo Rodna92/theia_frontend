@@ -566,6 +566,51 @@
         "complete": "Complete"
       }
     },
+    "monitor": {
+      "systemState": "System state",
+      "states": {
+        "BUSY": "Running",
+        "IDLE": "Idle: waiting for the external machine",
+        "STOPPED": "Stopped",
+        "TEST": "End-effector test mode",
+        "UNKNOWN": "No state from the orchestrator",
+        "OFFLINE": "Workcell stack not reachable"
+      },
+      "steps": {
+        "init": "Initial states (homing)",
+        "waiting": "Waiting for the external machine",
+        "cycle": "Cycle running",
+        "target": "Target {current} of {total}",
+        "scene": "scene {current} of {total}",
+        "stopped": "Stopped by the operator"
+      },
+      "checks": {
+        "state": "State",
+        "command": "Command",
+        "vision": "Vision",
+        "robot": "Robot",
+        "endeffector": "End-effector",
+        "leakEquipment": "Leak equipment",
+        "nodeDown": "not running",
+        "partial": "partly running"
+      },
+      "video": {
+        "unavailable": "No video from the vision module",
+        "overlay": "Detections",
+        "color": "Camera",
+        "mask": "Mask"
+      },
+      "hints": {
+        "start": "Start returns the system to its initial states; the robot moves to home.",
+        "test": "Test simulates one cycle request from the external machine.",
+        "offline": "The workcell keeps running on its own; this page only cannot see it."
+      },
+      "commandFailed": "Command failed",
+      "progress": "Progress",
+      "recipe": "Recipe",
+      "phase": "Phase",
+      "visionMode": "Vision mode"
+    },
     "status": {
       "live": "LIVE",
       "idle": "IDLE",

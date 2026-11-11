@@ -2,13 +2,10 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 import { isMap, isPair, isScalar, parseDocument, type Pair, type YAMLMap } from 'yaml';
+import { workcellPaths } from '@/lib/server/workcellPaths';
 
 export const dynamic = 'force-dynamic';
 
-// Windows development machine:
-// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Robotics_ALDM_1.0.3/aldm_control/config/phases';
-// Jetson (this workcell):
-const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/robot_app/aldm_control/config/phases';
 const YAML_FILE = /\.ya?ml$/i;
 
 interface Param {
@@ -110,7 +107,7 @@ async function readParamsFile(filePath: string): Promise<FileParams> {
 // A folder loads every YAML file directly inside it (sorted by name); a file loads only that file.
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams;
-  const target = (q.get('path') ?? q.get('dir'))?.trim() || process.env.ROBOT_PARAMS_DIR || DEFAULT_DIR;
+  const target = (q.get('path') ?? q.get('dir'))?.trim() || workcellPaths.robotParamsDir();
   const resolved = path.resolve(target);
 
   let filePaths: string[];

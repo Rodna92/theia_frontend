@@ -1,13 +1,10 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
+import { workcellPaths } from '@/lib/server/workcellPaths';
 
 export const dynamic = 'force-dynamic';
 
-// Windows development machine:
-// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Robotics_ALDM_1.0.3/aldm_control/config/BehaviorTree';
-// Jetson (this workcell):
-const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/robot_app/aldm_control/config/BehaviorTree';
 const TREE_FILE = 'aldm_target_loop.xml';
 const MODEL_FILE = 'tree_nodes_model.xml';
 
@@ -186,7 +183,7 @@ async function readSource(filePath: string): Promise<SourceFile> {
 
 // GET ?path=<folder holding aldm_target_loop.xml and tree_nodes_model.xml>
 export async function GET(req: NextRequest) {
-  const target = req.nextUrl.searchParams.get('path')?.trim() || process.env.BEHAVIOR_TREE_DIR || DEFAULT_DIR;
+  const target = req.nextUrl.searchParams.get('path')?.trim() || workcellPaths.behaviorTreeDir();
   const dir = path.resolve(target);
 
   const [treeFile, modelFile] = await Promise.all([

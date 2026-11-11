@@ -563,6 +563,51 @@
         "complete": "Abgeschlossen"
       }
     },
+    "monitor": {
+      "systemState": "Systemzustand",
+      "states": {
+        "BUSY": "Läuft",
+        "IDLE": "Bereit: wartet auf die externe Maschine",
+        "STOPPED": "Gestoppt",
+        "TEST": "Endeffektor-Testmodus",
+        "UNKNOWN": "Kein Zustand vom Orchestrator",
+        "OFFLINE": "Workcell-Stack nicht erreichbar"
+      },
+      "steps": {
+        "init": "Anfangszustände (Homing)",
+        "waiting": "Wartet auf die externe Maschine",
+        "cycle": "Zyklus läuft",
+        "target": "Ziel {current} von {total}",
+        "scene": "Szene {current} von {total}",
+        "stopped": "Vom Bediener gestoppt"
+      },
+      "checks": {
+        "state": "Zustand",
+        "command": "Befehl",
+        "vision": "Vision",
+        "robot": "Roboter",
+        "endeffector": "Endeffektor",
+        "leakEquipment": "Lecksuchgerät",
+        "nodeDown": "läuft nicht",
+        "partial": "läuft teilweise"
+      },
+      "video": {
+        "unavailable": "Kein Video vom Vision-Modul",
+        "overlay": "Erkennungen",
+        "color": "Kamera",
+        "mask": "Maske"
+      },
+      "hints": {
+        "start": "Start bringt das System in die Anfangszustände zurück; der Roboter fährt in die Home-Position.",
+        "test": "Test simuliert eine Zyklusanforderung der externen Maschine.",
+        "offline": "Die Workcell läuft selbstständig weiter; diese Seite kann sie nur nicht sehen."
+      },
+      "commandFailed": "Befehl fehlgeschlagen",
+      "progress": "Fortschritt",
+      "recipe": "Rezept",
+      "phase": "Phase",
+      "visionMode": "Vision-Modus"
+    },
     "status": {
       "live": "LIVE",
       "idle": "UNTÄTIG",

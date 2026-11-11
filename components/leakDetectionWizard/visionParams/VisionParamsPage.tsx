@@ -23,11 +23,8 @@ import { PlyViewerModal } from './PlyViewerModal';
 import { OnnxInfoModal } from './OnnxInfoModal';
 import { GroupGeometryView } from './GroupGeometryView';
 import { CORRECTION_FIELDS, SceneCorrectionView, type CorrectionField, type CorrectionValue } from './SceneCorrectionView';
+import { getWorkcellPath } from '@/client/services/workcellPaths';
 
-// Windows development machine:
-// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/config';
-// Jetson (this workcell):
-const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/config';
 const DEFAULT_FILE = 'vision_params.yaml';
 
 // Focused view: sections that show only these params, in this order.
@@ -196,7 +193,9 @@ export function VisionParamsPage() {
   const t = useTranslations('leakDetection.configure.vision.params');
   const tRoot = useTranslations();
   const locale = useLocale();
-  const [currentPath, setCurrentPath] = useState(DEFAULT_DIR);
+  const [currentPath, setCurrentPath] = useState('');
+  // This machine's default folder, from the server; '' until it is known.
+  const [defaultDir, setDefaultDir] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [plyPath, setPlyPath] = useState<string | null>(null);
   const [onnxPath, setOnnxPath] = useState<string | null>(null);
@@ -285,8 +284,10 @@ export function VisionParamsPage() {
     // A remembered path that no longer loads (e.g. the old Windows default) falls back to
     // the default folder, which then replaces it.
     (async () => {
-      if (saved && saved !== DEFAULT_DIR && !(await load(saved, true))) return;
-      load(DEFAULT_DIR);
+      const def = await getWorkcellPath('visionParamsDir');
+      setDefaultDir(def);
+      if (saved && saved !== def && !(await load(saved, true))) return;
+      load(def);
     })();
   }, [load]);
 
@@ -408,7 +409,7 @@ export function VisionParamsPage() {
         {pickerOpen && (
           <PathPickerModal
             initialPath={data?.path ?? currentPath}
-            defaultPath={DEFAULT_DIR}
+            defaultPath={defaultDir}
             onApply={(p) => load(p, true)}
             onClose={() => setPickerOpen(false)}
           />

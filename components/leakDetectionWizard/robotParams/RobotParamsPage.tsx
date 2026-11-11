@@ -14,11 +14,8 @@ import {
   IconInfoCircle,
 } from '@tabler/icons-react';
 import { PathPickerModal } from '../visionParams/PathPickerModal';
+import { getWorkcellPath } from '@/client/services/workcellPaths';
 
-// Windows development machine:
-// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Robotics_ALDM_1.0.3/aldm_control/config/phases';
-// Jetson (this workcell):
-const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/robot_app/aldm_control/config/phases';
 // Holds a folder or a .yaml file path.
 const DIR_STORAGE_KEY = 'leakDetection.robotParamsDir';
 const ALL = '__all__';
@@ -218,7 +215,9 @@ export function RobotParamsPage() {
   const t = useTranslations('leakDetection.configure.robot.params');
   const tRoot = useTranslations();
   const locale = useLocale();
-  const [currentPath, setCurrentPath] = useState(DEFAULT_DIR);
+  const [currentPath, setCurrentPath] = useState('');
+  // This machine's default folder, from the server; '' until it is known.
+  const [defaultDir, setDefaultDir] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [data, setData] = useState<RobotParamsResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -261,8 +260,10 @@ export function RobotParamsPage() {
     // A remembered path that no longer loads (e.g. the old Windows default) falls back to
     // the default folder, which then replaces it.
     (async () => {
-      if (saved && saved !== DEFAULT_DIR && !(await load(saved, true))) return;
-      load(DEFAULT_DIR);
+      const def = await getWorkcellPath('robotParamsDir');
+      setDefaultDir(def);
+      if (saved && saved !== def && !(await load(saved, true))) return;
+      load(def);
     })();
   }, [load]);
 
@@ -375,7 +376,7 @@ export function RobotParamsPage() {
         {pickerOpen && (
           <PathPickerModal
             initialPath={data?.path ?? currentPath}
-            defaultPath={DEFAULT_DIR}
+            defaultPath={defaultDir}
             onApply={(p) => load(p, true)}
             onClose={() => setPickerOpen(false)}
             i18nNamespace="leakDetection.configure.robot.params.picker"

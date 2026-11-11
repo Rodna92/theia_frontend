@@ -563,6 +563,51 @@
         "complete": "Completado"
       }
     },
+    "monitor": {
+      "systemState": "Estado del sistema",
+      "states": {
+        "BUSY": "En ejecución",
+        "IDLE": "En espera de la máquina externa",
+        "STOPPED": "Detenido",
+        "TEST": "Modo de prueba del efector final",
+        "UNKNOWN": "Sin estado del orquestador",
+        "OFFLINE": "Stack de la workcell no accesible"
+      },
+      "steps": {
+        "init": "Estados iniciales (homing)",
+        "waiting": "En espera de la máquina externa",
+        "cycle": "Ciclo en curso",
+        "target": "Objetivo {current} de {total}",
+        "scene": "escena {current} de {total}",
+        "stopped": "Detenido por el operador"
+      },
+      "checks": {
+        "state": "Estado",
+        "command": "Comando",
+        "vision": "Visión",
+        "robot": "Robot",
+        "endeffector": "Efector final",
+        "leakEquipment": "Detector de fugas",
+        "nodeDown": "no está en ejecución",
+        "partial": "parcialmente en ejecución"
+      },
+      "video": {
+        "unavailable": "Sin vídeo del módulo de visión",
+        "overlay": "Detecciones",
+        "color": "Cámara",
+        "mask": "Máscara"
+      },
+      "hints": {
+        "start": "Start devuelve el sistema a sus estados iniciales; el robot va a home.",
+        "test": "Test simula una solicitud de ciclo de la máquina externa.",
+        "offline": "La workcell sigue funcionando por sí sola; esta página solo no puede verla."
+      },
+      "commandFailed": "El comando falló",
+      "progress": "Progreso",
+      "recipe": "Receta",
+      "phase": "Fase",
+      "visionMode": "Modo de visión"
+    },
     "status": {
       "live": "EN DIRECTO",
       "idle": "INACTIVO",

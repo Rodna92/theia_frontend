@@ -4,6 +4,7 @@ import { CSSProperties, ReactNode } from 'react';
 
 interface SetButtonProps {
   onClick?: () => void;
+  disabled?: boolean;
   label: string;
   icon?: ReactNode;
   light: {
@@ -22,6 +23,7 @@ interface SetButtonProps {
 
 export function SetButton({
   onClick,
+  disabled,
   label,
   icon,
   light,
@@ -44,8 +46,10 @@ export function SetButton({
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       style={dynamicStyle}
       className="
+        disabled:opacity-40 disabled:pointer-events-none
         group relative w-full overflow-hidden rounded-xl border
         transition-all duration-300 ease-out
         

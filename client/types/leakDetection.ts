@@ -25,31 +25,3 @@ export interface LeakDetectionFlowStep {
   label: string;
   state: ProcessStepState;
 }
-
-export interface StartLeakDetectionRequestDTO {
-  processId?: string;
-}
-
-export interface StartLeakDetectionResponseDTO {
-  success: boolean;
-  message?: string;
-  processInstanceId?: string;
-}
-
-export interface TestLeakDetectionRequestDTO {
-  processId?: string;
-}
-
-export interface TestLeakDetectionResponseDTO {
-  success: boolean;
-  message?: string;
-}
-
-export interface ConfigureLeakDetectionRequestDTO {
-  config?: Record<string, unknown>;
-}
-
-export interface ConfigureLeakDetectionResponseDTO {
-  success: boolean;
-  message?: string;
-}

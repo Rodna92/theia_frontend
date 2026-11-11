@@ -2,13 +2,9 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
 import { parse } from 'yaml';
+import { workcellPaths } from '@/lib/server/workcellPaths';
 
 export const dynamic = 'force-dynamic';
-
-// Windows development machine:
-// const DEFAULT_DIR = 'X:\\dev\\FT-Theia\\FT_Workcell_End_Effector\\config\\end_effectors';
-// Jetson (this workcell):
-const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/ee_app/config/end_effectors';
 
 type Dict = Record<string, unknown>;
 
@@ -64,7 +60,7 @@ function rosParams(doc: unknown): Dict {
 
 // Reads every end-effector YAML of END_EFFECTORS_DIR (or ?dir=) with all of its parameters.
 export async function GET(req: Request) {
-  const dir = new URL(req.url).searchParams.get('dir') || process.env.END_EFFECTORS_DIR || DEFAULT_DIR;
+  const dir = new URL(req.url).searchParams.get('dir') || workcellPaths.endEffectorsDir();
   try {
     const files = (await fs.readdir(dir)).filter((f) => /\.ya?ml$/i.test(f)).sort();
     const endEffectors = await Promise.all(

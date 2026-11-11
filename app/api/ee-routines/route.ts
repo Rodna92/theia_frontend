@@ -2,13 +2,10 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 import { parse } from 'yaml';
+import { workcellPaths } from '@/lib/server/workcellPaths';
 
 export const dynamic = 'force-dynamic';
 
-// Windows development machine:
-// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_End_Effector/config/routines/aldm';
-// Jetson (this workcell):
-const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/ee_app/config/routines/aldm';
 const SAFE_NAME = /^[A-Za-z0-9_-]+$/;
 
 type Vec3 = [number, number, number];
@@ -318,7 +315,7 @@ function sample(
 // target-local frame (+Z points into the panel, so outward is -Z). Each routine starts at the
 // target's approach view (approach_views: FINE_APPROACH standoff, defaulting to the coarse one).
 export async function GET(req: NextRequest) {
-  const dir = process.env.EE_ROUTINES_DIR || DEFAULT_DIR;
+  const dir = workcellPaths.eeRoutinesDir();
   const equipment = req.nextUrl.searchParams.get('equipment') ?? '';
   const endEffector = req.nextUrl.searchParams.get('endEffector') ?? '';
   if (!SAFE_NAME.test(equipment) || !SAFE_NAME.test(endEffector)) {

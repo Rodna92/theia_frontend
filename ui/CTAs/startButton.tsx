@@ -4,14 +4,17 @@ import { IconPlayerPlay } from '@tabler/icons-react';
 
 interface StartButtonProps {
   onClick?: () => void;
+  disabled?: boolean;
   label: string;
 }
 
-export function StartButton({ onClick, label }: StartButtonProps) {
+export function StartButton({ onClick, disabled, label }: StartButtonProps) {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className="
+        disabled:opacity-40 disabled:pointer-events-none
         group relative isolate w-full overflow-hidden rounded-xl
         transition-all duration-300 ease-out
         

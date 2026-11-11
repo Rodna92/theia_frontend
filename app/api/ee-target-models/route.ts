@@ -1,13 +1,10 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
+import { workcellPaths } from '@/lib/server/workcellPaths';
 
 export const dynamic = 'force-dynamic';
 
-// Windows development machine:
-// const DEFAULT_MODELS_DIR = 'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/pointclouds';
-// Jetson (this workcell):
-const DEFAULT_MODELS_DIR = '/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/pointclouds';
 const STORE_FILE = path.join(process.cwd(), 'data', 'ee-target-models.json');
 const SAFE_NAME = /^[A-Za-z0-9_-]+$/;
 
@@ -30,6 +27,17 @@ async function writeStore(store: Store) {
   await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2) + '\n', 'utf8');
 }
 
+// The store keeps a model inside the models folder relative to it, so the file is valid on
+// every machine; a model anywhere else is kept as the absolute path that was typed.
+const posix = (p: string) => p.replace(/\\/g, '/');
+
+const toStored = (dir: string, p: string) => {
+  const rel = path.relative(dir, p);
+  return rel && !rel.startsWith('..') && !path.isAbsolute(rel) ? posix(rel) : posix(p);
+};
+
+const fromStored = (dir: string, p: string) => posix(path.isAbsolute(p) ? p : path.join(dir, p));
+
 const exists = (p: string) =>
   fs.stat(p).then((s) => s.isFile(), () => false);
 
@@ -45,20 +53,20 @@ export async function GET(req: NextRequest) {
   if (![modality, scenery, endEffector, ...targets].every((v) => SAFE_NAME.test(v))) {
     return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
   }
-  const dir = process.env.EE_TARGET_MODELS_DIR || DEFAULT_MODELS_DIR;
+  const dir = workcellPaths.eeTargetModelsDir();
   const store = await readStore();
   let changed = false;
   const assignments: Record<string, string> = {};
   for (const target of targets) {
     const key = keyOf(modality, scenery, endEffector, target);
     if (!store[key]) {
-      const seed = path.join(dir, `Tappo_${target}.stl`).replace(/\\/g, '/');
-      if (await exists(seed)) {
+      const seed = `Tappo_${target}.stl`;
+      if (await exists(path.join(dir, seed))) {
         store[key] = seed;
         changed = true;
       }
     }
-    if (store[key]) assignments[target] = store[key];
+    if (store[key]) assignments[target] = fromStored(dir, store[key]);
   }
   if (changed) await writeStore(store);
 
@@ -87,7 +95,7 @@ export async function PUT(req: NextRequest) {
   }
   const store = await readStore();
   const key = keyOf(modality, scenery, endEffector, target);
-  if (value) store[key] = value;
+  if (value) store[key] = toStored(workcellPaths.eeTargetModelsDir(), path.resolve(value));
   else delete store[key];
   await writeStore(store);
   return NextResponse.json({ key, path: value });

@@ -1,13 +1,9 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
+import { workcellPaths } from '@/lib/server/workcellPaths';
 
 export const dynamic = 'force-dynamic';
-
-// Windows development machine:
-// const DEFAULT_DIR = 'X:\\dev\\FT-Theia\\FT_Workcell_End_Effector\\config\\end_effectors';
-// Jetson (this workcell):
-const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/ee_app/config/end_effectors';
 
 const num = (text: string, key: string): number => {
   const m = text.match(new RegExp(`^\\s*${key}:\\s*(-?[0-9.]+)`, 'm'));
@@ -19,9 +15,8 @@ const str = (text: string, key: string): string | null => {
   return m ? m[1] : null;
 };
 
-// The configured directory comes from END_EFFECTORS_DIR so it can be changed per machine.
 export async function GET() {
-  const dir = process.env.END_EFFECTORS_DIR || DEFAULT_DIR;
+  const dir = workcellPaths.endEffectorsDir();
   try {
     const files = (await fs.readdir(dir)).filter((f) => /\.ya?ml$/i.test(f)).sort();
     const endEffectors = await Promise.all(

@@ -2,13 +2,10 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 import { isMap, isPair, isScalar, parseDocument, type Pair } from 'yaml';
+import { workcellPaths } from '@/lib/server/workcellPaths';
 
 export const dynamic = 'force-dynamic';
 
-// Windows development machine:
-// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/config';
-// Jetson (this workcell):
-const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/config';
 const FILE_NAME = 'vision_params.yaml';
 
 interface Param {
@@ -37,7 +34,7 @@ const YAML_FILE = /\.ya?ml$/i;
 // A folder resolves to <folder>/vision_params.yaml; only YAML files are ever read.
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams;
-  const target = (q.get('path') ?? q.get('dir'))?.trim() || process.env.VISION_PARAMS_DIR || DEFAULT_DIR;
+  const target = (q.get('path') ?? q.get('dir'))?.trim() || workcellPaths.visionParamsDir();
   const filePath = YAML_FILE.test(target) ? path.resolve(target) : path.join(target, FILE_NAME);
 
   let raw: string;

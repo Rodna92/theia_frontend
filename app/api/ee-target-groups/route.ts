@@ -1,13 +1,9 @@
 import { promises as fs } from 'fs';
 import { NextResponse } from 'next/server';
 import { parse } from 'yaml';
+import { workcellPaths } from '@/lib/server/workcellPaths';
 
 export const dynamic = 'force-dynamic';
-
-// Windows development machine:
-// const DEFAULT_FILE = 'X:/dev/FT-Theia/FT_Workcell_Vision_ALDM_1.0.3/ev3d_vision/config/vision_params.yaml';
-// Jetson (this workcell):
-const DEFAULT_FILE = '/home/ev3d/Workcell_Stack-ws/vision_app/ev3d_vision/config/vision_params.yaml';
 
 const KEYS = {
   anchor: 'ariston_a_target_group_anchor',
@@ -37,7 +33,7 @@ const nums = (v: unknown): number[] =>
 // Returns the target-group associations of the vision node, indexed by target_index - 1.
 // An empty anchor list means grouping is disabled.
 export async function GET() {
-  const file = process.env.EE_VISION_PARAMS_FILE || DEFAULT_FILE;
+  const file = workcellPaths.visionParamsFile();
   try {
     const params = findParams(parse(await fs.readFile(file, 'utf8')));
     if (!params) {

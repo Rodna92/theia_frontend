@@ -2,165 +2,82 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { 
-  IconPlayerPlay, 
-  IconSettings, 
-  IconPlayerStop, 
-  IconRotateClockwise,
-  IconLoader
-} from '@tabler/icons-react';
+import { IconPlayerPlay, IconSettings, IconPlayerStop } from '@tabler/icons-react';
 import { StartButton } from '@/ui/CTAs/startButton';
 import { SetButton } from '@/ui/CTAs/setButton';
 import { ModalPortal } from '@/ui/ModalPortal';
 import { ConfigureSelectModal } from './ConfigureSelectModal';
 import { ConfigureDetailsModal } from './ConfigureDetailsModal';
 import { LeakDetectionSystemStatus } from '@/client/types/leakDetection';
-
-export type ProcessState = 'idle' | 'running' | 'finished';
+import type { SystemState, WorkcellCommand } from '@/client/types/workcell';
 
 interface ActionsPanelProps {
-  systemStatus?: LeakDetectionSystemStatus[];
-  processState: ProcessState; 
-  onStart?: () => void;
-  onTest?: () => void;
-  onStop?: () => void;
-  onReset?: () => void;
+  // Subsystems listed in the Configure dialog.
+  systemStatus: LeakDetectionSystemStatus[];
+  // UNKNOWN (stack not reachable, orchestrator down) disables every command.
+  systemState: SystemState;
+  // Command being sent right now, if any.
+  pending: WorkcellCommand | null;
+  onCommand: (command: WorkcellCommand) => void;
 }
 
-export function ActionsPanel({
-  systemStatus = [],
-  processState, 
-  onStart,
-  onTest,
-  onStop,
-  onReset,
-}: ActionsPanelProps) {
+// Start / Stop / Test follow the orchestrator's state (it has the last word and may still
+// refuse); Configure is always available since it does not need the stack.
+export function ActionsPanel({ systemStatus, systemState, pending, onCommand }: ActionsPanelProps) {
   const t = useTranslations();
-  
+
   const [isConfigureOpen, setIsConfigureOpen] = useState(false);
   const [selectedConfigId, setSelectedConfigId] = useState<string | null>(null);
   const [selectedConfigLabel, setSelectedConfigLabel] = useState<string>('');
-
-  const handleConfigure = () => {
-    setIsConfigureOpen(true);
-    setSelectedConfigId(null);
-  };
-
-  const handleSelectConfigItem = (id: string, label: string) => {
-    setSelectedConfigId(id);
-    setSelectedConfigLabel(label);
-  };
 
   const handleCloseModal = () => {
     setIsConfigureOpen(false);
     setSelectedConfigId(null);
   };
 
-  // --- RENDER LOGIC ---
+  const busy = pending !== null;
+  const canStart = systemState === 'STOPPED' && !busy;
+  const canStop = (systemState === 'BUSY' || systemState === 'IDLE') && !busy;
+  const canTest = systemState === 'IDLE' && !busy;
 
-  // 1. RUNNING STATE
-  // Shows a "Processing..." indicator and a Stop button
-  if (processState === 'running') {
-    return (
-      <div className="flex flex-col gap-3">
-        {/* Visual Indicator of running state */}
-        <div className="flex items-center justify-center gap-2 p-3 rounded-lg border border-sky-200 bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:border-sky-800 dark:text-sky-300 font-medium transition-all cursor-default">
-          <IconLoader className="animate-spin" size={20} />
-          <span>{t('leakDetection.actions.running') || 'Processing...'}</span>
-        </div>
-
-        <SetButton
-          onClick={onStop}
-          label={t('leakDetection.actions.stop') || 'Stop'}
-          icon={<IconPlayerStop size={20} />}
-          light={{
-            text: '#ef4444',
-            border: 'rgba(239, 68, 68, 0.4)',
-            background: '#fef2f2',
-            hoverBackground: '#fee2e2',
-          }}
-          dark={{
-            text: '#f87171',
-            border: 'rgba(248, 113, 113, 0.4)',
-            background: 'rgba(239, 68, 68, 0.1)',
-            hoverBackground: 'rgba(239, 68, 68, 0.2)',
-          }}
-        />
-      </div>
-    );
-  }
-
-  // 2. FINISHED STATE
-  // Shows only the Reset button (appears when process is done or has error)
-  if (processState === 'finished') {
-    return (
-      <div className="flex flex-col gap-3">
-        <SetButton
-          onClick={onReset}
-          label={t('leakDetection.actions.reset') || 'Reset Process'}
-          icon={<IconRotateClockwise size={20} />}
-          light={{
-            text: '#0e7490',
-            border: '#cbd5e1',
-            background: '#ffffff',
-            hoverBackground: '#f1f5f9',
-          }}
-          dark={{
-            text: '#22d3ee',
-            border: 'rgba(34, 211, 238, 0.4)',
-            background: 'rgba(34, 211, 238, 0.1)',
-            hoverBackground: 'rgba(34, 211, 238, 0.2)',
-          }}
-        />
-      </div>
-    );
-  }
-
-  // 3. IDLE STATE
-  // Shows Start, Test, Configure
   return (
     <>
       <div className="flex flex-col gap-3">
-        <StartButton
-          onClick={onStart}
-          label={t('leakDetection.actions.start')}
+        <StartButton onClick={() => onCommand('start')} disabled={!canStart} label={t('leakDetection.actions.start')} />
+
+        <SetButton
+          onClick={() => onCommand('stop')}
+          disabled={!canStop}
+          label={t('leakDetection.actions.stop')}
+          icon={<IconPlayerStop size={20} />}
+          light={{ text: '#ef4444', border: 'rgba(239, 68, 68, 0.4)', background: '#fef2f2', hoverBackground: '#fee2e2' }}
+          dark={{ text: '#f87171', border: 'rgba(248, 113, 113, 0.4)', background: 'rgba(239, 68, 68, 0.1)', hoverBackground: 'rgba(239, 68, 68, 0.2)' }}
         />
 
         <SetButton
-          onClick={onTest}
+          onClick={() => onCommand('test')}
+          disabled={!canTest}
           label={t('leakDetection.actions.test')}
           icon={<IconPlayerPlay size={20} />}
-          light={{
-            text: '#0e7490',
-            border: '#cbd5e1',
-            background: '#ffffff',
-            hoverBackground: '#f1f5f9',
-          }}
-          dark={{
-            text: '#22d3ee',
-            border: 'rgba(34, 211, 238, 0.4)',
-            background: 'rgba(34, 211, 238, 0.1)',
-            hoverBackground: 'rgba(34, 211, 238, 0.2)',
-          }}
+          light={{ text: '#0e7490', border: '#cbd5e1', background: '#ffffff', hoverBackground: '#f1f5f9' }}
+          dark={{ text: '#22d3ee', border: 'rgba(34, 211, 238, 0.4)', background: 'rgba(34, 211, 238, 0.1)', hoverBackground: 'rgba(34, 211, 238, 0.2)' }}
         />
 
         <SetButton
-          onClick={handleConfigure}
+          onClick={() => {
+            setIsConfigureOpen(true);
+            setSelectedConfigId(null);
+          }}
           label={t('leakDetection.actions.configure')}
           icon={<IconSettings size={20} />}
-          light={{
-            text: '#334155',
-            border: '#e2e8f0',
-            background: '#ffffff',
-            hoverBackground: '#f8fafc',
-          }}
-          dark={{
-            text: '#d4d4d8',
-            border: 'rgba(82, 82, 91, 0.4)',
-            background: 'rgba(63, 63, 70, 0.1)',
-            hoverBackground: 'rgba(63, 63, 70, 0.2)',
-          }}
+          light={{ text: '#334155', border: '#e2e8f0', background: '#ffffff', hoverBackground: '#f8fafc' }}
+          dark={{ text: '#d4d4d8', border: 'rgba(82, 82, 91, 0.4)', background: 'rgba(63, 63, 70, 0.1)', hoverBackground: 'rgba(63, 63, 70, 0.2)' }}
         />
+
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">
+          {systemState === 'STOPPED' && t('leakDetection.monitor.hints.start')}
+          {systemState === 'IDLE' && t('leakDetection.monitor.hints.test')}
+        </p>
       </div>
 
       <ModalPortal isOpen={isConfigureOpen} onClose={handleCloseModal}>
@@ -174,7 +91,10 @@ export function ActionsPanel({
         ) : (
           <ConfigureSelectModal
             systemStatus={systemStatus}
-            onSelectItem={handleSelectConfigItem}
+            onSelectItem={(id, label) => {
+              setSelectedConfigId(id);
+              setSelectedConfigLabel(label);
+            }}
             onClose={handleCloseModal}
           />
         )}

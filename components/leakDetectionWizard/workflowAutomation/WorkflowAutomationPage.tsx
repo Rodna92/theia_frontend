@@ -27,10 +27,6 @@ import {
   type TreeNode,
 } from './btShared';
 
-// Windows development machine:
-// const DEFAULT_DIR = 'X:/dev/FT-Theia/FT_Workcell_Robotics_ALDM_1.0.3/aldm_control/config/BehaviorTree';
-// Jetson (this workcell):
-const DEFAULT_DIR = '/home/ev3d/Workcell_Stack-ws/robot_app/aldm_control/config/BehaviorTree';
 const INDENT_PX = 16;
 
 interface SourceFile {
@@ -413,10 +409,11 @@ export function WorkflowAutomationPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/behavior-tree?path=${encodeURIComponent(DEFAULT_DIR)}`, { cache: 'no-store' });
+      // No path: the server uses this machine's behavior tree folder.
+      const res = await fetch('/api/behavior-tree', { cache: 'no-store' });
       setData((await res.json()) as BehaviorTreeResponse);
     } catch (e) {
-      setData({ path: DEFAULT_DIR, error: e instanceof Error ? e.message : String(e) });
+      setData({ path: '', error: e instanceof Error ? e.message : String(e) });
     } finally {
       setLoading(false);
     }
@@ -542,7 +539,7 @@ export function WorkflowAutomationPage() {
             </div>
             <div className="flex items-center gap-2 min-w-0 text-xs text-slate-700 dark:text-slate-200" title={data?.path}>
               <IconFolder size={16} className="shrink-0 text-amber-500" />
-              <span className="font-mono truncate">{data?.path ?? DEFAULT_DIR}</span>
+              <span className="font-mono truncate">{data?.path ?? ''}</span>
             </div>
             {files.length > 0 && (
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
