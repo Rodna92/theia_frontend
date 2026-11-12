@@ -664,7 +664,19 @@
           "toolMismatch": "Montiert ist das Werkzeug „{mounted}“: zum Testen dieses auswählen.",
           "oldNode": "Das laufende Endeffektor-Modul bietet den Routinetest nicht an (ee_app aktualisieren).",
           "needTestMode": "Das Robotermodul läuft: zuerst den Testmodus starten.",
-          "selectTarget": "Ein einzelnes Ziel wählen: Der Test führt jeweils eine Routine aus."
+          "selectTarget": "Ein einzelnes Ziel wählen: Der Test führt jeweils eine Routine aus.",
+          "busy": "Das Robotermodul ist beschäftigt (Start, Referenzfahrt oder laufender Zyklus)."
+        },
+        "override": {
+          "label": "Prüfung des Roboterzustands umgehen",
+          "hint": "Führt den Test aus, egal was das Robotermodul gerade tut, z. B. während der Roboter noch eingerichtet wird. Die Sicherheit liegt dann in Ihrer Verantwortung.",
+          "active": "Umgehung aktiv: Der Test läuft in jedem Systemzustand. Nichts hindert den Roboter daran, sich währenddessen zu bewegen.",
+          "confirmTitle": "Prüfung des Roboterzustands umgehen?",
+          "confirmBody": "Normalerweise wird der Test abgelehnt, solange das Robotermodul beschäftigt ist, und erfordert im Wartezustand den Testmodus, damit Roboter und Werkzeug nie gleichzeitig angesteuert werden. Mit der Umgehung kann das Werkzeug in jedem Zustand getestet werden:",
+          "robotMayMove": "der Roboter kann sich bewegen, einen Zyklus starten oder referenzieren, während sich das Werkzeug bewegt;",
+          "cycleNotLocked": "der Zyklus ist nicht gesperrt, und ein Zyklus, der während des Tests eine Zielroutine erreicht, schlägt fehl;",
+          "responsibility": "Personen, Bauteil und Roboter vom Werkzeug fernzuhalten liegt vollständig in Ihrer Verantwortung.",
+          "confirm": "Ich übernehme die Verantwortung: umgehen"
         },
         "confirm": {
           "title": "Der reale Endeffektor wird sich bewegen",

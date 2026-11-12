@@ -667,7 +667,19 @@
           "toolMismatch": "L'utensile montato è \"{mounted}\": selezionalo per provarlo.",
           "oldNode": "Il modulo end effector in esecuzione non offre la prova della routine (aggiorna ee_app).",
           "needTestMode": "Il modulo robot è attivo: entra prima in modalità test.",
-          "selectTarget": "Seleziona un solo target: la prova esegue una routine alla volta."
+          "selectTarget": "Seleziona un solo target: la prova esegue una routine alla volta.",
+          "busy": "Il modulo robot è occupato (avvio, homing o ciclo in corso)."
+        },
+        "override": {
+          "label": "Ignora il controllo dello stato del robot",
+          "hint": "Esegue la prova qualunque cosa stia facendo il modulo robot, ad esempio mentre il robot è ancora in fase di messa a punto. La sicurezza è allora sotto la tua responsabilità.",
+          "active": "Bypass attivo: la prova viene eseguita in qualsiasi stato del sistema. Nulla impedisce al robot di muoversi nel frattempo.",
+          "confirmTitle": "Ignorare il controllo dello stato del robot?",
+          "confirmBody": "Normalmente la prova è rifiutata mentre il modulo robot è occupato e richiede la modalità test quando è in attesa, così che robot e utensile non vengano mai comandati insieme. Con il bypass l'utensile può essere provato in qualsiasi stato:",
+          "robotMayMove": "il robot può muoversi, avviare un ciclo o fare l'homing mentre l'utensile si muove;",
+          "cycleNotLocked": "il ciclo non è bloccato e un ciclo che arriva a una routine del target durante la prova fallirà;",
+          "responsibility": "tenere persone, pezzo e robot lontani dall'utensile è interamente sotto la tua responsabilità.",
+          "confirm": "Me ne assumo la responsabilità: ignora"
         },
         "confirm": {
           "title": "L'end effector reale si muoverà",

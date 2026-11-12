@@ -664,7 +664,19 @@
           "toolMismatch": "La herramienta montada es \"{mounted}\": selecciónala para probarla.",
           "oldNode": "El módulo del efector final en ejecución no ofrece la prueba de rutina (actualiza ee_app).",
           "needTestMode": "El módulo del robot está activo: entra primero en modo de prueba.",
-          "selectTarget": "Selecciona un solo objetivo: la prueba ejecuta una rutina cada vez."
+          "selectTarget": "Selecciona un solo objetivo: la prueba ejecuta una rutina cada vez.",
+          "busy": "El módulo del robot está ocupado (arranque, homing o ciclo en curso)."
+        },
+        "override": {
+          "label": "Omitir la comprobación del estado del robot",
+          "hint": "Ejecuta la prueba haga lo que haga el módulo del robot, por ejemplo mientras el robot todavía se está poniendo a punto. La seguridad pasa a ser responsabilidad tuya.",
+          "active": "Omisión activa: la prueba se ejecuta en cualquier estado del sistema. Nada impide que el robot se mueva mientras tanto.",
+          "confirmTitle": "¿Omitir la comprobación del estado del robot?",
+          "confirmBody": "Normalmente la prueba se rechaza mientras el módulo del robot está ocupado y exige el modo de prueba cuando está en espera, para que el robot y la herramienta nunca se comanden a la vez. Con la omisión, la herramienta se puede probar en cualquier estado:",
+          "robotMayMove": "el robot puede moverse, iniciar un ciclo o hacer homing mientras la herramienta se mueve;",
+          "cycleNotLocked": "el ciclo no está bloqueado, y un ciclo que llegue a una rutina de objetivo durante la prueba fallará;",
+          "responsibility": "mantener a las personas, la pieza y el robot alejados de la herramienta es enteramente responsabilidad tuya.",
+          "confirm": "Asumo la responsabilidad: omitir"
         },
         "confirm": {
           "title": "El efector final real se moverá",

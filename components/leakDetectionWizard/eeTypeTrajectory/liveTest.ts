@@ -30,6 +30,10 @@ export interface LiveDryRun {
   // Why the system state forbids a test right now ('' = it does not).
   blocked: string;
   can_start: boolean;
+  // The state check (only) can be bypassed by the operator; absent on an older ee_test_node.
+  can_force?: boolean;
+  // The running test was started with the state check bypassed.
+  forced?: boolean;
 }
 
 export interface LiveStatus {
@@ -75,7 +79,8 @@ export interface LiveTest {
   busy: boolean;
   // When the last status arrived (performance.now()), to extrapolate elapsed_s between polls.
   statusAt: number;
-  start: (target: number) => Promise<boolean>;
+  // force: bypass the system-state check (the operator's own responsibility).
+  start: (target: number, force?: boolean) => Promise<boolean>;
   stop: () => Promise<boolean>;
   setTestMode: (enabled: boolean, force?: boolean) => Promise<boolean>;
 }
@@ -170,7 +175,10 @@ export function useEeLiveTest(active: boolean): LiveTest {
     [accept]
   );
 
-  const start = useCallback((target: number) => send('dry-run', { target }), [send]);
+  const start = useCallback(
+    (target: number, force = false) => send('dry-run', force ? { target, force: true } : { target }),
+    [send]
+  );
   const stop = useCallback(() => send('dry-run-stop'), [send]);
   const setTestMode = useCallback(
     (enabled: boolean, force = false) => send('test-mode', { enabled, force }),

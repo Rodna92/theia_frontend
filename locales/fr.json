@@ -664,7 +664,19 @@
           "toolMismatch": "L'outil monté est « {mounted} » : sélectionnez-le pour le tester.",
           "oldNode": "Le module effecteur en cours ne propose pas le test de routine (mettez à jour ee_app).",
           "needTestMode": "Le module robot est actif : entrez d'abord en mode test.",
-          "selectTarget": "Sélectionnez une seule cible : le test exécute une routine à la fois."
+          "selectTarget": "Sélectionnez une seule cible : le test exécute une routine à la fois.",
+          "busy": "Le module robot est occupé (démarrage, prise d'origine ou cycle en cours)."
+        },
+        "override": {
+          "label": "Ignorer le contrôle de l'état du robot",
+          "hint": "Exécute le test quoi que fasse le module robot, par exemple pendant que le robot est encore en cours de réglage. La sécurité relève alors de votre responsabilité.",
+          "active": "Contournement actif : le test s'exécute dans n'importe quel état du système. Rien n'empêche le robot de bouger entre-temps.",
+          "confirmTitle": "Ignorer le contrôle de l'état du robot ?",
+          "confirmBody": "Le test est normalement refusé lorsque le module robot est occupé, et exige le mode test lorsqu'il est en attente, afin que le robot et l'outil ne soient jamais commandés en même temps. Avec le contournement, l'outil peut être testé dans n'importe quel état :",
+          "robotMayMove": "le robot peut bouger, démarrer un cycle ou se référencer pendant que l'outil bouge ;",
+          "cycleNotLocked": "le cycle n'est pas verrouillé, et un cycle qui atteint une routine de cible pendant le test échouera ;",
+          "responsibility": "tenir les personnes, la pièce et le robot à l'écart de l'outil relève entièrement de votre responsabilité.",
+          "confirm": "J'en prends la responsabilité : ignorer"
         },
         "confirm": {
           "title": "L'effecteur réel va bouger",

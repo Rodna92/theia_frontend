@@ -667,7 +667,19 @@
           "toolMismatch": "The mounted tool is \"{mounted}\": select it to test it.",
           "oldNode": "The running end-effector module does not offer the routine test (update ee_app).",
           "needTestMode": "The robot module is running: enter test mode first.",
-          "selectTarget": "Select one target: the test runs one routine at a time."
+          "selectTarget": "Select one target: the test runs one routine at a time.",
+          "busy": "The robot module is busy (starting up, homing or running a cycle)."
+        },
+        "override": {
+          "label": "Bypass the robot state check",
+          "hint": "Run the test whatever the robot module is doing, e.g. while the robot is still being set up. Safety is then your responsibility.",
+          "active": "Bypass active: the test runs in any system state. Nothing prevents the robot from moving meanwhile.",
+          "confirmTitle": "Bypass the robot state check?",
+          "confirmBody": "The test is normally refused while the robot module is busy, and needs test mode while it is idle, so that the robot and the tool are never commanded at the same time. With the bypass the tool can be tested in any state:",
+          "robotMayMove": "the robot may move, start a cycle or home while the tool is moving;",
+          "cycleNotLocked": "the cycle is not locked, and a cycle that reaches a target routine during the test will fail;",
+          "responsibility": "keeping people, the part and the robot clear of the tool is entirely your responsibility.",
+          "confirm": "I take responsibility: bypass"
         },
         "confirm": {
           "title": "The real end effector will move",

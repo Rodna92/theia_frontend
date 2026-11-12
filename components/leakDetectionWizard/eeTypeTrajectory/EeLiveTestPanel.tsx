@@ -9,6 +9,7 @@ import {
   IconPlayerStop,
   IconPlugConnected,
   IconPlugConnectedX,
+  IconShieldOff,
 } from '@tabler/icons-react';
 import { RETURN_HOME, type LiveTest } from './liveTest';
 
@@ -31,18 +32,33 @@ interface EeLiveTestPanelProps {
   onToggle: () => void;
   // Why the play button cannot run the routine on the tool right now; null = it can.
   blockReason: string | null;
+  // The operator bypassed the system-state check for this connection.
+  override: boolean;
+  // Asks to bypass it (the page shows the second confirmation first) or re-arms the check.
+  onToggleOverride: () => void;
   cardClass: string;
 }
 
 // Side card of the trajectory page: connection to the real end effector for a tool-only run of
 // the displayed routine.
-export function EeLiveTestPanel({ live, connected, onToggle, blockReason, cardClass }: EeLiveTestPanelProps) {
+export function EeLiveTestPanel({
+  live,
+  connected,
+  onToggle,
+  blockReason,
+  override,
+  onToggleOverride,
+  cardClass,
+}: EeLiveTestPanelProps) {
   const t = useTranslations('leakDetection.eeTrajectory.live');
   const tState = useTranslations('leakDetection.configure.endEffectorManager.test.state');
   const { status, unreachable, note, busy } = live;
   const run = status?.dry_run;
   const stateKey = unreachable ? 'UNREACHABLE' : (status?.system_state ?? 'UNKNOWN');
   const commanded = (name: string) => run?.joints.find((j) => j.name === name)?.commanded_deg;
+  // Offered only when the system state is what stands in the way (or the bypass is already on).
+  const overrideOffered = override || !!run?.can_force || (!!run?.blocked && !!run?.available);
+  const canHome = override ? !!run?.available && !run.running : !!run?.can_start;
 
   return (
     <div className={`p-4 ${cardClass} ${connected ? '!border-amber-500/50' : ''}`}>
@@ -82,7 +98,10 @@ export function EeLiveTestPanel({ live, connected, onToggle, blockReason, cardCl
             )}
           </div>
 
-          <p className="text-xs text-slate-600 dark:text-slate-300">{t(`hint.${stateKey}`)}</p>
+          {/* With the bypass on, the state's own hint ("no test is possible now") no longer applies. */}
+          {!(override && (stateKey === 'BUSY' || stateKey === 'IDLE')) && (
+            <p className="text-xs text-slate-600 dark:text-slate-300">{t(`hint.${stateKey}`)}</p>
+          )}
 
           {status?.system_state === 'IDLE' && (
             <button
@@ -105,6 +124,33 @@ export function EeLiveTestPanel({ live, connected, onToggle, blockReason, cardCl
               <IconLockOpen size={14} />
               {t('exitTestMode')}
             </button>
+          )}
+
+          {overrideOffered && (
+            <div
+              className={`p-2 rounded-lg border text-xs ${
+                override
+                  ? 'border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-300'
+                  : 'border-slate-200/60 dark:border-white/10 text-slate-600 dark:text-slate-300'
+              }`}
+            >
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 accent-red-600"
+                  checked={override}
+                  onChange={onToggleOverride}
+                  disabled={!!run?.running}
+                />
+                <span>
+                  <span className="flex items-center gap-1 font-semibold">
+                    <IconShieldOff size={13} />
+                    {t('override.label')}
+                  </span>
+                  <span className="block mt-0.5">{t(override ? 'override.active' : 'override.hint')}</span>
+                </span>
+              </label>
+            </div>
           )}
 
           {blockReason ? (
@@ -159,8 +205,8 @@ export function EeLiveTestPanel({ live, connected, onToggle, blockReason, cardCl
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => live.start(RETURN_HOME)}
-              disabled={busy || !run?.can_start}
+              onClick={() => live.start(RETURN_HOME, override)}
+              disabled={busy || !canHome}
               className={`${BUTTON_NEUTRAL} flex-1`}
             >
               <IconHome size={14} />

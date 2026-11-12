@@ -137,6 +137,9 @@ export function EeTypeTrajectoryPage() {
   // only, no robot -- ee_app's routine test) and the view follows that run's clock.
   const [connected, setConnected] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  // Second, separate confirmation: run the test whatever the system state (e.g. the robot BUSY).
+  const [override, setOverride] = useState(false);
+  const [overrideConfirmOpen, setOverrideConfirmOpen] = useState(false);
   const live = useEeLiveTest(connected);
   const run = live.status?.dry_run;
   const selectedTarget = trajId && trajId !== ALL_TARGETS ? Number(trajId) : null;
@@ -157,10 +160,10 @@ export function EeTypeTrajectoryPage() {
     }
     if (!run) return t('leakDetection.eeTrajectory.live.block.oldNode');
     if (!run.available) return run.reason;
-    if (run.blocked) {
+    if (run.blocked && !override) {
       return live.status.system_state === 'IDLE'
         ? t('leakDetection.eeTrajectory.live.block.needTestMode')
-        : run.blocked;
+        : t('leakDetection.eeTrajectory.live.block.busy');
     }
     if (live.status.servo.error) return live.status.servo.error;
     if (selectedTarget === null) return t('leakDetection.eeTrajectory.live.block.selectTarget');
@@ -200,6 +203,12 @@ export function EeTypeTrajectoryPage() {
     }
     if (liveRunning) live.stop();
     setConnected(false);
+    setOverride(false);   // the bypass never outlives the connection it was confirmed for
+  };
+
+  const toggleOverride = () => {
+    if (override) setOverride(false);
+    else setOverrideConfirmOpen(true);
   };
 
   useEffect(() => {
@@ -232,7 +241,7 @@ export function EeTypeTrajectoryPage() {
       if (liveRunning) live.stop();
       else if (!liveBlock && selectedTarget !== null) {
         setTime(0);
-        live.start(selectedTarget);
+        live.start(selectedTarget, override);
       }
       return;
     }
@@ -461,11 +470,57 @@ export function EeTypeTrajectoryPage() {
               connected={connected}
               onToggle={toggleConnection}
               blockReason={liveBlock}
+              override={override}
+              onToggleOverride={toggleOverride}
               cardClass={card}
             />
           </div>
         </div>
       </main>
+      {overrideConfirmOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ee-live-override-title"
+          onClick={() => setOverrideConfirmOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg rounded-xl bg-white dark:bg-slate-900 border border-red-500/60 p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3
+              id="ee-live-override-title"
+              className="flex items-center gap-2 text-sm font-semibold text-red-700 dark:text-red-300"
+            >
+              <IconAlertTriangle size={18} />
+              {t('leakDetection.eeTrajectory.live.override.confirmTitle')}
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              {t('leakDetection.eeTrajectory.live.override.confirmBody')}
+            </p>
+            <ul className="list-disc pl-5 space-y-1 text-sm text-slate-600 dark:text-slate-300">
+              <li>{t('leakDetection.eeTrajectory.live.override.robotMayMove')}</li>
+              <li>{t('leakDetection.eeTrajectory.live.override.cycleNotLocked')}</li>
+              <li>{t('leakDetection.eeTrajectory.live.override.responsibility')}</li>
+            </ul>
+            <div className="flex items-center justify-end gap-3">
+              <button className={`${optionClass(false)} !w-auto`} onClick={() => setOverrideConfirmOpen(false)}>
+                {t('leakDetection.eeTrajectory.live.confirm.cancel')}
+              </button>
+              <button
+                className="px-3 py-2 rounded-lg border border-red-500/60 bg-red-500/15 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-500/25"
+                onClick={() => {
+                  setOverrideConfirmOpen(false);
+                  setOverride(true);
+                }}
+              >
+                {t('leakDetection.eeTrajectory.live.override.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {confirmOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
