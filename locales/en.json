@@ -636,7 +636,49 @@
       "model": "Model (STL)",
       "modelSaved": "Model saved",
       "fitView": "Center and zoom to fit",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "live": {
+        "title": "Real end effector",
+        "description": "Run the displayed routine on the mounted tool alone, without the robot: a test of the communication with the end effector and of its motion.",
+        "connect": "Connect to the end effector",
+        "disconnect": "Disconnect",
+        "enterTestMode": "Enter test mode",
+        "exitTestMode": "Exit test mode",
+        "ready": "Ready: press play to run the selected target's routine on the tool.",
+        "running": "Running the routine of target {target} on the tool.",
+        "playOnTool": "Run on the real tool",
+        "stopOnTool": "Stop the tool",
+        "commanded": "cmd",
+        "measured": "meas.",
+        "servo": "servo {id}",
+        "home": "Tool home",
+        "stop": "Stop",
+        "lastResult": "Last test:",
+        "hint": {
+          "IDLE": "The robot module is running and idle. Enter test mode to lock the cycle; the test is allowed only then.",
+          "BUSY": "The system is starting up, homing or running a cycle. No test is possible now.",
+          "TEST": "Test mode: the cycle is locked. The tool can be tested.",
+          "UNKNOWN": "The robot module is not running. The tool can be tested on its own.",
+          "UNREACHABLE": "The end-effector module does not answer. Check that ee_app is running on this machine."
+        },
+        "block": {
+          "unreachable": "The end-effector module does not answer.",
+          "connecting": "Connecting…",
+          "toolMismatch": "The mounted tool is \"{mounted}\": select it to test it.",
+          "oldNode": "The running end-effector module does not offer the routine test (update ee_app).",
+          "needTestMode": "The robot module is running: enter test mode first.",
+          "selectTarget": "Select one target: the test runs one routine at a time."
+        },
+        "confirm": {
+          "title": "The real end effector will move",
+          "body": "Once connected, the play button runs the routine on the mounted tool instead of only simulating it. Before you continue, check that:",
+          "robotStill": "the robot is stationary and will not be moved meanwhile;",
+          "toolClear": "the tool is clear of the part, of people and of any obstacle over its whole travel;",
+          "noCompensation": "you expect the tip to swing: the robot does not compensate the tool's motion in this test.",
+          "confirm": "Connect",
+          "cancel": "Cancel"
+        }
+      }
     }
   },
   "fluidDoser": {

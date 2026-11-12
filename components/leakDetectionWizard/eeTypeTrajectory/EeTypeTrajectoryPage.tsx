@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
-import { IconChevronDown, IconChevronLeft, IconFileSettings, IconPlayerPause, IconPlayerPlay, IconPlayerSkipBack, IconRoute, IconX } from '@tabler/icons-react';
+import { IconAlertTriangle, IconChevronDown, IconChevronLeft, IconFileSettings, IconPlayerPause, IconPlayerPlay, IconPlayerSkipBack, IconPlayerStop, IconRoute, IconX } from '@tabler/icons-react';
 import { ALL_TARGETS, EQUIPMENT_ID, MODALITY, EndEffector, RoutineTarget, TargetGroups } from './catalog';
+import { EeLiveTestPanel } from './EeLiveTestPanel';
 import { EeViewer } from './EeViewer';
 import { EndEffectorIcon } from './EndEffectorIcon';
+import { useEeLiveTest } from './liveTest';
 import { buildPlayback, layoutPlacements } from './playback';
 
 const card =
@@ -131,11 +133,74 @@ export function EeTypeTrajectoryPage() {
   );
   const playback = useMemo(() => buildPlayback(placements), [placements]);
 
-  // Restart whenever the displayed routine changes.
+  // Real end effector: when connected, play runs the displayed routine on the tool itself (tool
+  // only, no robot -- ee_app's routine test) and the view follows that run's clock.
+  const [connected, setConnected] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const live = useEeLiveTest(connected);
+  const run = live.status?.dry_run;
+  const selectedTarget = trajId && trajId !== ALL_TARGETS ? Number(trajId) : null;
+  const liveRunning = connected && !!run?.running;
+  // The running test is the routine on screen (not a "home" move, not another target).
+  const liveFollowing = liveRunning && run?.target === selectedTarget && selectedTarget !== null;
+
+  // Why play cannot run the routine on the tool; null = it can.
+  const liveBlock = ((): string | null => {
+    if (!connected) return null;
+    if (live.unreachable) return t('leakDetection.eeTrajectory.live.block.unreachable');
+    if (!live.status) return t('leakDetection.eeTrajectory.live.block.connecting');
+    if (!eeId) return t('leakDetection.eeTrajectory.selectEeFirst');
+    if (live.status.end_effector_type !== eeId) {
+      return t('leakDetection.eeTrajectory.live.block.toolMismatch', {
+        mounted: live.status.end_effector_type || '—',
+      });
+    }
+    if (!run) return t('leakDetection.eeTrajectory.live.block.oldNode');
+    if (!run.available) return run.reason;
+    if (run.blocked) {
+      return live.status.system_state === 'IDLE'
+        ? t('leakDetection.eeTrajectory.live.block.needTestMode')
+        : run.blocked;
+    }
+    if (live.status.servo.error) return live.status.servo.error;
+    if (selectedTarget === null) return t('leakDetection.eeTrajectory.live.block.selectTarget');
+    return null;
+  })();
+
+  const liveRef = useRef(live);
+  liveRef.current = live;
+  const liveRunningRef = useRef(liveRunning);
+  liveRunningRef.current = liveRunning;
+
+  // Restart whenever the displayed routine changes (a test of the previous one is stopped).
   useEffect(() => {
     setTime(0);
     setPlaying(false);
+    if (liveRunningRef.current) liveRef.current.stop();
   }, [playback]);
+
+  // Connected: the simulation is driven by the real run, extrapolated between status polls.
+  const runElapsed = run?.elapsed_s ?? 0;
+  useEffect(() => {
+    if (!liveFollowing) return;
+    let raf = 0;
+    const tick = () => {
+      const elapsed = runElapsed + (performance.now() - live.statusAt) / 1000;
+      setTime(Math.min(Math.max(elapsed, 0), playback.total));
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [liveFollowing, runElapsed, live.statusAt, playback.total]);
+
+  const toggleConnection = () => {
+    if (!connected) {
+      setConfirmOpen(true);
+      return;
+    }
+    if (liveRunning) live.stop();
+    setConnected(false);
+  };
 
   useEffect(() => {
     if (!playing) return;
@@ -162,6 +227,15 @@ export function EeTypeTrajectoryPage() {
 
   const pose = time > 0 ? playback.poseAt(time) : null;
   const togglePlay = () => {
+    if (connected) {
+      // The tool itself runs the routine; nothing is simulated on its own.
+      if (liveRunning) live.stop();
+      else if (!liveBlock && selectedTarget !== null) {
+        setTime(0);
+        live.start(selectedTarget);
+      }
+      return;
+    }
     if (!playing && time >= playback.total) setTime(0);
     setPlaying((p) => !p);
   };
@@ -213,18 +287,39 @@ export function EeTypeTrajectoryPage() {
             {targets.length > 0 && playback.total > 0 && (
               <div className="mt-3 flex items-center gap-3">
                 <button
-                  className="p-2 rounded-lg border border-slate-200/50 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                  className={`p-2 rounded-lg border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed ${
+                    connected
+                      ? 'border-amber-500/60 bg-amber-500/15 text-amber-800 dark:text-amber-200'
+                      : 'border-slate-200/50 dark:border-white/10 text-slate-700 dark:text-slate-300'
+                  }`}
                   onClick={togglePlay}
-                  aria-label={t(playing ? 'leakDetection.eeTrajectory.pause' : 'leakDetection.eeTrajectory.play')}
+                  disabled={connected && !liveRunning && (!!liveBlock || live.busy)}
+                  title={
+                    connected
+                      ? liveBlock ?? t(liveRunning ? 'leakDetection.eeTrajectory.live.stopOnTool' : 'leakDetection.eeTrajectory.live.playOnTool')
+                      : undefined
+                  }
+                  aria-label={
+                    connected
+                      ? t(liveRunning ? 'leakDetection.eeTrajectory.live.stopOnTool' : 'leakDetection.eeTrajectory.live.playOnTool')
+                      : t(playing ? 'leakDetection.eeTrajectory.pause' : 'leakDetection.eeTrajectory.play')
+                  }
                 >
-                  {playing ? <IconPlayerPause size={18} /> : <IconPlayerPlay size={18} />}
+                  {connected ? (
+                    liveRunning ? <IconPlayerStop size={18} /> : <IconPlayerPlay size={18} />
+                  ) : playing ? (
+                    <IconPlayerPause size={18} />
+                  ) : (
+                    <IconPlayerPlay size={18} />
+                  )}
                 </button>
                 <button
-                  className="p-2 rounded-lg border border-slate-200/50 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                  className="p-2 rounded-lg border border-slate-200/50 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed"
                   onClick={() => {
                     setPlaying(false);
                     setTime(0);
                   }}
+                  disabled={liveRunning}
                   aria-label={t('leakDetection.eeTrajectory.reset')}
                 >
                   <IconPlayerSkipBack size={18} />
@@ -236,6 +331,7 @@ export function EeTypeTrajectoryPage() {
                   max={playback.total}
                   step={0.05}
                   value={time}
+                  disabled={liveRunning}
                   onChange={(e) => {
                     setPlaying(false);
                     setTime(parseFloat(e.target.value));
@@ -359,9 +455,62 @@ export function EeTypeTrajectoryPage() {
                 </p>
               )}
             </div>
+
+            <EeLiveTestPanel
+              live={live}
+              connected={connected}
+              onToggle={toggleConnection}
+              blockReason={liveBlock}
+              cardClass={card}
+            />
           </div>
         </div>
       </main>
+      {confirmOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ee-live-confirm-title"
+          onClick={() => setConfirmOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg rounded-xl bg-white dark:bg-slate-900 border border-amber-500/50 p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3
+              id="ee-live-confirm-title"
+              className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-200"
+            >
+              <IconAlertTriangle size={18} className="text-amber-500" />
+              {t('leakDetection.eeTrajectory.live.confirm.title')}
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              {t('leakDetection.eeTrajectory.live.confirm.body')}
+            </p>
+            <ul className="list-disc pl-5 space-y-1 text-sm text-slate-600 dark:text-slate-300">
+              <li>{t('leakDetection.eeTrajectory.live.confirm.robotStill')}</li>
+              <li>{t('leakDetection.eeTrajectory.live.confirm.toolClear')}</li>
+              <li>{t('leakDetection.eeTrajectory.live.confirm.noCompensation')}</li>
+            </ul>
+            <div className="flex items-center justify-end gap-3">
+              <button className={`${optionClass(false)} !w-auto`} onClick={() => setConfirmOpen(false)}>
+                {t('leakDetection.eeTrajectory.live.confirm.cancel')}
+              </button>
+              <button
+                className="px-3 py-2 rounded-lg border border-amber-500/60 bg-amber-500/20 text-sm font-medium text-amber-800 dark:text-amber-200 hover:bg-amber-500/30"
+                onClick={() => {
+                  setConfirmOpen(false);
+                  setPlaying(false);
+                  setConnected(true);
+                }}
+              >
+                {t('leakDetection.eeTrajectory.live.confirm.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {modalTarget && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"

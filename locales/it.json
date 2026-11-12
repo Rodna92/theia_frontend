@@ -636,7 +636,49 @@
       "model": "Modello (STL)",
       "modelSaved": "Modello salvato",
       "fitView": "Centra e adatta lo zoom",
-      "disabled": "Disattivato"
+      "disabled": "Disattivato",
+      "live": {
+        "title": "End effector reale",
+        "description": "Esegue la routine visualizzata sul solo utensile montato, senza il robot: una prova della comunicazione con l'end effector e del suo movimento.",
+        "connect": "Connetti all'end effector",
+        "disconnect": "Disconnetti",
+        "enterTestMode": "Entra in modalità test",
+        "exitTestMode": "Esci dalla modalità test",
+        "ready": "Pronto: premi play per eseguire sull'utensile la routine del target selezionato.",
+        "running": "Routine del target {target} in esecuzione sull'utensile.",
+        "playOnTool": "Esegui sull'utensile reale",
+        "stopOnTool": "Ferma l'utensile",
+        "commanded": "cmd",
+        "measured": "mis.",
+        "servo": "servo {id}",
+        "home": "Utensile a home",
+        "stop": "Stop",
+        "lastResult": "Ultima prova:",
+        "hint": {
+          "IDLE": "Il modulo robot è attivo e in attesa. Entra in modalità test per bloccare il ciclo; la prova è consentita solo allora.",
+          "BUSY": "Il sistema è in avvio, in homing o sta eseguendo un ciclo. Nessuna prova è possibile ora.",
+          "TEST": "Modalità test: il ciclo è bloccato. L'utensile può essere provato.",
+          "UNKNOWN": "Il modulo robot non è attivo. L'utensile può essere provato da solo.",
+          "UNREACHABLE": "Il modulo end effector non risponde. Verifica che ee_app sia in esecuzione su questa macchina."
+        },
+        "block": {
+          "unreachable": "Il modulo end effector non risponde.",
+          "connecting": "Connessione…",
+          "toolMismatch": "L'utensile montato è \"{mounted}\": selezionalo per provarlo.",
+          "oldNode": "Il modulo end effector in esecuzione non offre la prova della routine (aggiorna ee_app).",
+          "needTestMode": "Il modulo robot è attivo: entra prima in modalità test.",
+          "selectTarget": "Seleziona un solo target: la prova esegue una routine alla volta."
+        },
+        "confirm": {
+          "title": "L'end effector reale si muoverà",
+          "body": "Una volta connesso, il pulsante play esegue la routine sull'utensile montato invece di simularla soltanto. Prima di continuare verifica che:",
+          "robotStill": "il robot sia fermo e non venga mosso nel frattempo;",
+          "toolClear": "l'utensile sia libero dal pezzo, dalle persone e da ogni ostacolo lungo tutta la corsa;",
+          "noCompensation": "ti aspetti che la punta oscilli: in questa prova il robot non compensa il movimento dell'utensile.",
+          "confirm": "Connetti",
+          "cancel": "Annulla"
+        }
+      }
     }
   },
   "fluidDoser": {

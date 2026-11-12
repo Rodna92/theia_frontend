@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic';
 // machine that runs the robotics stack; see ee_app/nodes/ee_test_gateway.py). The browser never
 // talks to that node directly.
 const GATEWAY = (process.env.EE_TEST_GATEWAY_URL || 'http://127.0.0.1:8765').replace(/\/+$/, '');
-const ACTIONS = new Set(['test-mode', 'jog', 'move', 'home', 'stop']);
+// 'dry-run' / 'dry-run-stop': routine test on the real tool, without the robot (trajectory page).
+const ACTIONS = new Set(['test-mode', 'jog', 'move', 'home', 'stop', 'dry-run', 'dry-run-stop']);
 // Leaving test mode first drives the tool home at the test speed, so allow for a long answer.
 const TIMEOUT_MS = 30000;
 
@@ -26,7 +27,8 @@ export async function GET() {
   return forward('/status');
 }
 
-// Body: { action: 'test-mode' | 'jog' | 'move' | 'home' | 'stop', ...parameters of that action }.
+// Body: { action: 'test-mode' | 'jog' | 'move' | 'home' | 'stop' | 'dry-run' | 'dry-run-stop',
+//         ...parameters of that action }.
 export async function POST(req: Request) {
   let payload: Record<string, unknown>;
   try {

@@ -633,7 +633,49 @@
       "model": "Modèle (STL)",
       "modelSaved": "Modèle enregistré",
       "fitView": "Centrer et ajuster le zoom",
-      "disabled": "Désactivé"
+      "disabled": "Désactivé",
+      "live": {
+        "title": "Effecteur réel",
+        "description": "Exécute la routine affichée sur l'outil monté seul, sans le robot : un test de la communication avec l'effecteur et de son mouvement.",
+        "connect": "Connecter à l'effecteur",
+        "disconnect": "Déconnecter",
+        "enterTestMode": "Entrer en mode test",
+        "exitTestMode": "Quitter le mode test",
+        "ready": "Prêt : appuyez sur lecture pour exécuter sur l'outil la routine de la cible sélectionnée.",
+        "running": "Routine de la cible {target} en cours sur l'outil.",
+        "playOnTool": "Exécuter sur l'outil réel",
+        "stopOnTool": "Arrêter l'outil",
+        "commanded": "cmd",
+        "measured": "mes.",
+        "servo": "servo {id}",
+        "home": "Outil à l'origine",
+        "stop": "Stop",
+        "lastResult": "Dernier test :",
+        "hint": {
+          "IDLE": "Le module robot est actif et en attente. Entrez en mode test pour verrouiller le cycle ; le test n'est autorisé qu'alors.",
+          "BUSY": "Le système démarre, se référence ou exécute un cycle. Aucun test n'est possible maintenant.",
+          "TEST": "Mode test : le cycle est verrouillé. L'outil peut être testé.",
+          "UNKNOWN": "Le module robot n'est pas actif. L'outil peut être testé seul.",
+          "UNREACHABLE": "Le module effecteur ne répond pas. Vérifiez que ee_app fonctionne sur cette machine."
+        },
+        "block": {
+          "unreachable": "Le module effecteur ne répond pas.",
+          "connecting": "Connexion…",
+          "toolMismatch": "L'outil monté est « {mounted} » : sélectionnez-le pour le tester.",
+          "oldNode": "Le module effecteur en cours ne propose pas le test de routine (mettez à jour ee_app).",
+          "needTestMode": "Le module robot est actif : entrez d'abord en mode test.",
+          "selectTarget": "Sélectionnez une seule cible : le test exécute une routine à la fois."
+        },
+        "confirm": {
+          "title": "L'effecteur réel va bouger",
+          "body": "Une fois connecté, le bouton lecture exécute la routine sur l'outil monté au lieu de seulement la simuler. Avant de continuer, vérifiez que :",
+          "robotStill": "le robot est à l'arrêt et ne sera pas déplacé entre-temps ;",
+          "toolClear": "l'outil est dégagé de la pièce, des personnes et de tout obstacle sur toute sa course ;",
+          "noCompensation": "vous vous attendez à ce que la pointe oscille : dans ce test, le robot ne compense pas le mouvement de l'outil.",
+          "confirm": "Connecter",
+          "cancel": "Annuler"
+        }
+      }
     }
   },
   "fluidDoser": {

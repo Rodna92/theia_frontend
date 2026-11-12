@@ -633,7 +633,49 @@
       "model": "Modelo (STL)",
       "modelSaved": "Modelo guardado",
       "fitView": "Centrar y ajustar zoom",
-      "disabled": "Desactivado"
+      "disabled": "Desactivado",
+      "live": {
+        "title": "Efector final real",
+        "description": "Ejecuta la rutina mostrada solo en la herramienta montada, sin el robot: una prueba de la comunicación con el efector final y de su movimiento.",
+        "connect": "Conectar con el efector final",
+        "disconnect": "Desconectar",
+        "enterTestMode": "Entrar en modo de prueba",
+        "exitTestMode": "Salir del modo de prueba",
+        "ready": "Listo: pulsa reproducir para ejecutar en la herramienta la rutina del objetivo seleccionado.",
+        "running": "Rutina del objetivo {target} en ejecución en la herramienta.",
+        "playOnTool": "Ejecutar en la herramienta real",
+        "stopOnTool": "Detener la herramienta",
+        "commanded": "cmd",
+        "measured": "med.",
+        "servo": "servo {id}",
+        "home": "Herramienta a home",
+        "stop": "Parar",
+        "lastResult": "Última prueba:",
+        "hint": {
+          "IDLE": "El módulo del robot está activo y en espera. Entra en modo de prueba para bloquear el ciclo; la prueba solo se permite entonces.",
+          "BUSY": "El sistema está arrancando, haciendo homing o ejecutando un ciclo. Ahora no es posible ninguna prueba.",
+          "TEST": "Modo de prueba: el ciclo está bloqueado. Se puede probar la herramienta.",
+          "UNKNOWN": "El módulo del robot no está activo. La herramienta se puede probar sola.",
+          "UNREACHABLE": "El módulo del efector final no responde. Comprueba que ee_app se está ejecutando en esta máquina."
+        },
+        "block": {
+          "unreachable": "El módulo del efector final no responde.",
+          "connecting": "Conectando…",
+          "toolMismatch": "La herramienta montada es \"{mounted}\": selecciónala para probarla.",
+          "oldNode": "El módulo del efector final en ejecución no ofrece la prueba de rutina (actualiza ee_app).",
+          "needTestMode": "El módulo del robot está activo: entra primero en modo de prueba.",
+          "selectTarget": "Selecciona un solo objetivo: la prueba ejecuta una rutina cada vez."
+        },
+        "confirm": {
+          "title": "El efector final real se moverá",
+          "body": "Una vez conectado, el botón de reproducir ejecuta la rutina en la herramienta montada en lugar de solo simularla. Antes de continuar, comprueba que:",
+          "robotStill": "el robot está parado y no se moverá mientras tanto;",
+          "toolClear": "la herramienta está libre de la pieza, de personas y de cualquier obstáculo en todo su recorrido;",
+          "noCompensation": "esperas que la punta oscile: en esta prueba el robot no compensa el movimiento de la herramienta.",
+          "confirm": "Conectar",
+          "cancel": "Cancelar"
+        }
+      }
     }
   },
   "fluidDoser": {

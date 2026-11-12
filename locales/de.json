@@ -633,7 +633,49 @@
       "model": "Modell (STL)",
       "modelSaved": "Modell gespeichert",
       "fitView": "Zentrieren und Zoom anpassen",
-      "disabled": "Deaktiviert"
+      "disabled": "Deaktiviert",
+      "live": {
+        "title": "Realer Endeffektor",
+        "description": "Führt die angezeigte Routine nur am montierten Werkzeug aus, ohne den Roboter: ein Test der Kommunikation mit dem Endeffektor und seiner Bewegung.",
+        "connect": "Mit dem Endeffektor verbinden",
+        "disconnect": "Trennen",
+        "enterTestMode": "Testmodus starten",
+        "exitTestMode": "Testmodus beenden",
+        "ready": "Bereit: Wiedergabe drücken, um die Routine des gewählten Ziels am Werkzeug auszuführen.",
+        "running": "Routine von Ziel {target} läuft am Werkzeug.",
+        "playOnTool": "Am realen Werkzeug ausführen",
+        "stopOnTool": "Werkzeug stoppen",
+        "commanded": "Soll",
+        "measured": "Ist",
+        "servo": "Servo {id}",
+        "home": "Werkzeug in Grundstellung",
+        "stop": "Stopp",
+        "lastResult": "Letzter Test:",
+        "hint": {
+          "IDLE": "Das Robotermodul läuft und wartet. Testmodus starten, um den Zyklus zu sperren; erst dann ist der Test erlaubt.",
+          "BUSY": "Das System startet, referenziert oder führt einen Zyklus aus. Jetzt ist kein Test möglich.",
+          "TEST": "Testmodus: Der Zyklus ist gesperrt. Das Werkzeug kann getestet werden.",
+          "UNKNOWN": "Das Robotermodul läuft nicht. Das Werkzeug kann allein getestet werden.",
+          "UNREACHABLE": "Das Endeffektor-Modul antwortet nicht. Prüfen, ob ee_app auf diesem Rechner läuft."
+        },
+        "block": {
+          "unreachable": "Das Endeffektor-Modul antwortet nicht.",
+          "connecting": "Verbinden…",
+          "toolMismatch": "Montiert ist das Werkzeug „{mounted}“: zum Testen dieses auswählen.",
+          "oldNode": "Das laufende Endeffektor-Modul bietet den Routinetest nicht an (ee_app aktualisieren).",
+          "needTestMode": "Das Robotermodul läuft: zuerst den Testmodus starten.",
+          "selectTarget": "Ein einzelnes Ziel wählen: Der Test führt jeweils eine Routine aus."
+        },
+        "confirm": {
+          "title": "Der reale Endeffektor wird sich bewegen",
+          "body": "Nach dem Verbinden führt die Wiedergabetaste die Routine am montierten Werkzeug aus, statt sie nur zu simulieren. Vor dem Fortfahren prüfen, dass:",
+          "robotStill": "der Roboter steht und währenddessen nicht bewegt wird;",
+          "toolClear": "das Werkzeug über den gesamten Weg frei von Bauteil, Personen und Hindernissen ist;",
+          "noCompensation": "ein Ausschwenken der Spitze erwartet wird: In diesem Test gleicht der Roboter die Werkzeugbewegung nicht aus.",
+          "confirm": "Verbinden",
+          "cancel": "Abbrechen"
+        }
+      }
     }
   },
   "fluidDoser": {
