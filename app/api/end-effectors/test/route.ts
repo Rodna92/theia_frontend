@@ -7,7 +7,11 @@ export const dynamic = 'force-dynamic';
 // talks to that node directly.
 const GATEWAY = (process.env.EE_TEST_GATEWAY_URL || 'http://127.0.0.1:8765').replace(/\/+$/, '');
 // 'dry-run' / 'dry-run-stop': routine test on the real tool, without the robot (trajectory page).
-const ACTIONS = new Set(['test-mode', 'jog', 'move', 'home', 'stop', 'dry-run', 'dry-run-stop']);
+// 'diagnostic' / 'diagnostic-stop' / 'bus-stats-reset': servo-bus diagnostic (manager page).
+const ACTIONS = new Set([
+  'test-mode', 'jog', 'move', 'home', 'stop', 'dry-run', 'dry-run-stop',
+  'diagnostic', 'diagnostic-stop', 'bus-stats-reset',
+]);
 // Leaving test mode first drives the tool home at the test speed, so allow for a long answer.
 const TIMEOUT_MS = 30000;
 

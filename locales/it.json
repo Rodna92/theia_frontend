@@ -123,6 +123,70 @@
         "spmModelError": "Impossibile costruire il modello del polso sferico",
         "spmChainMismatch": "mount + tool_chain portano la punta a [{chain}] mm ma offset_x/y/z è [{offset}] mm (tolleranza 0,5 mm). Il nodo non si avvia in questo caso.",
         "test": {
+          "connectDescription": "Collegati all'utensile montato per muoverne i giunti a mano e per testare il suo bus servo. Possibile anche senza il modulo robot.",
+          "connectBody": "Una volta collegato, i pulsanti di jog, i cursori dei giunti dell'utensile montato e i test del bus muovono l'utensile reale. Prima di continuare, verifica che:",
+          "routineTestRunning": "Un test di routine è in corso sull'utensile: fermalo prima.",
+          "sliderLinked": "Collegato: i cursori muovono l'utensile reale e il modello segue la posizione misurata.",
+          "sliderFollowOnly": "Collegato: il modello segue la posizione misurata. In questo momento non è consentito muovere l'utensile.",
+          "sliderOtherTool": "L'utensile montato è “{mounted}”: questi cursori muovono solo il modello.",
+          "diag": {
+            "infoLabel": "Cosa fa “{test}”?",
+            "infoDoes": "Cosa fa",
+            "infoMotion": "Movimento",
+            "infoFailure": "Se le letture falliscono",
+            "jointMoves": "Il giunto si muove: oscilla su ±80 % della corsa a 30 °/s e alla fine torna a casa. Tieniti lontano dall'utensile.",
+            "jointStill": "Il giunto non si muove.",
+            "runAllHint": "Esegue i quattro test uno dopo l'altro, ciascuno per la durata selezionata, e poi indica in una frase a cosa punta lo schema degli errori. Il giunto si muove negli ultimi due. È l'esecuzione da inviare quando si segnala un problema del bus.",
+            "failureMeans": {
+              "idle": "Il problema c'è anche senza alcuna attività sul bus: controlla cablaggio, connettore, adattatore USB o baud rate. Gli altri test non sono valutabili finché questo non è pulito.",
+              "traffic": "Senza movimento non c'è corrente nel motore, quindi la causa è la temporizzazione sul bus: una lettura inviata subito dopo un comando incontra la conferma di quel comando. Si corregge via software.",
+              "motion_spaced": "Le letture sono tenute lontane dai comandi, quindi la temporizzazione è esclusa: la causa è elettrica – un calo di alimentazione, disturbi del motore o il cavo che si flette con il giunto.",
+              "motion": "È ciò che fa una routine. Confronta con i due test precedenti: errori solo qui indicano una temporizzazione del bus peggiorata dal movimento; errori anche in “letture distanziate” indicano una causa elettrica."
+            },
+            "title": "Diagnostica del bus servo",
+            "description": "Conta le letture di posizione fallite in quattro situazioni, per distinguere un problema di temporizzazione del bus da uno elettrico. I due test con movimento fanno oscillare il giunto su ±80 % della corsa a 30 °/s e lo riportano a casa.",
+            "counters": "Dalle {time}: {reads} letture, {failed} fallite ({pct} %), {moves} comandi",
+            "reset": "Azzera contatori",
+            "joint": "Giunto",
+            "duration": "Durata per test",
+            "runAll": "Esegui tutti e quattro",
+            "stop": "Ferma test",
+            "running": "In corso: {scenario}",
+            "verdict": "Risultato:",
+            "stopped": "Fermato prima della fine.",
+            "failuresTitle": "Ultime letture fallite",
+            "noFailures": "Nessuna lettura fallita registrata.",
+            "scenario": {
+              "idle": "Letture a riposo",
+              "traffic": "Comandi, senza movimento",
+              "motion_spaced": "Movimento, letture distanziate",
+              "motion": "Movimento, come una routine"
+            },
+            "scenarioHint": {
+              "idle": "Solo letture di posizione, nessun comando: verifica cablaggio, adattatore e baud rate.",
+              "traffic": "Comandi alla frequenza della routine verso la stessa posizione (nessun movimento), con letture subito dopo: verifica la temporizzazione del bus.",
+              "motion_spaced": "Il giunto oscilla; ogni lettura attende che il bus sia libero: verifica alimentazione, disturbi e cavo.",
+              "motion": "Il giunto oscilla con letture subito dopo i comandi, come fa una routine."
+            },
+            "col": {
+              "test": "Test",
+              "time": "Tempo",
+              "reads": "Letture",
+              "failed": "Fallite",
+              "commands": "Comandi",
+              "lag": "Ritardo max",
+              "notes": "Tipi di errore / errore"
+            },
+            "fcol": {
+              "time": "Ora",
+              "servo": "Servo",
+              "kind": "Tipo",
+              "bytes": "Byte",
+              "raw": "Ricevuto (hex)",
+              "duration": "Durata ms",
+              "sinceMove": "ms dopo il comando"
+            }
+          },
           "title": "Test end effector",
           "description": "Muovi a mano i giunti dell'utensile montato mentre il sistema è inattivo.",
           "state": {

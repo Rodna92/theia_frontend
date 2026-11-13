@@ -123,6 +123,70 @@
         "spmModelError": "Impossible de construire le modèle du poignet sphérique",
         "spmChainMismatch": "mount + tool_chain placent la pointe à [{chain}] mm mais offset_x/y/z vaut [{offset}] mm (tolérance 0,5 mm). Le nœud refuse de démarrer dans ce cas.",
         "test": {
+          "connectDescription": "Connectez-vous à l'outil monté pour bouger ses articulations à la main et tester son bus servo. Possible sans le module robot.",
+          "connectBody": "Une fois connecté, les boutons de jog, les curseurs des articulations de l'outil monté et les tests du bus déplacent l'outil réel. Avant de continuer, vérifiez que :",
+          "routineTestRunning": "Un test de routine est en cours sur l'outil : arrêtez-le d'abord.",
+          "sliderLinked": "Connecté : les curseurs déplacent l'outil réel et le modèle suit sa position mesurée.",
+          "sliderFollowOnly": "Connecté : le modèle suit la position mesurée. Déplacer l'outil n'est pas autorisé pour le moment.",
+          "sliderOtherTool": "L'outil monté est « {mounted} » : ces curseurs ne déplacent que le modèle.",
+          "diag": {
+            "infoLabel": "Que fait « {test} » ?",
+            "infoDoes": "Ce qu'il fait",
+            "infoMotion": "Mouvement",
+            "infoFailure": "Si des lectures échouent",
+            "jointMoves": "L'articulation bouge : elle balaie ±80 % de sa course à 30 °/s et revient à l'origine à la fin. Restez à l'écart de l'outil.",
+            "jointStill": "L'articulation ne bouge pas.",
+            "runAllHint": "Lance les quatre tests l'un après l'autre, chacun pendant la durée choisie, puis indique en une phrase ce que désigne le schéma des échecs. L'articulation bouge pendant les deux derniers. C'est l'exécution à transmettre pour signaler un défaut du bus.",
+            "failureMeans": {
+              "idle": "Le défaut existe même sans aucune activité sur le bus : vérifiez le câblage, le connecteur, l'adaptateur USB ou le débit. Les autres tests ne peuvent pas être interprétés tant que celui-ci n'est pas propre.",
+              "traffic": "Sans mouvement il n'y a pas de courant moteur, la cause est donc la synchronisation du bus : une lecture envoyée juste après une commande rencontre l'accusé de réception de cette commande. Cela se corrige par logiciel.",
+              "motion_spaced": "Les lectures sont tenues à l'écart des commandes, la synchronisation est donc exclue : la cause est électrique – chute d'alimentation, parasites du moteur ou câble qui fléchit avec l'articulation.",
+              "motion": "C'est ce que fait une routine. Comparez avec les deux tests précédents : des échecs seulement ici indiquent une synchronisation du bus aggravée par le mouvement ; des échecs aussi dans « lectures espacées » indiquent une cause électrique."
+            },
+            "title": "Diagnostic du bus servo",
+            "description": "Compte les lectures de position échouées dans quatre situations, pour distinguer un défaut de synchronisation du bus d'un défaut électrique. Les deux tests avec mouvement balaient l'articulation sur ±80 % de sa course à 30 °/s et la ramènent à l'origine.",
+            "counters": "Depuis {time} : {reads} lectures, {failed} échouées ({pct} %), {moves} commandes",
+            "reset": "Remettre les compteurs à zéro",
+            "joint": "Articulation",
+            "duration": "Durée par test",
+            "runAll": "Lancer les quatre",
+            "stop": "Arrêter le test",
+            "running": "En cours : {scenario}",
+            "verdict": "Résultat :",
+            "stopped": "Arrêté avant la fin.",
+            "failuresTitle": "Dernières lectures échouées",
+            "noFailures": "Aucune lecture échouée enregistrée.",
+            "scenario": {
+              "idle": "Lectures au repos",
+              "traffic": "Commandes, sans mouvement",
+              "motion_spaced": "Mouvement, lectures espacées",
+              "motion": "Mouvement, comme une routine"
+            },
+            "scenarioHint": {
+              "idle": "Lectures de position seules, aucune commande : vérifie le câblage, l'adaptateur et le débit.",
+              "traffic": "Commandes à la cadence de la routine vers la même position (aucun mouvement), avec des lectures juste après : vérifie la synchronisation du bus.",
+              "motion_spaced": "L'articulation balaie ; chaque lecture attend que le bus soit libre : vérifie l'alimentation, les parasites et le câble.",
+              "motion": "L'articulation balaie avec des lectures juste après les commandes, comme le fait une routine."
+            },
+            "col": {
+              "test": "Test",
+              "time": "Durée",
+              "reads": "Lectures",
+              "failed": "Échecs",
+              "commands": "Commandes",
+              "lag": "Retard max",
+              "notes": "Types d'échec / erreur"
+            },
+            "fcol": {
+              "time": "Heure",
+              "servo": "Servo",
+              "kind": "Type",
+              "bytes": "Octets",
+              "raw": "Reçu (hex)",
+              "duration": "Durée ms",
+              "sinceMove": "ms après la commande"
+            }
+          },
           "title": "Test de l'effecteur",
           "description": "Déplacer à la main les articulations de l'outil monté pendant que le système est au repos.",
           "state": {

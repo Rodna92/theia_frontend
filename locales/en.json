@@ -123,6 +123,70 @@
         "spmModelError": "Cannot build the spherical wrist model",
         "spmChainMismatch": "mount + tool_chain put the tip at [{chain}] mm but offset_x/y/z is [{offset}] mm (tolerance 0.5 mm). The node refuses to start in this case.",
         "test": {
+          "connectDescription": "Connect to the mounted tool to move its joints by hand and to test its servo bus. Possible without the robot module.",
+          "connectBody": "Once connected, the jog buttons, the joint sliders of the mounted tool and the bus tests move the real tool. Before you continue, check that:",
+          "routineTestRunning": "A routine test is running on the tool: stop it first.",
+          "sliderLinked": "Connected: the sliders move the real tool, and the model follows its measured position.",
+          "sliderFollowOnly": "Connected: the model follows the measured position. Moving the tool is not allowed right now.",
+          "sliderOtherTool": "The mounted tool is “{mounted}”: these sliders only move the model.",
+          "diag": {
+            "infoLabel": "What does “{test}” do?",
+            "infoDoes": "What it does",
+            "infoMotion": "Motion",
+            "infoFailure": "If reads fail",
+            "jointMoves": "The joint moves: it sweeps over ±80 % of its range at 30 °/s and returns home at the end. Keep clear of the tool.",
+            "jointStill": "The joint does not move.",
+            "runAllHint": "Runs the four tests one after the other, each for the selected duration, and then says in one sentence what the pattern of failures points at. The joint moves during the last two. This is the run to send when reporting a bus fault.",
+            "failureMeans": {
+              "idle": "The fault is there even with nothing happening on the bus: look at the wiring, the connector, the USB adapter or the baud rate. The other tests cannot be judged until this one is clean.",
+              "traffic": "With no motion there is no motor current, so the cause is the timing on the bus: a read sent right behind a command meets that command's acknowledgement. This is fixed in software.",
+              "motion_spaced": "The reads are kept apart from the commands, so timing is ruled out: the cause is electrical – a supply dip, motor noise, or the cable flexing with the joint.",
+              "motion": "This is what a routine does. Compare with the two tests before: failures only here mean bus timing made worse by motion; failures in “spaced reads” too mean an electrical cause."
+            },
+            "title": "Servo bus diagnostics",
+            "description": "Counts the failed position reads in four situations, to tell a bus timing fault from an electrical one. The two motion tests sweep the joint over ±80 % of its range at 30 °/s and bring it home.",
+            "counters": "Since {time}: {reads} reads, {failed} failed ({pct} %), {moves} commands",
+            "reset": "Reset counters",
+            "joint": "Joint",
+            "duration": "Duration per test",
+            "runAll": "Run all four",
+            "stop": "Stop test",
+            "running": "Running: {scenario}",
+            "verdict": "Result:",
+            "stopped": "Stopped before the end.",
+            "failuresTitle": "Last failed reads",
+            "noFailures": "No failed read recorded.",
+            "scenario": {
+              "idle": "Idle reads",
+              "traffic": "Commands, no motion",
+              "motion_spaced": "Motion, spaced reads",
+              "motion": "Motion, as a routine"
+            },
+            "scenarioHint": {
+              "idle": "Position reads only, no command: checks wiring, adapter and baud rate.",
+              "traffic": "Commands at the routine's rate to the same position (no motion), with reads right behind them: checks the bus timing.",
+              "motion_spaced": "The joint sweeps; each read waits for the bus to be quiet: checks power, noise and cable.",
+              "motion": "The joint sweeps with reads right behind the commands, as a routine does."
+            },
+            "col": {
+              "test": "Test",
+              "time": "Time",
+              "reads": "Reads",
+              "failed": "Failed",
+              "commands": "Commands",
+              "lag": "Max lag",
+              "notes": "Failure kinds / error"
+            },
+            "fcol": {
+              "time": "Time",
+              "servo": "Servo",
+              "kind": "Kind",
+              "bytes": "Bytes",
+              "raw": "Received (hex)",
+              "duration": "Took ms",
+              "sinceMove": "ms after command"
+            }
+          },
           "title": "End effector test",
           "description": "Move the joints of the mounted tool by hand while the system is idle.",
           "state": {

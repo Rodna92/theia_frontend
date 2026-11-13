@@ -123,6 +123,70 @@
         "spmModelError": "Modell des sphärischen Handgelenks kann nicht erstellt werden",
         "spmChainMismatch": "mount + tool_chain ergeben die Spitze bei [{chain}] mm, aber offset_x/y/z ist [{offset}] mm (Toleranz 0,5 mm). Der Knoten startet in diesem Fall nicht.",
         "test": {
+          "connectDescription": "Mit dem montierten Werkzeug verbinden, um seine Gelenke von Hand zu bewegen und seinen Servo-Bus zu testen. Auch ohne das Robotermodul möglich.",
+          "connectBody": "Nach dem Verbinden bewegen die Jog-Tasten, die Gelenk-Schieberegler des montierten Werkzeugs und die Bus-Tests das echte Werkzeug. Prüfen Sie vor dem Fortfahren, dass:",
+          "routineTestRunning": "Auf dem Werkzeug läuft ein Routinetest: zuerst stoppen.",
+          "sliderLinked": "Verbunden: Die Schieberegler bewegen das echte Werkzeug, und das Modell folgt der gemessenen Position.",
+          "sliderFollowOnly": "Verbunden: Das Modell folgt der gemessenen Position. Das Werkzeug darf im Moment nicht bewegt werden.",
+          "sliderOtherTool": "Das montierte Werkzeug ist „{mounted}“: Diese Schieberegler bewegen nur das Modell.",
+          "diag": {
+            "infoLabel": "Was macht „{test}“?",
+            "infoDoes": "Was er macht",
+            "infoMotion": "Bewegung",
+            "infoFailure": "Wenn Abfragen fehlschlagen",
+            "jointMoves": "Das Gelenk bewegt sich: Es schwenkt über ±80 % seines Bereichs mit 30 °/s und fährt am Ende in die Grundstellung. Abstand zum Werkzeug halten.",
+            "jointStill": "Das Gelenk bewegt sich nicht.",
+            "runAllHint": "Führt die vier Tests nacheinander aus, jeden für die gewählte Dauer, und nennt danach in einem Satz, worauf das Fehlermuster hindeutet. In den letzten beiden bewegt sich das Gelenk. Diesen Lauf beim Melden eines Bus-Fehlers mitschicken.",
+            "failureMeans": {
+              "idle": "Der Fehler tritt auch ohne jede Aktivität auf dem Bus auf: Verkabelung, Stecker, USB-Adapter oder Baudrate prüfen. Die anderen Tests lassen sich erst beurteilen, wenn dieser sauber ist.",
+              "traffic": "Ohne Bewegung fließt kein Motorstrom, die Ursache ist also das Timing auf dem Bus: Eine Abfrage direkt hinter einem Befehl trifft auf dessen Quittung. Das wird in der Software behoben.",
+              "motion_spaced": "Die Abfragen sind von den Befehlen getrennt, das Timing ist also ausgeschlossen: Die Ursache ist elektrisch – Spannungseinbruch, Motorstörungen oder das Kabel, das sich mit dem Gelenk biegt.",
+              "motion": "Das ist, was eine Routine tut. Mit den beiden Tests davor vergleichen: Fehler nur hier bedeuten Bus-Timing, das durch die Bewegung verschlimmert wird; Fehler auch bei „Abfragen mit Abstand“ bedeuten eine elektrische Ursache."
+            },
+            "title": "Servo-Bus-Diagnose",
+            "description": "Zählt die fehlgeschlagenen Positionsabfragen in vier Situationen, um einen Timing-Fehler des Busses von einem elektrischen zu unterscheiden. Die beiden Bewegungstests schwenken das Gelenk über ±80 % seines Bereichs mit 30 °/s und fahren es zurück in die Grundstellung.",
+            "counters": "Seit {time}: {reads} Abfragen, {failed} fehlgeschlagen ({pct} %), {moves} Befehle",
+            "reset": "Zähler zurücksetzen",
+            "joint": "Gelenk",
+            "duration": "Dauer pro Test",
+            "runAll": "Alle vier ausführen",
+            "stop": "Test stoppen",
+            "running": "Läuft: {scenario}",
+            "verdict": "Ergebnis:",
+            "stopped": "Vor dem Ende gestoppt.",
+            "failuresTitle": "Letzte fehlgeschlagene Abfragen",
+            "noFailures": "Keine fehlgeschlagene Abfrage aufgezeichnet.",
+            "scenario": {
+              "idle": "Abfragen im Ruhezustand",
+              "traffic": "Befehle, keine Bewegung",
+              "motion_spaced": "Bewegung, Abfragen mit Abstand",
+              "motion": "Bewegung, wie eine Routine"
+            },
+            "scenarioHint": {
+              "idle": "Nur Positionsabfragen, kein Befehl: prüft Verkabelung, Adapter und Baudrate.",
+              "traffic": "Befehle im Takt der Routine auf dieselbe Position (keine Bewegung), mit Abfragen direkt dahinter: prüft das Bus-Timing.",
+              "motion_spaced": "Das Gelenk schwenkt; jede Abfrage wartet, bis der Bus frei ist: prüft Versorgung, Störungen und Kabel.",
+              "motion": "Das Gelenk schwenkt mit Abfragen direkt hinter den Befehlen, wie es eine Routine tut."
+            },
+            "col": {
+              "test": "Test",
+              "time": "Zeit",
+              "reads": "Abfragen",
+              "failed": "Fehler",
+              "commands": "Befehle",
+              "lag": "Max. Nachlauf",
+              "notes": "Fehlerarten / Fehler"
+            },
+            "fcol": {
+              "time": "Uhrzeit",
+              "servo": "Servo",
+              "kind": "Art",
+              "bytes": "Bytes",
+              "raw": "Empfangen (hex)",
+              "duration": "Dauer ms",
+              "sinceMove": "ms nach Befehl"
+            }
+          },
           "title": "Endeffektor-Test",
           "description": "Die Gelenke des montierten Werkzeugs von Hand bewegen, während das System im Leerlauf ist.",
           "state": {

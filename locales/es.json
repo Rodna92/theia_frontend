@@ -123,6 +123,70 @@
         "spmModelError": "No se puede construir el modelo de la muñeca esférica",
         "spmChainMismatch": "mount + tool_chain sitúan la punta en [{chain}] mm pero offset_x/y/z es [{offset}] mm (tolerancia 0,5 mm). El nodo no arranca en este caso.",
         "test": {
+          "connectDescription": "Conéctate a la herramienta montada para mover sus articulaciones a mano y probar su bus de servos. Posible sin el módulo del robot.",
+          "connectBody": "Una vez conectado, los botones de jog, los deslizadores de las articulaciones de la herramienta montada y las pruebas del bus mueven la herramienta real. Antes de continuar, comprueba que:",
+          "routineTestRunning": "Hay una prueba de rutina en curso en la herramienta: deténla primero.",
+          "sliderLinked": "Conectado: los deslizadores mueven la herramienta real y el modelo sigue su posición medida.",
+          "sliderFollowOnly": "Conectado: el modelo sigue la posición medida. Ahora mismo no está permitido mover la herramienta.",
+          "sliderOtherTool": "La herramienta montada es «{mounted}»: estos deslizadores solo mueven el modelo.",
+          "diag": {
+            "infoLabel": "¿Qué hace «{test}»?",
+            "infoDoes": "Qué hace",
+            "infoMotion": "Movimiento",
+            "infoFailure": "Si fallan lecturas",
+            "jointMoves": "La articulación se mueve: barre ±80 % de su recorrido a 30 °/s y vuelve al origen al final. Mantente alejado de la herramienta.",
+            "jointStill": "La articulación no se mueve.",
+            "runAllHint": "Ejecuta las cuatro pruebas una tras otra, cada una durante la duración seleccionada, y después indica en una frase a qué apunta el patrón de fallos. La articulación se mueve en las dos últimas. Es la ejecución que hay que enviar al informar de un fallo del bus.",
+            "failureMeans": {
+              "idle": "El fallo existe incluso sin actividad en el bus: revisa el cableado, el conector, el adaptador USB o la velocidad en baudios. Las demás pruebas no se pueden valorar hasta que esta salga limpia.",
+              "traffic": "Sin movimiento no hay corriente en el motor, así que la causa es la temporización del bus: una lectura enviada justo detrás de un comando se encuentra con la confirmación de ese comando. Se corrige por software.",
+              "motion_spaced": "Las lecturas se mantienen separadas de los comandos, así que la temporización queda descartada: la causa es eléctrica – caída de alimentación, ruido del motor o el cable que se flexiona con la articulación.",
+              "motion": "Es lo que hace una rutina. Compara con las dos pruebas anteriores: fallos solo aquí indican una temporización del bus agravada por el movimiento; fallos también en «lecturas espaciadas» indican una causa eléctrica."
+            },
+            "title": "Diagnóstico del bus de servos",
+            "description": "Cuenta las lecturas de posición fallidas en cuatro situaciones, para distinguir un fallo de temporización del bus de uno eléctrico. Las dos pruebas con movimiento barren la articulación en ±80 % de su recorrido a 30 °/s y la devuelven al origen.",
+            "counters": "Desde las {time}: {reads} lecturas, {failed} fallidas ({pct} %), {moves} comandos",
+            "reset": "Reiniciar contadores",
+            "joint": "Articulación",
+            "duration": "Duración por prueba",
+            "runAll": "Ejecutar las cuatro",
+            "stop": "Detener prueba",
+            "running": "En curso: {scenario}",
+            "verdict": "Resultado:",
+            "stopped": "Detenido antes del final.",
+            "failuresTitle": "Últimas lecturas fallidas",
+            "noFailures": "No se ha registrado ninguna lectura fallida.",
+            "scenario": {
+              "idle": "Lecturas en reposo",
+              "traffic": "Comandos, sin movimiento",
+              "motion_spaced": "Movimiento, lecturas espaciadas",
+              "motion": "Movimiento, como una rutina"
+            },
+            "scenarioHint": {
+              "idle": "Solo lecturas de posición, ningún comando: comprueba cableado, adaptador y velocidad en baudios.",
+              "traffic": "Comandos al ritmo de la rutina hacia la misma posición (sin movimiento), con lecturas justo detrás: comprueba la temporización del bus.",
+              "motion_spaced": "La articulación barre; cada lectura espera a que el bus esté libre: comprueba alimentación, ruido y cable.",
+              "motion": "La articulación barre con lecturas justo detrás de los comandos, como hace una rutina."
+            },
+            "col": {
+              "test": "Prueba",
+              "time": "Tiempo",
+              "reads": "Lecturas",
+              "failed": "Fallidas",
+              "commands": "Comandos",
+              "lag": "Retraso máx",
+              "notes": "Tipos de fallo / error"
+            },
+            "fcol": {
+              "time": "Hora",
+              "servo": "Servo",
+              "kind": "Tipo",
+              "bytes": "Bytes",
+              "raw": "Recibido (hex)",
+              "duration": "Duración ms",
+              "sinceMove": "ms tras el comando"
+            }
+          },
           "title": "Prueba del efector final",
           "description": "Mueve a mano las articulaciones de la herramienta montada mientras el sistema está en reposo.",
           "state": {
