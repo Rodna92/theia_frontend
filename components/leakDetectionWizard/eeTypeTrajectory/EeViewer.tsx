@@ -8,12 +8,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { type EndEffector } from './catalog';
 import { atParam, place, placeDir, type Pose, type Placement } from './playback';
-
 interface EeViewerProps {
   endEffector: EndEffector | null;
   placements: Placement[];
-  // Animated tool pose; when null the tool rests at the start of the first displayed routine.
+  // Tool pose (tip frame and simulated joint angles); null = nothing to play.
   pose: Pose | null;
+  // Joint angles [rad] of the real tool (connected page): drawn instead of the simulated ones.
+  liveJoints?: number[] | null;
   // Saved STL path per target index.
   models: Record<string, string>;
 }
@@ -35,34 +36,90 @@ function makeLabel(text: string): THREE.Sprite {
   return sprite;
 }
 
-function buildEndEffector(ee: EndEffector): THREE.Group {
-  // Tool geometry comes from the YAML offset_z (metres); drawn 1:1 below the flange.
-  const length = Math.max(ee.offsetZ, 0.05);
-  const g = new THREE.Group();
+// The drawn tool. `root` is the tip frame (origin = the tool tip, +Z = the direction the tip
+// points); the flange (tool0) hangs from it through the tool's own kinematics, so a jointed tool
+// bends at its joint while its tip stays on the path.
+interface EeModel {
+  root: THREE.Group;
+  // Joint angle currently drawn [rad] (always 0 for a rigid tool).
+  angle: number;
+  setJoint: (q: number) => void;
+}
+
+const Z_AXIS = new THREE.Vector3(0, 0, 1);
+
+function buildEndEffector(ee: EndEffector): EeModel {
+  const chain = ee.chain;
+  // Tool geometry comes from the YAML (metres): the link lengths of a jointed tool, else offset_z.
+  const length = chain ? chain.link1 + chain.link2 : Math.max(ee.offsetZ, 0.05);
+  const root = new THREE.Group();
+  const tool0 = new THREE.Group(); // flange frame; the tool extends along its +Z
+  root.add(tool0);
   const body = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.6, roughness: 0.4 });
   const accent = new THREE.MeshStandardMaterial({ color: 0x06b6d4, metalness: 0.3, roughness: 0.4 });
-  const flange = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 32), body);
-  flange.position.y = length + 0.015;
-  g.add(flange);
-  // The stem starts where the cone ends (0.04 m above the tip).
+  // Cylinder of the given radius along Z, from z0 to z1.
+  const rod = (radius: number, z0: number, z1: number, material: THREE.Material) => {
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, Math.max(z1 - z0, 0.001), 24), material);
+    mesh.rotation.x = Math.PI / 2;
+    mesh.position.z = (z0 + z1) / 2;
+    return mesh;
+  };
+  // Conical tip with its apex at z = end, widening back toward the stem.
   const tipHeight = 0.04;
-  const stemLength = Math.max(length - tipHeight, 0.01);
-  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, stemLength, 24), body);
-  stem.position.y = tipHeight + stemLength / 2;
-  // Conical tip: apex at the group origin (the tool tip), widening toward the stem.
-  const tip = new THREE.Mesh(new THREE.ConeGeometry(0.015, tipHeight, 24), accent);
-  tip.rotation.x = Math.PI;
-  tip.position.y = tipHeight / 2;
-  g.add(stem, tip);
-  if (ee.jointCount > 0) {
-    // Mark the revolute joint(s) at mid-length.
-    const joint = new THREE.Mesh(new THREE.SphereGeometry(0.025, 16, 16), accent);
-    joint.position.y = length * 0.55;
-    g.add(joint);
+  const cone = (end: number) => {
+    const mesh = new THREE.Mesh(new THREE.ConeGeometry(0.015, tipHeight, 24), accent);
+    mesh.rotation.x = Math.PI / 2;
+    mesh.position.z = end - tipHeight / 2;
+    return mesh;
+  };
+  tool0.add(rod(0.06, -0.03, 0, body));
+
+  const model: EeModel = { root, angle: 0, setJoint: () => undefined };
+  if (chain) {
+    // tool0 --link 1--> revolute joint --link 2--> tip: T_tool0_tip(q) = Trans(0, 0, link1) *
+    // Rot(axis, q) * Trans(0, 0, link2), as ee_app's solver.
+    const axis = new THREE.Vector3(...chain.axis).normalize();
+    const pivot = new THREE.Group();
+    pivot.position.z = chain.link1;
+    pivot.add(rod(0.012, 0, Math.max(chain.link2 - tipHeight, 0.01), body), cone(chain.link2));
+    // The joint: a hub with a pin along its axis of rotation.
+    const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.07, 16), accent);
+    pin.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis);
+    pin.position.z = chain.link1;
+    const hub = new THREE.Mesh(new THREE.SphereGeometry(0.022, 16, 16), accent);
+    hub.position.z = chain.link1;
+    tool0.add(rod(0.012, 0, chain.link1, body), pivot, pin, hub);
+    const forward = new THREE.Matrix4();
+    const turn = new THREE.Matrix4();
+    const scale = new THREE.Vector3();
+    model.setJoint = (q: number) => {
+      model.angle = q;
+      pivot.quaternion.setFromAxisAngle(axis, q);
+      // Flange in the tip frame = inverse of the tool's forward kinematics.
+      forward
+        .makeTranslation(0, 0, chain.link1)
+        .multiply(turn.makeRotationAxis(axis, q))
+        .multiply(turn.makeTranslation(0, 0, chain.link2))
+        .invert()
+        .decompose(tool0.position, tool0.quaternion, scale);
+    };
+    model.setJoint(chain.follow ? chain.home : chain.hold);
+  } else {
+    // Rigid tool: a straight stem from the flange to the tip.
+    tool0.position.z = -length;
+    tool0.add(rod(0.012, 0, Math.max(length - tipHeight, 0.01), body), cone(length));
+    if (ee.jointCount > 0) {
+      // Declared joints without a link model: marked at mid-length.
+      const joint = new THREE.Mesh(new THREE.SphereGeometry(0.025, 16, 16), accent);
+      joint.position.z = length * 0.45;
+      tool0.add(joint);
+    }
   }
   // Drawn at half size; the group origin is the tool tip, so placement is unaffected.
-  g.scale.setScalar(0.5);
-  return g;
+  root.scale.setScalar(0.5);
+  // Until a pose is given: at the origin, tip pointing down at the grid.
+  root.quaternion.setFromUnitVectors(Z_AXIS, new THREE.Vector3(0, -1, 0));
+  return model;
 }
 
 function dispose(obj: THREE.Object3D) {
@@ -75,10 +132,12 @@ function dispose(obj: THREE.Object3D) {
   });
 }
 
-export function EeViewer({ endEffector, placements, pose, models }: EeViewerProps) {
+export function EeViewer({ endEffector, placements, pose, models, liveJoints }: EeViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<THREE.Group | null>(null);
-  const eeRef = useRef<THREE.Group | null>(null);
+  const eeRef = useRef<EeModel | null>(null);
+  // Joint angle to draw, and whether to ease toward it (the real tool's values arrive in steps).
+  const jointRef = useRef<{ target: number | null; smooth: boolean }>({ target: null, smooth: false });
   const geometryCache = useRef(new Map<string, Promise<THREE.BufferGeometry>>());
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
@@ -129,7 +188,18 @@ export function EeViewer({ endEffector, placements, pose, models }: EeViewerProp
     resize();
 
     let raf = 0;
+    let lastFrame = performance.now();
     const loop = () => {
+      const now = performance.now();
+      const dt = Math.min((now - lastFrame) / 1000, 0.1);
+      lastFrame = now;
+      const model = eeRef.current;
+      const { target, smooth } = jointRef.current;
+      if (model && target !== null && model.angle !== target) {
+        const gap = target - model.angle;
+        // Eased with a ~0.1 s time constant when following the real tool, else drawn as given.
+        model.setJoint(smooth && Math.abs(gap) > 1e-4 ? model.angle + gap * (1 - Math.exp(-dt / 0.1)) : target);
+      }
       controls.update();
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
@@ -183,22 +253,14 @@ export function EeViewer({ endEffector, placements, pose, models }: EeViewerProp
 
     const ee = buildEndEffector(endEffector);
     eeRef.current = ee;
-    content.add(ee);
+    content.add(ee.root);
 
-    let first: THREE.Vector3 | null = null;
-    let firstToolZ: [number, number, number] | null = null;
-    let firstPlacement: Placement | null = null;
     placements.forEach((pl) => {
       const tg = pl.target;
       if (tg.points.length === 0) return;
       // Associated (non-played) targets are drawn dimmed.
       const dim = !pl.primary;
       const pts = tg.points.map((p) => new THREE.Vector3(...place(pl, p)));
-      if (!first && pl.primary) {
-        first = pts[0];
-        firstToolZ = tg.startToolZ;
-        firstPlacement = pl;
-      }
       content.add(
         new THREE.Line(
           new THREE.BufferGeometry().setFromPoints(pts),
@@ -304,30 +366,29 @@ export function EeViewer({ endEffector, placements, pose, models }: EeViewerProp
       label.position.set(o[0], 0.2, o[2]);
       content.add(label);
     });
-    // The tool tip rests at the start of the first played routine.
-    if (first) ee.position.copy(first);
-    // The tool body extends opposite to the tool Z axis (which points into the panel).
-    const fp = firstPlacement as Placement | null;
-    const tip = fp ? placeDir(fp, (firstToolZ as [number, number, number] | null) ?? [0, 0, 1]) : [0, 0, -1];
-    ee.quaternion.setFromUnitVectors(
-      new THREE.Vector3(0, 1, 0),
-      new THREE.Vector3(-tip[0], -tip[1], -tip[2])
-    );
     return () => {
       cancelled = true;
     };
   }, [endEffector, placements, models]);
 
-  // Animated pose (playback) overrides the resting placement.
+  // The tool's pose: its tip on the path, oriented as the routine commands it (at rest: the start
+  // of the first played routine), and its joint at the simulated -- or the real tool's -- angle.
+  const liveJoint = liveJoints?.[0] ?? null;
   useEffect(() => {
     const ee = eeRef.current;
-    if (!ee || !pose) return;
-    ee.position.set(...pose.position);
-    ee.quaternion.setFromUnitVectors(
-      new THREE.Vector3(0, 1, 0),
-      new THREE.Vector3(...pose.bodyDir)
-    );
-  }, [pose, endEffector, placements, models]);
+    if (!ee) return;
+    if (pose) {
+      ee.root.position.set(...pose.position);
+      ee.root.quaternion.setFromRotationMatrix(
+        new THREE.Matrix4().makeBasis(
+          new THREE.Vector3(...pose.axes[0]),
+          new THREE.Vector3(...pose.axes[1]),
+          new THREE.Vector3(...pose.axes[2])
+        )
+      );
+    }
+    jointRef.current = { target: liveJoint ?? pose?.joints[0] ?? null, smooth: liveJoint !== null };
+  }, [pose, liveJoint, endEffector, placements, models]);
 
   return (
     <div className="relative w-full h-full">

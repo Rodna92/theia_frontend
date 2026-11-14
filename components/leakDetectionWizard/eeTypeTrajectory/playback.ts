@@ -1,4 +1,4 @@
-import { ALL_TARGETS, RoutineSegment, RoutineTarget, TargetGroups, Vec3 } from './catalog';
+import { ALL_TARGETS, JointChain, Quat, RoutineSegment, RoutineTarget, TargetGroups, Vec3 } from './catalog';
 
 export const TARGET_SPACING = 0.2;
 
@@ -16,8 +16,11 @@ export const smootherstep = (u: number) => {
 };
 
 export interface Pose {
-  position: Vec3; // viewer coordinates
-  bodyDir: Vec3; // unit vector, viewer coordinates
+  position: Vec3; // tool tip, viewer coordinates
+  // The tip frame's x, y, z axes (z = the direction the tip points), viewer coordinates.
+  axes: [Vec3, Vec3, Vec3];
+  // Tool joint angles [rad], as ee_app's IK would command them at this instant; [] for a rigid tool.
+  joints: number[];
   label: string;
 }
 
@@ -157,8 +160,89 @@ interface Entry {
   seg: RoutineSegment;
 }
 
-// Primary targets run one after the other, in the order they are given.
-export function buildPlayback(placements: Placement[]): Playback {
+// Orientation samples (uniform in s) at parameter s: normalised lerp between the two neighbours.
+function quatAt(samples: Quat[], s: number): Quat {
+  if (samples.length === 1) return samples[0];
+  const f = s * (samples.length - 1);
+  const i = Math.min(Math.floor(f), samples.length - 2);
+  const a = samples[i];
+  const b = samples[i + 1];
+  const sign = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3] < 0 ? -1 : 1;
+  const k = f - i;
+  const q = a.map((v, j) => v + (sign * b[j] - v) * k) as Quat;
+  const n = Math.hypot(q[0], q[1], q[2], q[3]) || 1;
+  return [q[0] / n, q[1] / n, q[2] / n, q[3] / n];
+}
+
+const rotate = (q: Quat, v: Vec3): Vec3 => {
+  const [x, y, z, w] = q;
+  const tx = 2 * (y * v[2] - z * v[1]);
+  const ty = 2 * (z * v[0] - x * v[2]);
+  const tz = 2 * (x * v[1] - y * v[0]);
+  return [
+    v[0] + w * tx + (y * tz - z * ty),
+    v[1] + w * ty + (z * tx - x * tz),
+    v[2] + w * tz + (x * ty - y * tx),
+  ];
+};
+
+// Step of the joint simulation [s] (ee_app's routine rate).
+const JOINT_DT = 0.02;
+
+// The joint angle over the whole timeline, as ee_app's REndEffectorSolver commands it ("follow"
+// mode): the part of the commanded tilt that is a turn about the joint axis (swing-twist split of
+// the tip orientation relative to the target's own), limited to the usable range, blended in over
+// engage_time_s at each routine's start and never faster than max_joint_speed. `quatAt(t)` is the
+// commanded tip orientation in the target's frame; `routineAt(t)` tells the routines apart.
+function simulateJoint(
+  chain: JointChain,
+  total: number,
+  quatAtTime: (t: number) => Quat,
+  routineAt: (t: number) => unknown
+): Float64Array {
+  const n = Math.max(1, Math.ceil(total / JOINT_DT)) + 1;
+  const out = new Float64Array(n);
+  const clamp = (q: number) => Math.min(Math.max(q, chain.min), chain.max);
+  let q = chain.follow ? chain.home : chain.hold;
+  let twist = 0;
+  let offset = 0;
+  let engageT = 0;
+  let routine: unknown;
+  for (let i = 0; i < n; i++) {
+    const t = Math.min(i * JOINT_DT, total);
+    if (chain.follow) {
+      const d = quatAtTime(t);
+      const current = routineAt(t);
+      const starting = i === 0 || current !== routine;
+      routine = current;
+      if (starting) twist = 0;
+      const along = d[0] * chain.axis[0] + d[1] * chain.axis[1] + d[2] * chain.axis[2];
+      if (Math.hypot(along, d[3]) > 1e-9) {
+        let tw = 2 * Math.atan2(along, d[3]);
+        // Same turn, the representative nearest the previous one.
+        tw -= 2 * Math.PI * Math.round((tw - twist) / (2 * Math.PI));
+        twist = tw;
+      }
+      const wanted = clamp(chain.home + twist);
+      if (starting) {
+        offset = q - wanted;
+        engageT = 0;
+      } else {
+        engageT += JOINT_DT;
+      }
+      const fade = chain.engageTime > 0 ? 1 - smootherstep(engageT / chain.engageTime) : 0;
+      const goal = clamp(wanted + offset * fade);
+      const step = starting ? 0 : chain.maxSpeed * JOINT_DT;
+      q = clamp(q + Math.min(Math.max(goal - q, -step), step));
+    }
+    out[i] = q;
+  }
+  return out;
+}
+
+// Primary targets run one after the other, in the order they are given. `chain`: the tool's joint
+// model when it has one (its angle is then simulated along the routines).
+export function buildPlayback(placements: Placement[], chain: JointChain | null = null): Playback {
   const timeline: Entry[] = [];
   let total = 0;
   placements
@@ -170,14 +254,40 @@ export function buildPlayback(placements: Placement[]): Playback {
       }
     });
 
-  const poseAt = (t: number): Pose | null => {
-    if (timeline.length === 0) return null;
+  // The step running at time t and its eased parameter.
+  const at = (t: number) => {
     const clamped = Math.min(Math.max(t, 0), total);
     const entry =
       timeline.find((e) => clamped >= e.start && clamped < e.end) ?? timeline[timeline.length - 1];
     const u = entry.seg.duration > 0 ? (clamped - entry.start) / entry.seg.duration : 1;
-    const s = smootherstep(u);
-    const tip = unit(placeDir(entry.placement, unit(atParam(entry.seg.toolZ, s))));
+    return { entry, s: smootherstep(u) };
+  };
+
+  const jointTrack =
+    chain && timeline.length > 0
+      ? simulateJoint(
+          chain,
+          total,
+          (t) => {
+            const { entry, s } = at(t);
+            return quatAt(entry.seg.quat, s);
+          },
+          (t) => at(t).entry.placement
+        )
+      : null;
+  const jointAt = (t: number): number => {
+    if (!jointTrack) return 0;
+    const f = Math.min(Math.max(t, 0), total) / JOINT_DT;
+    const i = Math.min(Math.floor(f), jointTrack.length - 2);
+    if (i < 0) return jointTrack[0];
+    return jointTrack[i] + (jointTrack[i + 1] - jointTrack[i]) * Math.min(f - i, 1);
+  };
+
+  const poseAt = (t: number): Pose | null => {
+    if (timeline.length === 0) return null;
+    const { entry, s } = at(t);
+    const q = quatAt(entry.seg.quat, s);
+    const axis = (v: Vec3) => unit(placeDir(entry.placement, rotate(q, v)));
     const part = entry.seg.part;
     // Composed routines: "5 · 1/3 → 4 · arc" (part 1 of 3, sweeping target 4).
     const partLabel = part
@@ -185,7 +295,8 @@ export function buildPlayback(placements: Placement[]): Playback {
       : '';
     return {
       position: place(entry.placement, atParam(entry.seg.points, s)),
-      bodyDir: [-tip[0], -tip[1], -tip[2]],
+      axes: [axis([1, 0, 0]), axis([0, 1, 0]), axis([0, 0, 1])],
+      joints: jointTrack ? [jointAt(t)] : [],
       label: `${entry.placement.target.index}${partLabel} · ${entry.seg.type}`,
     };
   };

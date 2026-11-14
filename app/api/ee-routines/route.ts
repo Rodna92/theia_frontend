@@ -18,6 +18,9 @@ interface Segment {
   // `points` and `toolZ` may have different lengths.
   points: Vec3[];
   toolZ: Vec3[];
+  // Full tool orientation (target-local), one per toolZ sample: the jointed tools' IK needs more
+  // than the tip direction.
+  quat: Quat[];
   // Set on `segments:` targets: which part of the composed routine this step belongs to.
   part?: SegmentPart;
 }
@@ -33,7 +36,11 @@ interface SegmentPart {
 interface SubFrame {
   t: Vec3;
   R: [Vec3, Vec3, Vec3]; // columns: the sub-frame's x, y, z axes in the target frame
+  q: Quat; // the same rotation
 }
+
+// Quaternion [x, y, z, w].
+type Quat = [number, number, number, number];
 
 type RoutineBody = { use?: string; with?: Record<string, unknown>; steps?: Step[] };
 type SegmentDef = RoutineBody & { target?: number; frame_offset_m?: Vec3; frame_rpy_deg?: Vec3 };
@@ -84,7 +91,6 @@ function substitute(value: unknown, vars: Record<string, unknown>): unknown {
 }
 
 const rad = (d: number) => (d * Math.PI) / 180;
-const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const cross = (a: Vec3, b: Vec3): Vec3 => [
   a[1] * b[2] - a[2] * b[1],
   a[2] * b[0] - a[0] * b[2],
@@ -95,49 +101,87 @@ const normalize = (v: Vec3): Vec3 => {
   return [v[0] / n, v[1] / n, v[2] / n];
 };
 
-// Rodrigues: rotate v about the unit axis k by angle a (right-hand rule).
-function rotateAbout(v: Vec3, k: Vec3, a: number): Vec3 {
-  const c = Math.cos(a);
-  const s = Math.sin(a);
-  const kv = cross(k, v);
-  const kd = dot(k, v) * (1 - c);
-  return [
-    v[0] * c + kv[0] * s + k[0] * kd,
-    v[1] * c + kv[1] * s + k[1] * kd,
-    v[2] * c + kv[2] * s + k[2] * kd,
-  ];
+// ---- Quaternions: the tool orientation, composed exactly as ee_app's SequenceRoutine does ----
+
+const Q_ID: Quat = [0, 0, 0, 1];
+
+const qMul = (a: Quat, b: Quat): Quat => [
+  a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1],
+  a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0],
+  a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3],
+  a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2],
+];
+
+// Rotation by `angle` about the unit axis k.
+const qAxisAngle = (k: Vec3, angle: number): Quat => {
+  const s = Math.sin(angle / 2);
+  return [k[0] * s, k[1] * s, k[2] * s, Math.cos(angle / 2)];
+};
+
+const qRotate = (q: Quat, v: Vec3): Vec3 => {
+  const u: Vec3 = [q[0], q[1], q[2]];
+  const t = cross(u, v);
+  const tt: Vec3 = [2 * t[0], 2 * t[1], 2 * t[2]];
+  const c = cross(u, tt);
+  return [v[0] + q[3] * tt[0] + c[0], v[1] + q[3] * tt[1] + c[1], v[2] + q[3] * tt[2] + c[2]];
+};
+
+// Rotation matrix given by its columns (the frame's x, y, z axes) -> quaternion.
+function qFromAxes(x: Vec3, y: Vec3, z: Vec3): Quat {
+  const tr = x[0] + y[1] + z[2];
+  let q: Quat;
+  if (tr > 0) {
+    const s = Math.sqrt(tr + 1) * 2;
+    q = [(y[2] - z[1]) / s, (z[0] - x[2]) / s, (x[1] - y[0]) / s, s / 4];
+  } else if (x[0] > y[1] && x[0] > z[2]) {
+    const s = Math.sqrt(1 + x[0] - y[1] - z[2]) * 2;
+    q = [s / 4, (y[0] + x[1]) / s, (z[0] + x[2]) / s, (y[2] - z[1]) / s];
+  } else if (y[1] > z[2]) {
+    const s = Math.sqrt(1 + y[1] - x[0] - z[2]) * 2;
+    q = [(y[0] + x[1]) / s, s / 4, (z[1] + y[2]) / s, (z[0] - x[2]) / s];
+  } else {
+    const s = Math.sqrt(1 + z[2] - x[0] - y[1]) * 2;
+    q = [(z[0] + x[2]) / s, (z[1] + y[2]) / s, s / 4, (x[1] - y[0]) / s];
+  }
+  const n = Math.hypot(q[0], q[1], q[2], q[3]) || 1;
+  return [q[0] / n, q[1] / n, q[2] / n, q[3] / n];
 }
 
-// Lean z toward `target` by `angle` (rotating about the axis perpendicular to both).
-function leanToward(z: Vec3, target: Vec3, angle: number): Vec3 {
-  if (angle === 0) return z;
-  const d = dot(z, target);
-  const perp: Vec3 = [target[0] - d * z[0], target[1] - d * z[1], target[2] - d * z[2]];
-  if (Math.hypot(perp[0], perp[1], perp[2]) < 1e-9) return z;
-  const pn = normalize(perp);
-  const c = Math.cos(angle);
-  const s = Math.sin(angle);
-  return normalize([c * z[0] + s * pn[0], c * z[1] + s * pn[1], c * z[2] + s * pn[2]]);
+// Shortest-path spherical interpolation (as Eigen's Quaternion::slerp).
+function qSlerp(a: Quat, b: Quat, s: number): Quat {
+  let d = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
+  const sign = d < 0 ? -1 : 1;
+  d = Math.min(Math.abs(d), 1);
+  let k0 = 1 - s;
+  let k1 = s;
+  if (d < 1 - 1e-9) {
+    const th = Math.acos(d);
+    k0 = Math.sin((1 - s) * th) / Math.sin(th);
+    k1 = Math.sin(s * th) / Math.sin(th);
+  }
+  k1 *= sign;
+  const q: Quat = [k0 * a[0] + k1 * b[0], k0 * a[1] + k1 * b[1], k0 * a[2] + k1 * b[2], k0 * a[3] + k1 * b[3]];
+  const n = Math.hypot(q[0], q[1], q[2], q[3]) || 1;
+  return [q[0] / n, q[1] / n, q[2] / n, q[3] / n];
 }
 
-// Spherical interpolation between two unit vectors.
-function slerp(a: Vec3, b: Vec3, s: number): Vec3 {
-  const d = Math.min(Math.max(dot(a, b), -1), 1);
-  const th = Math.acos(d);
-  if (th < 1e-6) return a;
-  const k0 = Math.sin((1 - s) * th) / Math.sin(th);
-  const k1 = Math.sin(s * th) / Math.sin(th);
-  return normalize([k0 * a[0] + k1 * b[0], k0 * a[1] + k1 * b[1], k0 * a[2] + k1 * b[2]]);
-}
+// Rz(yaw) * Ry(pitch) * Rx(roll), angles in degrees.
+const qRpy = (rpyDeg: Vec3): Quat =>
+  qMul(qAxisAngle(AXES.z, rad(rpyDeg[2])), qMul(qAxisAngle(AXES.y, rad(rpyDeg[1])), qAxisAngle(AXES.x, rad(rpyDeg[0]))));
 
-const ID_FRAME: SubFrame = { t: [0, 0, 0], R: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] };
+const zOf = (q: Quat): Vec3 => normalize(qRotate(q, IDENTITY_Z));
+
+const ID_FRAME: SubFrame = { t: [0, 0, 0], R: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], q: Q_ID };
 
 function subFrame(offset: unknown, rpyDeg: unknown): SubFrame {
   const o = Array.isArray(offset) ? offset.map((v) => Number(v) || 0) : [0, 0, 0];
-  const [r, p, y] = (Array.isArray(rpyDeg) ? rpyDeg : [0, 0, 0]).map((d) => rad(Number(d) || 0));
-  // Rz(yaw) * Ry(pitch) * Rx(roll) applied to each basis vector.
-  const col = (v: Vec3): Vec3 => rotateAbout(rotateAbout(rotateAbout(v, AXES.x, r), AXES.y, p), AXES.z, y);
-  return { t: [o[0] ?? 0, o[1] ?? 0, o[2] ?? 0], R: [col(AXES.x), col(AXES.y), col(AXES.z)] };
+  const rpy = (Array.isArray(rpyDeg) ? rpyDeg : [0, 0, 0]).map((d) => Number(d) || 0);
+  const q = qRpy([rpy[0] ?? 0, rpy[1] ?? 0, rpy[2] ?? 0]);
+  return {
+    t: [o[0] ?? 0, o[1] ?? 0, o[2] ?? 0],
+    R: [qRotate(q, AXES.x), qRotate(q, AXES.y), qRotate(q, AXES.z)],
+    q,
+  };
 }
 
 // Sub-frame direction / point -> target frame.
@@ -151,16 +195,7 @@ const fPoint = (f: SubFrame, p: Vec3): Vec3 => {
   return [d[0] + f.t[0], d[1] + f.t[1], d[2] + f.t[2]];
 };
 
-// Tool Z (tip direction) after q_target * Rz(yaw) * Ry(pitch) * Rx(roll), in target-local axes.
-function approachToolZ(rpy: Vec3): Vec3 {
-  const [r, p, y] = rpy.map(rad);
-  const x1 = Math.cos(r) * Math.sin(p);
-  const y1 = -Math.sin(r);
-  const z1 = Math.cos(r) * Math.cos(p);
-  return normalize([x1 * Math.cos(y) - y1 * Math.sin(y), x1 * Math.sin(y) + y1 * Math.cos(y), z1]);
-}
-
-function sampleArc(step: Step): { points: Vec3[]; toolZ: Vec3[] } {
+function sampleArc(step: Step): { points: Vec3[]; quat: Quat[] } {
   const r = (Number(step.diameter_m) || 0) / 2;
   const [u, v] = parsePlane(String(step.plane ?? 'xy'));
   const w = cross(u, v); // sweep-plane normal
@@ -172,7 +207,10 @@ function sampleArc(step: Step): { points: Vec3[]; toolZ: Vec3[] } {
   const tiltOut = rad(Number(step.tilt_out_of_plane_deg) || 0);
   const n = Math.max(8, Math.ceil(Math.abs(sweep) / (Math.PI / 24)));
   const points: Vec3[] = [];
-  const toolZ: Vec3[] = [];
+  const quat: Quat[] = [];
+  // Turn q about `axis` (when it is not degenerate), on top of what it already is.
+  const turned = (q: Quat, axis: Vec3, angle: number): Quat =>
+    Math.hypot(axis[0], axis[1], axis[2]) > 1e-9 ? qMul(qAxisAngle(normalize(axis), angle), q) : q;
   for (let i = 0; i <= n; i++) {
     const a = a0 + (sweep * i) / n;
     const c = Math.cos(a);
@@ -188,17 +226,22 @@ function sampleArc(step: Step): { points: Vec3[]; toolZ: Vec3[] } {
       -(u[1] * c + v[1] * s),
       -(u[2] * c + v[2] * s),
     ]);
-    // Look-at-centre: tool Z points at the centre; otherwise the target's own orientation.
-    let z: Vec3 = lookAt ? toCenter : IDENTITY_Z;
+    // Look-at-centre: tool Z points at the centre and the sweep-plane normal completes the frame
+    // (it only ever turns about that normal); otherwise the target's own orientation.
+    let q: Quat = Q_ID;
+    if (lookAt) {
+      const x = normalize(cross(w, toCenter));
+      q = qFromAxes(x, cross(toCenter, x), toCenter);
+    }
     // Constant lean toward the centre, then the progressive lean out of the sweep plane (applied
     // last): 0 at the arc's midpoint, the full value at both ends (sigma^2, sigma = -1..+1); the
     // tip turns toward -w, i.e. the tool body leans toward +w.
-    z = leanToward(z, toCenter, tilt);
+    if (tilt !== 0) q = turned(q, cross(zOf(q), toCenter), tilt);
     const sigma = (2 * i) / n - 1;
-    z = leanToward(z, [-w[0], -w[1], -w[2]], tiltOut * sigma * sigma);
-    toolZ.push(z);
+    if (tiltOut !== 0 && sweep !== 0) q = turned(q, cross(zOf(q), w), -sigma * sigma * tiltOut);
+    quat.push(q);
   }
-  return { points, toolZ };
+  return { points, quat };
 }
 
 // Builds the path polyline and the timed segments of a routine, starting from the approach pose.
@@ -207,7 +250,7 @@ function sampleArc(step: Step): { points: Vec3[]; toolZ: Vec3[] } {
 function sample(
   steps: Step[],
   defaults: Record<string, Record<string, unknown>>,
-  start: { p: Vec3; z: Vec3 }
+  start: { p: Vec3; q: Quat }
 ): { points: Vec3[]; startToolZ: Vec3 | null; segments: Segment[] } {
   const merged = steps.map((raw) => ({ ...(defaults[raw.type] ?? {}), ...raw }) as Step);
   const frames: SubFrame[] = [];
@@ -221,14 +264,16 @@ function sample(
     const arc = sampleArc(merged[j]);
     return {
       points: arc.points.map((p) => fPoint(frames[j], p)),
-      toolZ: arc.toolZ.map((z) => fDir(frames[j], z)),
+      quat: arc.quat.map((q) => qMul(frames[j].q, q)),
     };
   };
 
   const pts: Vec3[] = [start.p];
   const segments: Segment[] = [];
   let curP: Vec3 = start.p;
-  let curZ: Vec3 = start.z;
+  let curQ: Quat = start.q;
+  // Moves that turn the tool are sampled this finely (uniform in the step parameter).
+  const TURN_SAMPLES = 16;
 
   merged.forEach((step, idx) => {
     const f = frames[idx];
@@ -237,13 +282,17 @@ function sample(
       const x = Number(step[key]);
       return Number.isFinite(x) ? x : fallback;
     };
-    const push = (seg: Segment) => segments.push(part ? { ...seg, part } : seg);
+    // The tip direction (toolZ) is the Z axis of each orientation sample.
+    const push = (seg: Omit<Segment, 'toolZ'>) => {
+      const full: Segment = { ...seg, toolZ: seg.quat.map(zOf) };
+      segments.push(part ? { ...full, part } : full);
+    };
     if (step.type === 'arc') {
       const arc = arcAt(idx);
       pts.push(...arc.points);
       push({ type: 'arc', duration: num('duration_s', 4), ...arc });
       curP = arc.points[arc.points.length - 1];
-      curZ = arc.toolZ[arc.toolZ.length - 1];
+      curQ = arc.quat[arc.quat.length - 1];
     } else if (step.type === 'line' || step.type === 'retract') {
       let to: Vec3 | null = null;
       if (step.type === 'line' && Array.isArray(step.to_m)) to = step.to_m as Vec3;
@@ -256,59 +305,61 @@ function sample(
       to = fPoint(f, to);
       pts.push(to);
       const keep = step.type === 'line' && step.orient === 'keep';
-      const base1 = keep ? curZ : fDir(f, IDENTITY_Z);
+      const dest = keep ? curQ : f.q;
       const rotDeg = step.type === 'line' ? num('rotate_deg', 0) : 0;
       const axis = fDir(f, parseAxis(step.rotate_axis));
       // `orient` blends the tool to the (sub-)frame orientation (or keeps it); rotate_axis/rotate_deg
       // turns it about a frame-local axis on top, progressively over the move.
-      const toolZ: Vec3[] = [];
-      const n = rotDeg !== 0 ? 16 : 1;
+      const quat: Quat[] = [];
+      const n = rotDeg !== 0 || !keep ? TURN_SAMPLES : 1;
       for (let i = 0; i <= n; i++) {
         const s = i / n;
-        toolZ.push(rotateAbout(slerp(curZ, base1, s), axis, rad(rotDeg) * s));
+        quat.push(qMul(qAxisAngle(axis, rad(rotDeg) * s), qSlerp(curQ, dest, s)));
       }
       push({
         type: step.type,
         duration: num('duration_s', 1.5),
         points: [curP, to],
-        toolZ,
+        quat,
       });
       curP = to;
-      curZ = toolZ[toolZ.length - 1];
+      curQ = quat[quat.length - 1];
     } else if (step.type === 'move_to_start') {
       // Blend from the current pose (the approach pose, or the previous step's end) to the start of
       // the next arc, which may sit in another sub-frame.
       const j = merged.findIndex((s, k) => k > idx && s.type === 'arc');
       if (j < 0) return;
       const arc = arcAt(j);
-      const toolZ: Vec3[] = [];
-      for (let i = 0; i <= 8; i++) toolZ.push(slerp(curZ, arc.toolZ[0], i / 8));
+      const quat: Quat[] = [];
+      for (let i = 0; i <= TURN_SAMPLES; i++) quat.push(qSlerp(curQ, arc.quat[0], i / TURN_SAMPLES));
       push({
         type: 'move_to_start',
         duration: num('blend_s', 1.5),
         points: [curP, arc.points[0]],
-        toolZ,
+        quat,
       });
       curP = arc.points[0];
-      curZ = arc.toolZ[0];
+      curQ = arc.quat[0];
     } else if (step.type === 'rotate') {
       // Turn the tool in place about a frame-local axis (right-hand rule).
       const axis = fDir(f, parseAxis(step.axis));
       const angle = rad(num('angle_deg', 0));
-      const toolZ: Vec3[] = [];
-      for (let i = 0; i <= 16; i++) toolZ.push(rotateAbout(curZ, axis, (angle * i) / 16));
-      push({ type: 'rotate', duration: num('duration_s', 1.5), points: [curP, curP], toolZ });
-      curZ = toolZ[toolZ.length - 1];
+      const quat: Quat[] = [];
+      for (let i = 0; i <= TURN_SAMPLES; i++) {
+        quat.push(qMul(qAxisAngle(axis, (angle * i) / TURN_SAMPLES), curQ));
+      }
+      push({ type: 'rotate', duration: num('duration_s', 1.5), points: [curP, curP], quat });
+      curQ = quat[quat.length - 1];
     } else if (step.type === 'pause' || step.type === 'settle') {
       const duration = step.type === 'pause' ? num('duration_s', 0) : num('timeout_s', 2);
-      push({ type: step.type, duration, points: [curP, curP], toolZ: [curZ, curZ] });
+      push({ type: step.type, duration, points: [curP, curP], quat: [curQ, curQ] });
     } else if (step.type === 'handover' || step.type === 'release') {
       // Zero-time markers: the scan is done / the next target's approach may take over.
-      push({ type: step.type, duration: 0, points: [curP, curP], toolZ: [curZ, curZ] });
+      push({ type: step.type, duration: 0, points: [curP, curP], quat: [curQ, curQ] });
     }
     // `frame` steps take no time; they only set the sub-frame of the following steps (above).
   });
-  return { points: pts, startToolZ: start.z, segments };
+  return { points: pts, startToolZ: zOf(start.q), segments };
 }
 
 // Returns the per-target routines of <ROUTINES_DIR>/<equipment>/<endEffector>.yaml in the
@@ -363,7 +414,8 @@ export async function GET(req: NextRequest) {
       const startRpy = view?.rpy_fine_deg ?? view?.rpy_deg ?? [0, 0, 0];
       const { points, startToolZ, segments } = sample(resolved, defaults, {
         p: startP,
-        z: approachToolZ(startRpy),
+        // q_target * Rz(yaw) * Ry(pitch) * Rx(roll), in target-local axes.
+        q: qRpy(startRpy),
       });
       return {
         index: Number(index),

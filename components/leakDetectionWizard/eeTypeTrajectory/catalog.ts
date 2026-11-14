@@ -7,6 +7,29 @@ export interface EndEffector {
   offsetZ: number;
   solver: string | null;
   jointCount: number;
+  // Set for the one-joint tool (solver "r_end_effector"); null = drawn as a rigid tool.
+  chain: JointChain | null;
+}
+
+// Quaternion [x, y, z, w].
+export type Quat = [number, number, number, number];
+
+// tool0 --link1 along Z--> revolute joint (axis, tool0 frame) --link2--> tip, and how ee_app's
+// solver uses the joint (angles in rad).
+export interface JointChain {
+  link1: number;
+  link2: number;
+  axis: Vec3;
+  home: number;
+  // Usable range (operational limits and permitted servo counts).
+  min: number;
+  max: number;
+  maxSpeed: number; // rad/s
+  engageTime: number; // s
+  // true: the joint does the tilt about its own axis; false: it stays at `hold` (hold mode, or
+  // joint commands disabled = nominal mode).
+  follow: boolean;
+  hold: number;
 }
 
 // One timed step of a routine; samples are uniform in the step parameter (0..1).
@@ -15,6 +38,8 @@ export interface RoutineSegment {
   duration: number;
   points: Vec3[];
   toolZ: Vec3[];
+  // Full tool orientation (target-local), sampled like toolZ.
+  quat: Quat[];
   // Composed (`segments:`) targets: the part this step belongs to; target = the reused target.
   part?: { n: number; of: number; target: number | null };
 }

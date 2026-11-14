@@ -131,7 +131,9 @@ export function EeTypeTrajectoryPage() {
     () => layoutPlacements(targets, trajId, groups),
     [targets, trajId, groups]
   );
-  const playback = useMemo(() => buildPlayback(placements), [placements]);
+  // A jointed tool's joint angle is simulated along the routines (ee.chain).
+  const chain = ee?.chain ?? null;
+  const playback = useMemo(() => buildPlayback(placements, chain), [placements, chain]);
 
   // Real end effector: when connected, play runs the displayed routine on the tool itself (tool
   // only, no robot -- ee_app's routine test) and the view follows that run's clock.
@@ -234,7 +236,17 @@ export function EeTypeTrajectoryPage() {
     return () => cancelAnimationFrame(raf);
   }, [playing, playback]);
 
-  const pose = time > 0 ? playback.poseAt(time) : null;
+  // At rest (time 0) the tool stands at the start of the first played routine.
+  const pose = playback.poseAt(time);
+  // Connected to the tool that is selected here: its joints are drawn where the real ones are --
+  // the angle commanded by the running routine test, else the measured one.
+  const liveJoints = ((): number[] | null => {
+    if (!connected || !chain || !live.status || live.status.end_effector_type !== eeId) return null;
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    if (liveRunning && run?.joints.length) return run.joints.map((j) => toRad(j.commanded_deg));
+    const measured = live.status.servo.joints.map((j) => j.position_deg);
+    return measured.length > 0 && measured.every((d): d is number => d !== null) ? measured.map(toRad) : null;
+  })();
   const togglePlay = () => {
     if (connected) {
       // The tool itself runs the routine; nothing is simulated on its own.
@@ -291,7 +303,7 @@ export function EeTypeTrajectoryPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-3">
             <div className={`h-[65vh] overflow-hidden ${card}`}>
-              <EeViewer endEffector={ee} placements={placements} pose={pose} models={models} />
+              <EeViewer endEffector={ee} placements={placements} pose={pose} models={models} liveJoints={liveJoints} />
             </div>
             {targets.length > 0 && playback.total > 0 && (
               <div className="mt-3 flex items-center gap-3">
@@ -348,7 +360,8 @@ export function EeTypeTrajectoryPage() {
                 />
                 <span className="text-xs tabular-nums text-slate-500 dark:text-slate-400 whitespace-nowrap">
                   {time.toFixed(1)} / {playback.total.toFixed(1)} s
-                  {pose ? ` · ${pose.label}` : ''}
+                  {pose && time > 0 ? ` · ${pose.label}` : ''}
+                  {chain && pose ? ` · ${(((liveJoints ?? pose.joints)[0] ?? 0) * 180 / Math.PI).toFixed(1)}°` : ''}
                 </span>
               </div>
             )}
