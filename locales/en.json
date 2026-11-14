@@ -64,7 +64,7 @@
         "empty": "No end effector YAML files in this folder.",
         "hasTodos": "Has TODOs or placeholder values",
         "schematic": "Tool geometry",
-        "sideView": "Side view (tool0 X–Z)",
+        "sideView": "Side view (tool0 {plane})",
         "robotWrist": "Robot wrist",
         "joint": "Joint",
         "resetJoint": "Back to joint_home",

@@ -64,7 +64,7 @@
         "empty": "No hay archivos YAML de end effectors en esta carpeta.",
         "hasTodos": "Tiene TODOs o valores provisionales",
         "schematic": "Geometría de la herramienta",
-        "sideView": "Vista lateral (tool0 X–Z)",
+        "sideView": "Vista lateral (tool0 {plane})",
         "robotWrist": "Muñeca del robot",
         "joint": "Articulación",
         "resetJoint": "Volver a joint_home",

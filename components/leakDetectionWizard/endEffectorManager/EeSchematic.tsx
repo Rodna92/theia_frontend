@@ -48,13 +48,39 @@ function Arrow({ from, dir, color, label }: { from: P; dir: P; color: string; la
   );
 }
 
-// Frame axes drawn in the X-Z plane, rotated by `angle` about Y (positive swings Z towards +X).
-function Frame({ at, angle, name, labelDx = 10 }: { at: P; angle: number; name: string; labelDx?: number }) {
+// The view plane of the sketch: tool0 Z (down) and the tool0 direction a jointed tool's tip swings to
+// for a positive joint angle (axis x Z), drawn to the right. Joint axis Y (and every rigid tool): the
+// X-Z plane, +X to the right. Joint axis X: the Y-Z plane, -Y to the right.
+function viewPlane(g: Geometry): { h: string; plane: string; color: string } {
+  const a = g.chain?.axis;
+  if (a && Math.abs(a[0]) > Math.abs(a[1])) {
+    return { h: a[0] > 0 ? '−Y' : 'Y', plane: 'Y–Z', color: 'text-green-500' };
+  }
+  return { h: a && a[1] < 0 ? '−X' : 'X', plane: 'X–Z', color: 'text-red-500' };
+}
+
+// Frame axes drawn in the view plane, rotated by `angle` about the axis into the page (positive
+// swings Z towards the horizontal axis `h`).
+function Frame({
+  at,
+  angle,
+  name,
+  h,
+  hColor,
+  labelDx = 10,
+}: {
+  at: P;
+  angle: number;
+  name: string;
+  h: string;
+  hColor: string;
+  labelDx?: number;
+}) {
   const z = { x: Math.sin(angle), y: Math.cos(angle) };
   const x = { x: Math.cos(angle), y: -Math.sin(angle) };
   return (
     <g>
-      <Arrow from={at} dir={x} color="text-red-500" label="X" />
+      <Arrow from={at} dir={x} color={hColor} label={h} />
       <Arrow from={at} dir={z} color="text-blue-500" label="Z" />
       <circle cx={at.x} cy={at.y} r={4} className="fill-white stroke-slate-700 dark:fill-slate-900 dark:stroke-slate-200" strokeWidth={1.5} />
       <text x={at.x - labelDx} y={at.y - 8} textAnchor="end" className="fill-slate-600 dark:fill-slate-300 text-[11px] font-mono font-semibold">
@@ -101,9 +127,11 @@ function Tip({ apex, dir }: { apex: P; dir: P }) {
   return <polygon points={pts} className="fill-cyan-500 stroke-cyan-700 dark:stroke-cyan-300" strokeWidth={1} strokeLinejoin="round" />;
 }
 
-// Side view (tool0 X-Z plane) of the tool: robot flange on top, tool pointing down along tool0 Z.
+// Side view of the tool in its plane of motion (see viewPlane): robot flange on top, tool pointing
+// down along tool0 Z.
 export function EeSchematic({ geometry: g, jointAngle }: EeSchematicProps) {
   const t = useTranslations('leakDetection.configure.endEffectorManager');
+  const view = viewPlane(g);
   const [ox, oy, oz] = g.offset;
   const [roll, pitch, yaw] = g.rpy;
   const flange = toSvg(0, 0);
@@ -151,7 +179,7 @@ export function EeSchematic({ geometry: g, jointAngle }: EeSchematicProps) {
         <line x1={flange.x} y1={flange.y} x2={joint.x} y2={joint.y} strokeWidth={12} strokeLinecap="round" className="stroke-slate-500 dark:stroke-slate-400" />
         <line x1={joint.x} y1={joint.y} x2={tip.x} y2={tip.y} strokeWidth={9} strokeLinecap="round" className="stroke-slate-400 dark:stroke-slate-500" />
         <circle cx={joint.x} cy={joint.y} r={11} className="fill-cyan-500/20 stroke-cyan-600 dark:stroke-cyan-400" strokeWidth={2} />
-        {/* Axis along Y = into the page. */}
+        {/* Joint axis = normal to the view plane. */}
         <circle cx={joint.x} cy={joint.y} r={3} className="fill-cyan-600 dark:fill-cyan-400" />
         <text x={joint.x + 16} y={joint.y + 4} className="fill-cyan-700 dark:fill-cyan-300 text-[11px] font-mono font-semibold">
           {g.jointNames[0] ?? 'joint'} · {deg(jointAngle)}°
@@ -225,8 +253,8 @@ export function EeSchematic({ geometry: g, jointAngle }: EeSchematicProps) {
       )}
 
       {/* Label left of the flange plate so it doesn't sit on it. */}
-      <Frame at={flange} angle={0} name="tool0" labelDx={54} />
-      <Frame at={tip} angle={(g.chain ? jointAngle : 0) + pitch} name="ee_link" />
+      <Frame at={flange} angle={0} name="tool0" h={view.h} hColor={view.color} labelDx={54} />
+      <Frame at={tip} angle={(g.chain ? jointAngle : 0) + pitch} name="ee_link" h={view.h} hColor={view.color} />
 
       {/* Scale bar */}
       <g className="text-slate-500 dark:text-slate-400">
@@ -238,7 +266,7 @@ export function EeSchematic({ geometry: g, jointAngle }: EeSchematicProps) {
         </text>
       </g>
       <text x={W - 12} y={H - 14} textAnchor="end" className="fill-slate-400 dark:fill-slate-500 text-[10px] font-mono">
-        {t('sideView')}
+        {t('sideView', { plane: view.plane })}
         {Math.abs(oy) > 1e-6 ? ` · y ${mm(oy)} mm` : ''}
         {Math.abs(roll) > 1e-6 || Math.abs(yaw) > 1e-6 ? ` · r ${deg(roll)}° y ${deg(yaw)}°` : ''}
       </text>

@@ -64,7 +64,7 @@
         "empty": "Aucun fichier YAML d'end-effector dans ce dossier.",
         "hasTodos": "Contient des TODO ou des valeurs provisoires",
         "schematic": "Géométrie de l'outil",
-        "sideView": "Vue de côté (tool0 X–Z)",
+        "sideView": "Vue de côté (tool0 {plane})",
         "robotWrist": "Poignet du robot",
         "joint": "Articulation",
         "resetJoint": "Revenir à joint_home",

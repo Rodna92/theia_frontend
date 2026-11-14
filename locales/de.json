@@ -64,7 +64,7 @@
         "empty": "Keine End-Effektor-YAML-Dateien in diesem Ordner.",
         "hasTodos": "Enthält TODOs oder Platzhalterwerte",
         "schematic": "Werkzeuggeometrie",
-        "sideView": "Seitenansicht (tool0 X–Z)",
+        "sideView": "Seitenansicht (tool0 {plane})",
         "robotWrist": "Roboterhandgelenk",
         "joint": "Gelenk",
         "resetJoint": "Zurück zu joint_home",
