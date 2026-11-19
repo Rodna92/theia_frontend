@@ -125,9 +125,10 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
   const [exitFailed, setExitFailed] = useState(false);
   const [step, setStep] = useState(1);
   const [duration, setDuration] = useState(DURATIONS_S[1]);
-  const [diagJoint, setDiagJoint] = useState(0);
-  // Which test's explanation is open ('all' = the whole sequence).
-  const [info, setInfo] = useState<DiagnosticScenario | 'all' | null>(null);
+  // A joint index, or 'all': every servo of the tool together (the combined test).
+  const [diagJoint, setDiagJoint] = useState<number | 'all'>(0);
+  // Which test's explanation is open ('all' = the whole sequence, 'combined' = the combined test).
+  const [info, setInfo] = useState<DiagnosticScenario | 'all' | 'combined' | null>(null);
   const holding = useRef(false);
   useEffect(() => {
     if (!connected) holding.current = false;
@@ -149,6 +150,9 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
   const canMove = allowed && !!servo?.connected && !testRunning && !diagRunning && !busy;
   const steps = STEPS_DEG.filter((s) => !servo?.max_jog_step_deg || s <= servo.max_jog_step_deg);
   const bus = servo?.bus;
+  // Several motors: the combined test commands and reads all of them together.
+  const multiMotor = (servo?.joints.length ?? 0) > 1;
+  const testedJoints = diagnostic?.joints ?? [];
 
   const setTestMode = async (enabled: boolean, forced = false) => {
     const ok = await live.setTestMode(enabled, forced);
@@ -472,12 +476,12 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
               )}
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                {servo.joints.length > 1 && (
+                {multiMotor && (
                   <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
                     <span className={LABEL}>{t('diag.joint')}</span>
                     <select
-                      value={diagJoint}
-                      onChange={(e) => setDiagJoint(Number(e.target.value))}
+                      value={String(diagJoint)}
+                      onChange={(e) => setDiagJoint(e.target.value === 'all' ? 'all' : Number(e.target.value))}
                       disabled={diagRunning}
                       className="px-2 py-1 rounded-md border border-slate-200/70 dark:border-white/10 bg-transparent text-xs font-mono"
                     >
@@ -486,6 +490,7 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                           {j.name}
                         </option>
                       ))}
+                      <option value="all">{t('diag.allMotors')}</option>
                     </select>
                   </label>
                 )}
@@ -539,6 +544,28 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                     onClick={() => setInfo(info === 'all' ? null : 'all')}
                   />
                 </span>
+                {multiMotor && (
+                  <span className="inline-flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDiagJoint('all');
+                        live.startDiagnostic(ALL_SCENARIOS, duration, 'all', force);
+                      }}
+                      disabled={!canMove}
+                      title={t('diag.combinedHint')}
+                      className={`${BUTTON} rounded-r-none border-amber-500/50 bg-amber-500/15 text-amber-800 dark:text-amber-200 hover:bg-amber-500/25`}
+                    >
+                      <IconPlayerPlay size={13} />
+                      {t('diag.combined')}
+                    </button>
+                    <InfoButton
+                      open={info === 'combined'}
+                      label={t('diag.infoLabel', { test: t('diag.combined') })}
+                      onClick={() => setInfo(info === 'combined' ? null : 'combined')}
+                    />
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => live.stopDiagnostic()}
@@ -558,10 +585,15 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                 >
                   <div className="flex items-center gap-1.5 font-semibold">
                     <IconInfoCircle size={14} className="text-cyan-600 dark:text-cyan-400" />
-                    {info === 'all' ? t('diag.runAll') : t(`diag.scenario.${info}`)}
+                    {info === 'all' ? t('diag.runAll') : info === 'combined' ? t('diag.combined') : t(`diag.scenario.${info}`)}
                   </div>
                   {info === 'all' ? (
                     <p className="mt-1">{t('diag.runAllHint')}</p>
+                  ) : info === 'combined' ? (
+                    <>
+                      <p className="mt-1">{t('diag.combinedHint')}</p>
+                      <p className="mt-1 font-semibold text-amber-700 dark:text-amber-300">{t('diag.combinedMotion')}</p>
+                    </>
                   ) : (
                     <dl className="mt-1.5 grid gap-x-3 gap-y-1 sm:grid-cols-[max-content_minmax(0,1fr)]">
                       <dt className={LABEL}>{t('diag.infoDoes')}</dt>
@@ -581,6 +613,7 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                 <div className="mt-3">
                   <div className="text-xs text-slate-600 dark:text-slate-300">
                     {t('diag.running', { scenario: diagnostic.scenario ? t(`diag.scenario.${diagnostic.scenario}`) : '…' })}
+                    {testedJoints.length > 0 && <span className="font-mono"> — {testedJoints.join(', ')}</span>}
                   </div>
                   <div
                     className="mt-1 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700/60 overflow-hidden"
@@ -594,6 +627,12 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                 </div>
               )}
 
+              {diagnostic.results.length > 0 && testedJoints.length > 0 && (
+                <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">
+                  <span className={`${LABEL} mr-2`}>{t(testedJoints.length > 1 ? 'diag.testedTogether' : 'diag.tested')}</span>
+                  <span className="font-mono">{testedJoints.join(', ')}</span>
+                </p>
+              )}
               {diagnostic.results.length > 0 && (
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full text-xs font-mono tabular-nums">
@@ -626,7 +665,12 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                           <td className={`${TD} text-right font-semibold`}>{r.read_failures}</td>
                           <td className={`${TD} text-right`}>{r.failure_pct.toFixed(2)}</td>
                           <td className={`${TD} text-right`}>{r.moves}</td>
-                          <td className={`${TD} text-right`}>{r.max_lag_deg === null ? '—' : `${r.max_lag_deg.toFixed(1)}°`}</td>
+                          <td
+                            className={`${TD} text-right`}
+                            title={r.joint_lags?.map((j) => `${j.name}: ${j.max_lag_deg.toFixed(1)}°`).join('\n')}
+                          >
+                            {r.max_lag_deg === null ? '—' : `${r.max_lag_deg.toFixed(1)}°`}
+                          </td>
                           {/* Acknowledgements and checksums of this test alone ('—' = no command sent, or an older node). */}
                           <td className={`${TD} text-right ${(r.acks_missing ?? 0) > 0 ? WARN_TEXT : ''}`}>
                             {r.acks === undefined || r.moves === 0 ? '—' : r.acks_missing ?? 0}
@@ -642,6 +686,14 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                               Object.entries(r.kinds)
                                 .map(([kind, n]) => `${kind} ×${n}`)
                                 .join(', ')}
+                            {/* Combined test: which servo the failed reads came from. */}
+                            {!r.error && r.read_failures > 0 && (r.by_servo?.length ?? 0) > 1 && (
+                              <span className="block">
+                                {r.by_servo!
+                                  .map((s) => t('diag.servoFailed', { id: s.servo_id, failed: s.read_failures, reads: s.reads }))
+                                  .join(', ')}
+                              </span>
+                            )}
                           </td>
                         </tr>
                       ))}

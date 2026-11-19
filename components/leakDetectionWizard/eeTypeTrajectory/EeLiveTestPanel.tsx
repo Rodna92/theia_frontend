@@ -12,6 +12,7 @@ import {
   IconShieldOff,
 } from '@tabler/icons-react';
 import { RETURN_HOME, type LiveTest } from './liveTest';
+import { RunBusStats } from './RunBusStats';
 
 const STATE_STYLE: Record<string, string> = {
   IDLE: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
@@ -195,6 +196,8 @@ export function EeLiveTestPanel({
               ))}
             </ul>
           )}
+          {/* The bus during the routine: absent on an ee_test_node older than the run counters. */}
+          {status?.servo.available && status.servo.run !== undefined && <RunBusStats run={status.servo.run} />}
           {status?.servo.available && status.servo.error && (
             <p className="flex items-start gap-1.5 text-xs text-red-700 dark:text-red-300">
               <IconAlertTriangle size={14} className="shrink-0 mt-0.5" />

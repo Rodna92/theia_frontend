@@ -71,6 +71,13 @@ export interface BusStats {
 
 export type DiagnosticScenario = 'idle' | 'traffic' | 'motion_spaced' | 'motion';
 
+// Reads and failed reads of one servo over a window (a diagnostic test, a routine run).
+export interface ServoReads {
+  servo_id: number;
+  reads: number;
+  read_failures: number;
+}
+
 export interface DiagnosticResult {
   scenario: DiagnosticScenario;
   duration_s: number;
@@ -88,6 +95,11 @@ export interface DiagnosticResult {
   ack_ms_avg?: number | null;
   ack_ms_max?: number | null;
   checksum_mismatches?: number;
+  // The joints tested (several in the combined test), per servo reads, and per joint lag
+  // (combined test only). Absent on an older node.
+  joints?: string[];
+  by_servo?: ServoReads[];
+  joint_lags?: { name: string; max_lag_deg: number }[];
 }
 
 export interface LiveDiagnostic {
@@ -99,6 +111,34 @@ export interface LiveDiagnostic {
   verdict: string;
   stopped: boolean;
   scenarios: DiagnosticScenario[];
+  // The joints of the current / last run (absent on an older node).
+  joints?: string[];
+}
+
+// The bus during one run of routine commands (a routine on the robot, or a routine test): from its
+// first joint command to its last one before a 1 s pause (ee_test_core.RunMonitor).
+export interface RunStats {
+  number: number; // runs since the node started
+  running: boolean;
+  started: number; // unix seconds
+  duration_s: number;
+  reads: number;
+  read_failures: number;
+  failure_pct: number;
+  moves: number; // commands sent to the servos
+  kinds: Record<string, number>;
+  acks: number;
+  acks_missing: number;
+  ack_ms_avg: number | null;
+  ack_ms_max: number | null;
+  checksum_mismatches: number;
+  by_servo: ServoReads[];
+  failures: BusFailure[];
+  // How far each joint trailed its latest command, over the position reads of the run
+  // (null = no read while the joint was commanded).
+  max_lag_deg: number | null;
+  lag_reads: number;
+  joints: { name: string; max_lag_deg: number | null }[];
 }
 
 export interface LiveStatus {
@@ -119,6 +159,8 @@ export interface LiveStatus {
     joints: LiveJoint[];
     // Absent on an ee_test_node older than the bus diagnostic.
     bus?: BusStats;
+    // The current or last run of routine commands; null before the first, absent on an older node.
+    run?: RunStats | null;
   };
   // Absent on an ee_test_node older than the routine test.
   dry_run?: LiveDryRun;
@@ -162,7 +204,13 @@ export interface LiveTest {
   home: (force?: boolean) => Promise<boolean>;
   // Stops everything on the tool: manual motion, routine test, bus diagnostic.
   stopAll: () => Promise<boolean>;
-  startDiagnostic: (scenarios: DiagnosticScenario[], durationS: number, joint: number, force?: boolean) => Promise<boolean>;
+  // joint: an index, or 'all' (the combined test: every servo of the tool together).
+  startDiagnostic: (
+    scenarios: DiagnosticScenario[],
+    durationS: number,
+    joint: number | 'all',
+    force?: boolean
+  ) => Promise<boolean>;
   stopDiagnostic: () => Promise<boolean>;
   resetBusStats: () => Promise<boolean>;
 }
@@ -284,7 +332,7 @@ export function useEeLiveTest(active: boolean, idlePollMs = POLL_IDLE_MS): LiveT
   const home = useCallback((force = false) => send('home', forceOf(force)), [send]);
   const stopAll = useCallback(() => send('stop'), [send]);
   const startDiagnostic = useCallback(
-    (scenarios: DiagnosticScenario[], durationS: number, joint: number, force = false) =>
+    (scenarios: DiagnosticScenario[], durationS: number, joint: number | 'all', force = false) =>
       send('diagnostic', { scenarios, duration_s: durationS, joint, ...forceOf(force) }),
     [send]
   );
