@@ -146,6 +146,11 @@
             "title": "Diagnóstico del bus de servos",
             "description": "Cuenta las lecturas de posición fallidas en cuatro situaciones, para distinguir un fallo de temporización del bus de uno eléctrico. Las dos pruebas con movimiento barren la articulación en ±80 % de su recorrido a 30 °/s y la devuelven al origen.",
             "counters": "Desde las {time}: {reads} lecturas, {failed} fallidas ({pct} %), {moves} comandos",
+            "ackCounters": "Confirmaciones de los comandos: {acks} recibidas, {missing} ausentes; espera media {avg} ms, máxima {max} ms",
+            "ackNone": "Confirmaciones de los comandos: todavía no se ha enviado ningún comando",
+            "checksumCounters": "Respuestas de posición con suma de comprobación incorrecta: {count} de {reads}",
+            "ackHint": "Cada comando de movimiento espera la confirmación del servo antes de que el bus se use de nuevo (20 ms como máximo). Confirmaciones ausentes, o esperas cercanas a 20 ms, indican que una rutina podría no mantener sus 50 comandos por segundo.",
+            "checksumHint": "Solo se cuentan: una respuesta con suma de comprobación incorrecta no es una lectura fallida, salvo que verify_reply_checksum esté activado en ee_test_params.yaml.",
             "reset": "Reiniciar contadores",
             "joint": "Articulación",
             "duration": "Duración por prueba",
@@ -175,6 +180,9 @@
               "failed": "Fallidas",
               "commands": "Comandos",
               "lag": "Retraso máx",
+              "ackMissing": "Confirm. ausentes",
+              "ackMs": "Confirm. ms media / máx",
+              "checksum": "Suma de comprob.",
               "notes": "Tipos de fallo / error"
             },
             "fcol": {

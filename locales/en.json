@@ -146,6 +146,11 @@
             "title": "Servo bus diagnostics",
             "description": "Counts the failed position reads in four situations, to tell a bus timing fault from an electrical one. The two motion tests sweep the joint over ±80 % of its range at 30 °/s and bring it home.",
             "counters": "Since {time}: {reads} reads, {failed} failed ({pct} %), {moves} commands",
+            "ackCounters": "Move acknowledgements: {acks} received, {missing} missing; wait {avg} ms on average, {max} ms at most",
+            "ackNone": "Move acknowledgements: no command sent yet",
+            "checksumCounters": "Position replies with a wrong checksum: {count} of {reads}",
+            "ackHint": "Every move command waits for the servo to acknowledge it before the bus is used again (at most 20 ms). Missing acknowledgements, or waits close to 20 ms, mean a routine may not keep its 50 commands per second.",
+            "checksumHint": "Only counted: a reply with a wrong checksum is not a failed read unless verify_reply_checksum is set in ee_test_params.yaml.",
             "reset": "Reset counters",
             "joint": "Joint",
             "duration": "Duration per test",
@@ -175,6 +180,9 @@
               "failed": "Failed",
               "commands": "Commands",
               "lag": "Max lag",
+              "ackMissing": "Ack missing",
+              "ackMs": "Ack ms avg / max",
+              "checksum": "Checksum",
               "notes": "Failure kinds / error"
             },
             "fcol": {

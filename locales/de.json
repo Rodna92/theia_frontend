@@ -146,6 +146,11 @@
             "title": "Servo-Bus-Diagnose",
             "description": "Zählt die fehlgeschlagenen Positionsabfragen in vier Situationen, um einen Timing-Fehler des Busses von einem elektrischen zu unterscheiden. Die beiden Bewegungstests schwenken das Gelenk über ±80 % seines Bereichs mit 30 °/s und fahren es zurück in die Grundstellung.",
             "counters": "Seit {time}: {reads} Abfragen, {failed} fehlgeschlagen ({pct} %), {moves} Befehle",
+            "ackCounters": "Quittungen der Befehle: {acks} empfangen, {missing} fehlend; Wartezeit im Mittel {avg} ms, höchstens {max} ms",
+            "ackNone": "Quittungen der Befehle: noch kein Befehl gesendet",
+            "checksumCounters": "Positionsantworten mit falscher Prüfsumme: {count} von {reads}",
+            "ackHint": "Jeder Bewegungsbefehl wartet auf die Quittung des Servos, bevor der Bus wieder benutzt wird (höchstens 20 ms). Fehlende Quittungen oder Wartezeiten nahe 20 ms bedeuten, dass eine Routine ihre 50 Befehle pro Sekunde möglicherweise nicht hält.",
+            "checksumHint": "Nur gezählt: Eine Antwort mit falscher Prüfsumme gilt nicht als fehlgeschlagene Lesung, außer verify_reply_checksum ist in ee_test_params.yaml gesetzt.",
             "reset": "Zähler zurücksetzen",
             "joint": "Gelenk",
             "duration": "Dauer pro Test",
@@ -175,6 +180,9 @@
               "failed": "Fehler",
               "commands": "Befehle",
               "lag": "Max. Nachlauf",
+              "ackMissing": "Quittung fehlt",
+              "ackMs": "Quittung ms Mittel / Max",
+              "checksum": "Prüfsumme",
               "notes": "Fehlerarten / Fehler"
             },
             "fcol": {

@@ -46,6 +46,8 @@ const BUTTON =
 const BUTTON_NEUTRAL = `${BUTTON} border-slate-200/70 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-700 dark:hover:text-cyan-300`;
 const LABEL = 'text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest';
 const TH = 'px-2 py-1 text-left font-bold';
+const WARN_TEXT = 'font-semibold text-amber-700 dark:text-amber-300';
+const ms = (value: number | null | undefined) => (value === null || value === undefined ? '—' : value.toFixed(1));
 const TD = 'px-2 py-1 align-top';
 
 // Where the joint is inside its permitted range, with a tick at home (0 deg).
@@ -451,6 +453,23 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                   {t('diag.reset')}
                 </button>
               </div>
+              {bus.acks !== undefined && (
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
+                  <span title={t('diag.ackHint')} className={(bus.acks_missing ?? 0) > 0 ? WARN_TEXT : ''}>
+                    {bus.acks + (bus.acks_missing ?? 0) === 0
+                      ? t('diag.ackNone')
+                      : t('diag.ackCounters', {
+                          acks: bus.acks,
+                          missing: bus.acks_missing ?? 0,
+                          avg: ms(bus.ack_ms_avg),
+                          max: ms(bus.ack_ms_max),
+                        })}
+                  </span>
+                  <span title={t('diag.checksumHint')} className={(bus.checksum_mismatches ?? 0) > 0 ? WARN_TEXT : ''}>
+                    {t('diag.checksumCounters', { count: bus.checksum_mismatches ?? 0, reads: bus.reads })}
+                  </span>
+                </div>
+              )}
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {servo.joints.length > 1 && (
@@ -587,6 +606,9 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                         <th className={`${TH} text-right`}>%</th>
                         <th className={`${TH} text-right`}>{t('diag.col.commands')}</th>
                         <th className={`${TH} text-right`}>{t('diag.col.lag')}</th>
+                        <th className={`${TH} text-right`} title={t('diag.ackHint')}>{t('diag.col.ackMissing')}</th>
+                        <th className={`${TH} text-right`} title={t('diag.ackHint')}>{t('diag.col.ackMs')}</th>
+                        <th className={`${TH} text-right`} title={t('diag.checksumHint')}>{t('diag.col.checksum')}</th>
                         <th className={TH}>{t('diag.col.notes')}</th>
                       </tr>
                     </thead>
@@ -605,6 +627,16 @@ export function EeTestPanel({ live, connected, onToggle, override, onToggleOverr
                           <td className={`${TD} text-right`}>{r.failure_pct.toFixed(2)}</td>
                           <td className={`${TD} text-right`}>{r.moves}</td>
                           <td className={`${TD} text-right`}>{r.max_lag_deg === null ? '—' : `${r.max_lag_deg.toFixed(1)}°`}</td>
+                          {/* Acknowledgements and checksums of this test alone ('—' = no command sent, or an older node). */}
+                          <td className={`${TD} text-right ${(r.acks_missing ?? 0) > 0 ? WARN_TEXT : ''}`}>
+                            {r.acks === undefined || r.moves === 0 ? '—' : r.acks_missing ?? 0}
+                          </td>
+                          <td className={`${TD} text-right`}>
+                            {r.acks === undefined || r.acks === 0 ? '—' : `${ms(r.ack_ms_avg)} / ${ms(r.ack_ms_max)}`}
+                          </td>
+                          <td className={`${TD} text-right ${(r.checksum_mismatches ?? 0) > 0 ? WARN_TEXT : ''}`}>
+                            {r.checksum_mismatches === undefined ? '—' : r.checksum_mismatches}
+                          </td>
                           <td className={`${TD} break-words`}>
                             {r.error ||
                               Object.entries(r.kinds)

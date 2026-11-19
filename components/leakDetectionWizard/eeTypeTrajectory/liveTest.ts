@@ -58,6 +58,15 @@ export interface BusStats {
   kinds: Record<string, number>;
   last_ack: string;
   failures: BusFailure[];
+  // Move commands that waited for the servo's acknowledgement: how many got it, how many did not,
+  // and how long the acknowledged ones waited (null while none was). Absent on an ee_test_node
+  // older than the acknowledgement wait.
+  acks?: number;
+  acks_missing?: number;
+  ack_ms_avg?: number | null;
+  ack_ms_max?: number | null;
+  // Position replies whose checksum did not match (counted; failed reads only when enforced).
+  checksum_mismatches?: number;
 }
 
 export type DiagnosticScenario = 'idle' | 'traffic' | 'motion_spaced' | 'motion';
@@ -73,6 +82,12 @@ export interface DiagnosticResult {
   max_lag_deg: number | null;
   kinds: Record<string, number>;
   failures: BusFailure[];
+  // This test's own acknowledgements and wrong checksums (see BusStats); absent on an older node.
+  acks?: number;
+  acks_missing?: number;
+  ack_ms_avg?: number | null;
+  ack_ms_max?: number | null;
+  checksum_mismatches?: number;
 }
 
 export interface LiveDiagnostic {

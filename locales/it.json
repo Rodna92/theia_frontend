@@ -146,6 +146,11 @@
             "title": "Diagnostica del bus servo",
             "description": "Conta le letture di posizione fallite in quattro situazioni, per distinguere un problema di temporizzazione del bus da uno elettrico. I due test con movimento fanno oscillare il giunto su ±80 % della corsa a 30 °/s e lo riportano a casa.",
             "counters": "Dalle {time}: {reads} letture, {failed} fallite ({pct} %), {moves} comandi",
+            "ackCounters": "Conferme dei comandi: {acks} ricevute, {missing} mancanti; attesa media {avg} ms, massima {max} ms",
+            "ackNone": "Conferme dei comandi: nessun comando inviato finora",
+            "checksumCounters": "Risposte di posizione con checksum errato: {count} su {reads}",
+            "ackHint": "Ogni comando di movimento attende la conferma del servo prima che il bus venga usato di nuovo (al massimo 20 ms). Conferme mancanti, o attese vicine a 20 ms, indicano che una routine potrebbe non mantenere i 50 comandi al secondo.",
+            "checksumHint": "Solo conteggiate: una risposta con checksum errato non è una lettura fallita, a meno che verify_reply_checksum sia attivo in ee_test_params.yaml.",
             "reset": "Azzera contatori",
             "joint": "Giunto",
             "duration": "Durata per test",
@@ -175,6 +180,9 @@
               "failed": "Fallite",
               "commands": "Comandi",
               "lag": "Ritardo max",
+              "ackMissing": "Conferme mancanti",
+              "ackMs": "Conferma ms media / max",
+              "checksum": "Checksum",
               "notes": "Tipi di errore / errore"
             },
             "fcol": {

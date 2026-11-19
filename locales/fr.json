@@ -146,6 +146,11 @@
             "title": "Diagnostic du bus servo",
             "description": "Compte les lectures de position échouées dans quatre situations, pour distinguer un défaut de synchronisation du bus d'un défaut électrique. Les deux tests avec mouvement balaient l'articulation sur ±80 % de sa course à 30 °/s et la ramènent à l'origine.",
             "counters": "Depuis {time} : {reads} lectures, {failed} échouées ({pct} %), {moves} commandes",
+            "ackCounters": "Acquittements des commandes : {acks} reçus, {missing} manquants ; attente moyenne {avg} ms, maximale {max} ms",
+            "ackNone": "Acquittements des commandes : aucune commande envoyée pour l’instant",
+            "checksumCounters": "Réponses de position avec une somme de contrôle erronée : {count} sur {reads}",
+            "ackHint": "Chaque commande de mouvement attend l’acquittement du servo avant que le bus soit réutilisé (20 ms au plus). Des acquittements manquants, ou des attentes proches de 20 ms, indiquent qu’une routine pourrait ne pas tenir ses 50 commandes par seconde.",
+            "checksumHint": "Seulement comptées : une réponse avec une somme de contrôle erronée n’est pas une lecture échouée, sauf si verify_reply_checksum est activé dans ee_test_params.yaml.",
             "reset": "Remettre les compteurs à zéro",
             "joint": "Articulation",
             "duration": "Durée par test",
@@ -175,6 +180,9 @@
               "failed": "Échecs",
               "commands": "Commandes",
               "lag": "Retard max",
+              "ackMissing": "Acquit. manquants",
+              "ackMs": "Acquit. ms moy. / max",
+              "checksum": "Somme de contrôle",
               "notes": "Types d'échec / erreur"
             },
             "fcol": {
