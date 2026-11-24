@@ -1,13 +1,55 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
-import { IconChevronLeft, IconDeviceFloppy, IconX } from '@tabler/icons-react';
+import { IconChevronLeft, IconDeviceFloppy, IconHome, IconRefresh, IconX } from '@tabler/icons-react';
+import { VideoPanel } from '../components/VideoPanel';
+import { useWorkcellState } from '../hooks/useWorkcellState';
 
 // Upper bound of the point depth (z) coordinate, in cm.
 const Z_MAX_CM = 80;
+
+// The robot's HOME waypoint: "ptp.home" in aldm_control/config/phases/control_node_ptp_params.yaml,
+// written by save_home_joints_node.py when the home pose is taught. Joint order as in q_target.
+const HOME_PARAMS_FILE = 'control_node_ptp_params.yaml';
+const HOME_JOINTS = ['Base', 'Shoulder', 'Elbow', 'Wrist 1', 'Wrist 2', 'Wrist 3'];
+
+interface HomePosition {
+  q: number[]; // [rad]
+  targetMode?: string;
+  file: string;
+  modified?: string;
+}
+
+type HomeState = { status: 'loading' } | { status: 'error'; error: string } | { status: 'ok'; home: HomePosition };
+
+interface RobotParamsResponse {
+  error?: string;
+  files?: { name: string; path: string; modified?: string; error?: string; params: { key: string; value: unknown }[] }[];
+}
+
+async function readHomePosition(): Promise<HomePosition> {
+  const res = await fetch('/api/robot-params', { cache: 'no-store' });
+  const json = (await res.json()) as RobotParamsResponse;
+  if (json.error) throw new Error(json.error);
+  const file = json.files?.find((f) => f.name === HOME_PARAMS_FILE);
+  if (!file) throw new Error(`${HOME_PARAMS_FILE} not found`);
+  if (file.error) throw new Error(file.error);
+  const value = (key: string) => file.params.find((p) => p.key === key)?.value;
+  const q = value('ptp.home.q_target');
+  if (!Array.isArray(q) || q.length !== HOME_JOINTS.length || !q.every((v) => typeof v === 'number')) {
+    throw new Error(`ptp.home.q_target missing or invalid in ${file.path}`);
+  }
+  const mode = value('ptp.home.target_mode');
+  return {
+    q: q as number[],
+    targetMode: typeof mode === 'string' ? mode : undefined,
+    file: file.path,
+    modified: file.modified,
+  };
+}
 
 const card =
   'rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5';
@@ -20,6 +62,23 @@ export function SearchConfigurationPage() {
   const [levels, setLevels] = useState(2);
   const [divisions, setDivisions] = useState(2);
   const [selectedQuadrants, setSelectedQuadrants] = useState<number[]>([]);
+  const [home, setHome] = useState<HomeState>({ status: 'loading' });
+  // Camera stream: requested only while the workcell bridge is reachable (as on the monitor page).
+  const { snapshot } = useWorkcellState();
+
+  const loadHome = useCallback(async () => {
+    setHome({ status: 'loading' });
+    try {
+      setHome({ status: 'ok', home: await readHomePosition() });
+    } catch (e) {
+      setHome({ status: 'error', error: e instanceof Error ? e.message : 'Cannot read the home position' });
+    }
+  }, []);
+
+  // Read the saved home position from disk every time the page opens.
+  useEffect(() => {
+    loadHome();
+  }, [loadHome]);
 
   useEffect(() => {
     setSelectedQuadrants([]);
@@ -65,6 +124,57 @@ export function SearchConfigurationPage() {
               {t('leakDetection.configure.process.searchingSetup.description')}
             </p>
           </div>
+        </div>
+
+        <div className={`mb-4 xs:mb-6 phone-short:mb-4 p-3 xs:p-4 3xl:p-5 flex flex-col gap-3 ${card}`}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <IconHome size={16} className="shrink-0 text-cyan-600 dark:text-cyan-400" />
+              <span className="text-xs xs:text-sm 3xl:text-base font-bold text-slate-700 dark:text-slate-200 uppercase tracking-widest">
+                Home Position
+              </span>
+              {home.status === 'ok' && home.home.targetMode && (
+                <span className="px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-800 text-[10px] 3xl:text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  {home.home.targetMode}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={loadHome}
+              disabled={home.status === 'loading'}
+              className="p-1.5 rounded-md text-slate-500 hover:text-cyan-600 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              title="Reload home position"
+              aria-label="Reload home position"
+            >
+              <IconRefresh size={14} className={home.status === 'loading' ? 'animate-spin' : ''} />
+            </button>
+          </div>
+
+          {home.status === 'loading' && <p className="text-xs text-slate-500">Reading home position…</p>}
+          {home.status === 'error' && <p className="text-xs text-red-600 dark:text-red-400 break-all">{home.error}</p>}
+          {home.status === 'ok' && (
+            <>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {home.home.q.map((rad, i) => (
+                  <div
+                    key={HOME_JOINTS[i]}
+                    className="flex flex-col px-2 py-1.5 rounded-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10"
+                    title={`${rad.toFixed(5)} rad`}
+                  >
+                    <span className="text-[10px] 3xl:text-xs font-bold text-slate-500 dark:text-slate-400">{HOME_JOINTS[i]}</span>
+                    <span className="text-xs 3xl:text-sm font-semibold tabular-nums text-slate-800 dark:text-slate-100">
+                      {((rad * 180) / Math.PI).toFixed(2)}°
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] 3xl:text-xs text-slate-400 dark:text-slate-500 break-all">
+                {home.home.file}
+                {home.home.modified && ` · saved ${new Date(home.home.modified).toLocaleString(locale)}`}
+              </p>
+            </>
+          )}
         </div>
 
         <div className={`overflow-hidden p-4 xs:p-5 sm:p-6 3xl:p-8 flex flex-col gap-4 xs:gap-6 phone-short:gap-4 lg:grid lg:grid-cols-5 lg:items-center lg:gap-8 3xl:gap-12 ${card}`}>
@@ -351,6 +461,10 @@ export function SearchConfigurationPage() {
               }}
             />
           </div>
+        </div>
+
+        <div className="mt-4 xs:mt-6 phone-short:mt-4 3xl:mt-8">
+          <VideoPanel available={snapshot.bridge} />
         </div>
       </main>
     </div>
