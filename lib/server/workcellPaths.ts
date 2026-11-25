@@ -34,6 +34,9 @@ const resolve = (envName: string, base: string, ...sub: string[]) =>
 export const workcellPaths = {
   behaviorTreeDir: () => resolve('BEHAVIOR_TREE_DIR', robotApp(), 'aldm_control', 'config', 'BehaviorTree'),
   robotParamsDir: () => resolve('ROBOT_PARAMS_DIR', robotApp(), 'aldm_control', 'config', 'phases'),
+  // The UR kinematics the bringup launch loads (bringup/launch/lab_rsp.launch.py, kinematics_params_file).
+  robotKinematicsFile: () =>
+    resolve('ROBOT_KINEMATICS_FILE', robotApp(), 'ur10e_ft_description', 'config', 'ur10e', 'default_kinematics.yaml'),
   visionParamsDir: () => resolve('VISION_PARAMS_DIR', visionApp(), 'ev3d_vision', 'config'),
   visionParamsFile: () => resolve('EE_VISION_PARAMS_FILE', workcellPaths.visionParamsDir(), 'vision_params.yaml'),
   eeTargetModelsDir: () => resolve('EE_TARGET_MODELS_DIR', visionApp(), 'ev3d_vision', 'pointclouds'),

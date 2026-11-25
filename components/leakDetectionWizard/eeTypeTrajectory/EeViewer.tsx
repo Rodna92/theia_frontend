@@ -20,19 +20,21 @@ interface EeViewerProps {
 }
 
 function makeLabel(text: string): THREE.Sprite {
+  // 128 px wide for up to 3 characters, wider for longer text (same text size).
+  const width = 128 * Math.max(1, Math.ceil(text.length / 3));
   const canvas = document.createElement('canvas');
-  canvas.width = 128;
+  canvas.width = width;
   canvas.height = 64;
   const ctx = canvas.getContext('2d')!;
   ctx.fillStyle = '#e2e8f0';
   ctx.font = 'bold 40px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text, 64, 32);
+  ctx.fillText(text, width / 2, 32);
   const sprite = new THREE.Sprite(
     new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), depthTest: false })
   );
-  sprite.scale.set(0.1, 0.05, 1);
+  sprite.scale.set(0.1 * (width / 128), 0.05, 1);
   return sprite;
 }
 
@@ -44,6 +46,9 @@ interface EeModel {
   // Joint angle currently drawn [rad] (always 0 for a rigid tool).
   angle: number;
   setJoint: (q: number) => void;
+  // Multi-spindle tool: which spindle's tip is the tip frame (root); null = the home geometry.
+  spindle: string | null;
+  setSpindle: (name: string | null) => void;
 }
 
 const Z_AXIS = new THREE.Vector3(0, 0, 1);
@@ -74,8 +79,70 @@ function buildEndEffector(ee: EndEffector): EeModel {
   };
   tool0.add(rod(0.06, -0.03, 0, body));
 
-  const model: EeModel = { root, angle: 0, setJoint: () => undefined };
-  if (chain) {
+  const model: EeModel = { root, angle: 0, setJoint: () => undefined, spindle: null, setSpindle: () => undefined };
+  const spindles = ee.spindles ?? [];
+  if (spindles.length > 0) {
+    // Multi-spindle head: every spindle is a rigid tip fixed to tool0 (end point tip_m, tip Z along
+    // its rpy, length_m back from the end point). The one doing the routine is the tip frame, so
+    // tool0 = tip * inverse(T_tool0_spindle) -- ee_app's MultiSpindleSolver composition.
+    const idle = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.4, roughness: 0.5, transparent: true, opacity: 0.45 });
+    const reach = Math.max(...spindles.map((s) => Math.hypot(s.nose[0], s.nose[1])), 0.02);
+    tool0.add(rod(reach + 0.02, -0.012, 0, body)); // the head plate the spindles hang from
+    const parts = new Map<string, THREE.Mesh[]>();
+    const transforms = new Map<string, THREE.Matrix4>();
+    const labelled = new Map<string, string[]>(); // spindles drawn on the same spot share one label
+    spindles.forEach((s) => {
+      const T = new THREE.Matrix4().makeBasis(
+        new THREE.Vector3(...s.axes[0]),
+        new THREE.Vector3(...s.axes[1]),
+        new THREE.Vector3(...s.axes[2])
+      );
+      T.setPosition(...s.tip);
+      transforms.set(s.name, T);
+      const frame = new THREE.Group(); // tip frame of this spindle, in tool0
+      frame.matrixAutoUpdate = false;
+      frame.matrix.copy(T);
+      // The active spindle is drawn slightly thicker, so it shows through idle ones on the same spot.
+      const meshes = [rod(0.012, -s.length, -tipHeight, body), cone(0)];
+      frame.add(...meshes);
+      tool0.add(frame);
+      parts.set(s.name, meshes);
+      const spot = `${s.tip.map((v) => v.toFixed(4))}|${s.rpyDeg.map((v) => v.toFixed(2))}`;
+      labelled.set(spot, [...(labelled.get(spot) ?? []), s.name]);
+      if (labelled.get(spot)!.length === 1) {
+        const label = makeLabel(s.name);
+        label.position.set(0.04, 0, -s.length * 0.5);
+        label.name = `label:${spot}`;
+        frame.add(label);
+      }
+    });
+    // Coincident spindles (e.g. placeholder geometry): one label naming all of them.
+    labelled.forEach((names, spot) => {
+      if (names.length < 2) return;
+      const old = tool0.getObjectByName(`label:${spot}`) as THREE.Sprite | undefined;
+      if (!old) return;
+      const label = makeLabel(names.join('·'));
+      label.position.copy(old.position);
+      old.parent?.add(label);
+      old.parent?.remove(old);
+      dispose(old);
+    });
+    const home = new THREE.Matrix4().makeTranslation(0, 0, Math.max(ee.offsetZ, 0.05));
+    const scale = new THREE.Vector3();
+    model.setSpindle = (name: string | null) => {
+      const T = (name && transforms.get(name)) || null;
+      model.spindle = T ? name : null;
+      // Flange in the tip frame = inverse of the active spindle's tool0 -> tip.
+      (T ?? home).clone().invert().decompose(tool0.position, tool0.quaternion, scale);
+      parts.forEach((meshes, n) => {
+        const active = n === model.spindle;
+        meshes[0].material = active ? body : idle;
+        meshes[1].material = active ? accent : idle;
+        meshes[0].scale.set(active ? 1 : 0.75, 1, active ? 1 : 0.75);
+      });
+    };
+    model.setSpindle(null);
+  } else if (chain) {
     // tool0 --link 1--> revolute joint --link 2--> tip: T_tool0_tip(q) = Trans(0, 0, link1) *
     // Rot(axis, q) * Trans(0, 0, link2), as ee_app's solver.
     const axis = new THREE.Vector3(...chain.axis).normalize();
@@ -377,6 +444,9 @@ export function EeViewer({ endEffector, placements, pose, models, liveJoints }: 
   useEffect(() => {
     const ee = eeRef.current;
     if (!ee) return;
+    // Multi-spindle tool: the running target's spindle is the one on the path.
+    const spindle = pose?.spindle ?? null;
+    if (ee.spindle !== spindle) ee.setSpindle(spindle);
     if (pose) {
       ee.root.position.set(...pose.position);
       ee.root.quaternion.setFromRotationMatrix(

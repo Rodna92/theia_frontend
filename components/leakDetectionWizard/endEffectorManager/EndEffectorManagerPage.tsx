@@ -22,6 +22,8 @@ import { EeSchematic } from './EeSchematic';
 import { EeViewer3D } from './EeViewer3D';
 import { EeTestPanel } from './EeTestPanel';
 import { SpmSection } from './SpmSection';
+import { SpindleSection } from './SpindleSection';
+import { spindleModelOf } from './multiSpindle';
 import { ValueEditor, applyEditsToYaml, getIn, sameValue, setIn } from './editing';
 import { type Dict, type EndEffectorFile, type EndEffectorsResponse, geometryOf, prettyName, mm, deg } from './geometry';
 import { SPM_SOLVER, type SpmModel, buildSpm } from './spherical3rrr';
@@ -137,6 +139,8 @@ function EndEffectorPanel({ ee, params, editing, onChange, link, linkNote }: Pan
     }
   }, [g.solver, params]);
   const spmModel = spm && 'model' in spm ? spm.model : null;
+  // Multi-spindle head: rigid spindles A..D, one per target (null for every other tool).
+  const spindleModel = useMemo(() => spindleModelOf(params), [params]);
   // Serial tools with joints (more than one link) get the 3D view and one slider per joint.
   const articulated = !spm && g.joints.length > 0;
   const [shape, setShape] = useState<'3d' | '2d'>('3d');
@@ -190,7 +194,7 @@ function EndEffectorPanel({ ee, params, editing, onChange, link, linkNote }: Pan
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('schematic')}</h3>
           <div className="flex items-center gap-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
             <span className="inline-flex items-center gap-1"><span className="w-2.5 h-0.5 bg-red-500" />X</span>
-            {(spmModel || (articulated && shape === '3d')) && (
+            {(spmModel || spindleModel || (articulated && shape === '3d')) && (
               <span className="inline-flex items-center gap-1"><span className="w-2.5 h-0.5 bg-green-500" />Y</span>
             )}
             <span className="inline-flex items-center gap-1"><span className="w-2.5 h-0.5 bg-blue-500" />Z</span>
@@ -216,7 +220,9 @@ function EndEffectorPanel({ ee, params, editing, onChange, link, linkNote }: Pan
         )}
         {spmModel ? (
           <SpmSection id={ee.id} model={spmModel} jointNames={g.jointNames} />
-        ) : spm ? null : articulated && shape === '3d' ? (
+        ) : spm ? null : spindleModel ? (
+          <SpindleSection id={ee.id} model={spindleModel} offset={g.offset} />
+        ) : articulated && shape === '3d' ? (
           <EeViewer3D geometry={g} angles={angles} viewKey={ee.id} />
         ) : (
           <EeSchematic geometry={g} jointAngle={angles[0] ?? 0} />
@@ -275,7 +281,13 @@ function EndEffectorPanel({ ee, params, editing, onChange, link, linkNote }: Pan
           <Stat
             label={t('tipLength')}
             value={`${mm(g.offset[2])} mm`}
-            hint={spmModel ? `tool0→O ${mm(Math.hypot(...spmModel.center))} · O→tip ${mm(Math.hypot(...spmModel.tip))} mm` : 'offset_z'}
+            hint={
+              spmModel
+                ? `tool0→O ${mm(Math.hypot(...spmModel.center))} · O→tip ${mm(Math.hypot(...spmModel.tip))} mm`
+                : spindleModel
+                  ? t('spindleHomeHint')
+                  : 'offset_z'
+            }
           />
           <Stat label={t('solver')} value={g.solver ?? '—'} />
           {spmModel ? (
@@ -291,6 +303,15 @@ function EndEffectorPanel({ ee, params, editing, onChange, link, linkNote }: Pan
                 hint={`κ = ∠(u, c) ${deg(spmModel.kappaHome)}°`}
               />
             </>
+          ) : spindleModel ? (
+            <>
+              <Stat
+                label={t('spindles')}
+                value={String(spindleModel.spindles.length)}
+                hint={spindleModel.spindles.map((s) => s.name).join(', ') || '—'}
+              />
+              <Stat label={t('rotation')} value={`${deg(g.rpy[0])}° ${deg(g.rpy[1])}° ${deg(g.rpy[2])}°`} hint="roll · pitch · yaw" />
+            </>
           ) : (
             <>
               <Stat label={t('joints')} value={String(g.jointNames.length)} hint={g.jointNames.join(', ') || t('noJoints')} />
@@ -299,7 +320,7 @@ function EndEffectorPanel({ ee, params, editing, onChange, link, linkNote }: Pan
           )}
         </div>
 
-        {(mismatch || spmMismatch || spmError || nameMismatch || ee.error || ee.todos.length > 0) && (
+        {(mismatch || spmMismatch || spmError || nameMismatch || ee.error || ee.todos.length > 0 || !!spindleModel?.errors.length) && (
           <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 space-y-1.5">
             {ee.error && <p className="text-xs text-red-700 dark:text-red-300 whitespace-pre-wrap">{ee.error}</p>}
             {spmError && (
@@ -307,6 +328,11 @@ function EndEffectorPanel({ ee, params, editing, onChange, link, linkNote }: Pan
                 {t('spmModelError')}: {spmError}
               </p>
             )}
+            {spindleModel?.errors.map((e) => (
+              <p key={e} className="text-xs text-red-700 dark:text-red-300 whitespace-pre-wrap">
+                {t('spindleModelError')}: {e}
+              </p>
+            ))}
             {spmMismatch && spmChain && (
               <p className="flex gap-1.5 text-xs text-amber-800 dark:text-amber-200">
                 <IconAlertTriangle size={14} className="shrink-0 mt-px" />

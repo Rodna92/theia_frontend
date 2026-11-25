@@ -21,6 +21,8 @@ export interface Pose {
   axes: [Vec3, Vec3, Vec3];
   // Tool joint angles [rad], as ee_app's IK would command them at this instant; [] for a rigid tool.
   joints: number[];
+  // Multi-spindle tool: the spindle whose tip is on the path (the running target's); null otherwise.
+  spindle: string | null;
   label: string;
 }
 
@@ -293,11 +295,13 @@ export function buildPlayback(placements: Placement[], chain: JointChain | null 
     const partLabel = part
       ? ` · ${part.n}/${part.of}${part.target !== null ? ` → ${part.target}` : ''}`
       : '';
+    const spindle = entry.placement.target.spindle ?? null;
     return {
       position: place(entry.placement, atParam(entry.seg.points, s)),
       axes: [axis([1, 0, 0]), axis([0, 1, 0]), axis([0, 0, 1])],
       joints: jointTrack ? [jointAt(t)] : [],
-      label: `${entry.placement.target.index}${partLabel} · ${entry.seg.type}`,
+      spindle,
+      label: `${entry.placement.target.index}${partLabel} · ${entry.seg.type}${spindle ? ` · ${spindle}` : ''}`,
     };
   };
   return { total, poseAt };

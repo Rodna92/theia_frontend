@@ -11,45 +11,38 @@ import { useWorkcellState } from '../hooks/useWorkcellState';
 // Upper bound of the point depth (z) coordinate, in cm.
 const Z_MAX_CM = 80;
 
-// The robot's HOME waypoint: "ptp.home" in aldm_control/config/phases/control_node_ptp_params.yaml,
-// written by save_home_joints_node.py when the home pose is taught. Joint order as in q_target.
-const HOME_PARAMS_FILE = 'control_node_ptp_params.yaml';
+// The robot's HOME waypoint ("ptp.home" in aldm_control/config/phases/control_node_ptp_params.yaml,
+// written by save_home_joints_node.py) and its tool0 pose in base_link (forward kinematics with the
+// robot's kinematics YAML), from /api/robot-home. Joint order as in q_target.
 const HOME_JOINTS = ['Base', 'Shoulder', 'Elbow', 'Wrist 1', 'Wrist 2', 'Wrist 3'];
 
 interface HomePosition {
   q: number[]; // [rad]
   targetMode?: string;
-  file: string;
+  paramsFile: string;
   modified?: string;
+  kinematicsFile: string;
+  tool0?: { frame: string; position: [number, number, number]; rpy: [number, number, number] }; // [m], [rad]
+  tool0Error?: string;
 }
 
 type HomeState = { status: 'loading' } | { status: 'error'; error: string } | { status: 'ok'; home: HomePosition };
 
-interface RobotParamsResponse {
-  error?: string;
-  files?: { name: string; path: string; modified?: string; error?: string; params: { key: string; value: unknown }[] }[];
+async function readHomePosition(): Promise<HomePosition> {
+  const res = await fetch('/api/robot-home', { cache: 'no-store' });
+  const json = (await res.json()) as HomePosition & { error?: string };
+  if (!res.ok || json.error) throw new Error(json.error || `HTTP ${res.status}`);
+  return json;
 }
 
-async function readHomePosition(): Promise<HomePosition> {
-  const res = await fetch('/api/robot-params', { cache: 'no-store' });
-  const json = (await res.json()) as RobotParamsResponse;
-  if (json.error) throw new Error(json.error);
-  const file = json.files?.find((f) => f.name === HOME_PARAMS_FILE);
-  if (!file) throw new Error(`${HOME_PARAMS_FILE} not found`);
-  if (file.error) throw new Error(file.error);
-  const value = (key: string) => file.params.find((p) => p.key === key)?.value;
-  const q = value('ptp.home.q_target');
-  if (!Array.isArray(q) || q.length !== HOME_JOINTS.length || !q.every((v) => typeof v === 'number')) {
-    throw new Error(`ptp.home.q_target missing or invalid in ${file.path}`);
-  }
-  const mode = value('ptp.home.target_mode');
-  return {
-    q: q as number[],
-    targetMode: typeof mode === 'string' ? mode : undefined,
-    file: file.path,
-    modified: file.modified,
-  };
-}
+// tool0 position [m] -> a search point [cm], rounded to 0.1 cm.
+const toPointCm = ([x, y, z]: [number, number, number]) => ({
+  x: Math.round(x * 1000) / 10,
+  y: Math.round(y * 1000) / 10,
+  z: Math.round(z * 1000) / 10,
+});
+
+const DEG = 180 / Math.PI;
 
 const card =
   'rounded-lg border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/30 ring-1 ring-inset ring-slate-200/20 dark:ring-white/5';
@@ -69,7 +62,12 @@ export function SearchConfigurationPage() {
   const loadHome = useCallback(async () => {
     setHome({ status: 'loading' });
     try {
-      setHome({ status: 'ok', home: await readHomePosition() });
+      const h = await readHomePosition();
+      setHome({ status: 'ok', home: h });
+      // Point 1 starts at the home tool0 position (base_link, cm), as the robot computes it.
+      // The value is taken as is, not clamped to the input ranges.
+      const tool0 = h.tool0;
+      if (tool0) setPoints((prev) => [toPointCm(tool0.position), ...prev.slice(1)]);
     } catch (e) {
       setHome({ status: 'error', error: e instanceof Error ? e.message : 'Cannot read the home position' });
     }
@@ -169,9 +167,32 @@ export function SearchConfigurationPage() {
                   </div>
                 ))}
               </div>
+              {home.home.tool0 && (
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs 3xl:text-sm">
+                  <span className="font-bold text-slate-500 dark:text-slate-400">
+                    tool0 <span className="font-medium">({home.home.tool0.frame})</span>
+                  </span>
+                  {(['X', 'Y', 'Z'] as const).map((axis, i) => (
+                    <span key={axis} className="tabular-nums text-slate-800 dark:text-slate-100">
+                      <span className="font-bold text-slate-500 dark:text-slate-400">{axis}</span>{' '}
+                      {(home.home.tool0!.position[i] * 100).toFixed(1)} cm
+                    </span>
+                  ))}
+                  {(['R', 'P', 'Y'] as const).map((axis, i) => (
+                    <span key={`r${i}`} className="tabular-nums text-slate-800 dark:text-slate-100">
+                      <span className="font-bold text-slate-500 dark:text-slate-400">{axis}</span>{' '}
+                      {(home.home.tool0!.rpy[i] * DEG).toFixed(1)}°
+                    </span>
+                  ))}
+                </div>
+              )}
+              {home.home.tool0Error && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 break-all">{home.home.tool0Error}</p>
+              )}
               <p className="text-[10px] 3xl:text-xs text-slate-400 dark:text-slate-500 break-all">
-                {home.home.file}
+                {home.home.paramsFile}
                 {home.home.modified && ` · saved ${new Date(home.home.modified).toLocaleString(locale)}`}
+                {home.home.tool0 && ` · kinematics ${home.home.kinematicsFile}`}
               </p>
             </>
           )}
@@ -373,9 +394,11 @@ export function SearchConfigurationPage() {
 
                 {/* Points and depth lines */}
                 {points.map((point, i) => {
-                  const xPercent = ((point.x + 40) / 80) * 100;
-                  const yPercent = ((40 - point.y) / 80) * 100;
-                  const zHeight = (point.z / Z_MAX_CM) * 180; // Max 180px depth
+                  // Drawing only: a value outside the grid (e.g. the home pose in Point 1) is pinned to its edge.
+                  const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+                  const xPercent = ((clamp(point.x, -40, 40) + 40) / 80) * 100;
+                  const yPercent = ((40 - clamp(point.y, -40, 40)) / 80) * 100;
+                  const zHeight = (clamp(point.z, 0, Z_MAX_CM) / Z_MAX_CM) * 180; // Max 180px depth
 
                   // Distance to axes in percentage
                   const axisX = 50; // vertical axis at x=50%

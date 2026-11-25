@@ -1,4 +1,7 @@
+import type { Spindle } from '../endEffectorManager/multiSpindle';
+
 export type Vec3 = [number, number, number];
+export type { Spindle };
 
 // Parsed from the end-effector YAML files by /api/end-effectors.
 export interface EndEffector {
@@ -9,6 +12,9 @@ export interface EndEffector {
   jointCount: number;
   // Set for the one-joint tool (solver "r_end_effector"); null = drawn as a rigid tool.
   chain: JointChain | null;
+  // Set for the multi-spindle tool (solver "multi_spindle"): its rigid spindles A..D; each target
+  // names the one whose tip does its routine (RoutineTarget.spindle). null for every other tool.
+  spindles: Spindle[] | null;
 }
 
 // Quaternion [x, y, z, w].
@@ -64,6 +70,8 @@ export interface RoutineTarget {
   enabled: boolean;
   // Set when the routine is composed of other routines (`segments:`), in run order.
   parts: RoutinePart[] | null;
+  // Multi-spindle tool: the spindle (A, B, ...) whose tip is ee_link for this target; null = none named.
+  spindle: string | null;
 }
 
 export const ALL_TARGETS = 'all';

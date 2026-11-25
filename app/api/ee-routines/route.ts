@@ -44,7 +44,8 @@ type Quat = [number, number, number, number];
 
 type RoutineBody = { use?: string; with?: Record<string, unknown>; steps?: Step[] };
 type SegmentDef = RoutineBody & { target?: number; frame_offset_m?: Vec3; frame_rpy_deg?: Vec3 };
-type TargetDef = RoutineBody & { segments?: SegmentDef[] };
+// spindle: which spindle position of a multi-spindle tool does the whole target (ee_app RoutineSpec).
+type TargetDef = RoutineBody & { segments?: SegmentDef[]; spindle?: unknown };
 
 interface ApproachView {
   offset_m?: Vec3;
@@ -426,6 +427,8 @@ export async function GET(req: NextRequest) {
         segments,
         // No target_selection = every target enabled (as in ee_app).
         enabled: selection ? selection[index] === true : true,
+        // Multi-spindle tool: the spindle whose tip is ee_link for this target (null = not named).
+        spindle: def.spindle === undefined || def.spindle === null ? null : String(def.spindle),
         // Composed targets: per part, the target it sweeps (this target for use / steps parts) and
         // its sub-frame (origin + x, y, z axes), target-local.
         parts: Array.isArray(def.segments)

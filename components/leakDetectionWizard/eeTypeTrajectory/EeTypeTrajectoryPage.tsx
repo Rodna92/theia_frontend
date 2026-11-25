@@ -261,6 +261,21 @@ export function EeTypeTrajectoryPage() {
     setPlaying((p) => !p);
   };
 
+  // Multi-spindle tool: what ee_target_routine_node would refuse at startup -- an enabled target
+  // naming no spindle, or one the tool file does not define.
+  const spindleProblems = useMemo(() => {
+    if (!ee?.spindles) return [];
+    const names = ee.spindles.map((s) => s.name);
+    return targets.flatMap((tg) => {
+      if (tg.spindle === null) {
+        return tg.enabled === false ? [] : [t('leakDetection.eeTrajectory.spindleMissing', { target: tg.index })];
+      }
+      return names.includes(tg.spindle)
+        ? []
+        : [t('leakDetection.eeTrajectory.spindleUnknown', { target: tg.index, spindle: tg.spindle, known: names.join(', ') })];
+    });
+  }, [ee, targets, t]);
+
   useEffect(() => {
     setTargets([]);
     setRoutineError(null);
@@ -398,6 +413,14 @@ export function EeTypeTrajectoryPage() {
                             · {t('leakDetection.eeTrajectory.disabled')}
                           </span>
                         )}
+                        {ee?.spindles && tg.spindle && (
+                          <span
+                            className="ml-1.5 px-1 rounded text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                            title={t('leakDetection.eeTrajectory.spindleOf', { spindle: tg.spindle })}
+                          >
+                            {tg.spindle}
+                          </span>
+                        )}
                       </span>
                       <span className="block text-xs opacity-70">{modelName(tg.index) ?? '—'}</span>
                     </button>
@@ -470,6 +493,32 @@ export function EeTypeTrajectoryPage() {
                   <p className="text-sm font-medium text-slate-700 dark:text-slate-300 break-all">
                     {routineFile ?? `${ee.id}.yaml`}
                   </p>
+                  {ee.spindles && targets.length > 0 && (
+                    <div className="mt-3 space-y-1.5">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                        {t('leakDetection.eeTrajectory.spindles')}
+                      </p>
+                      {ee.spindles.map((s) => {
+                        const used = targets.filter((tg) => tg.spindle === s.name);
+                        return (
+                          <div key={s.name} className="flex items-baseline gap-2 text-xs">
+                            <span className="w-5 shrink-0 font-bold text-amber-700 dark:text-amber-300">{s.name}</span>
+                            <span className={used.length ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 italic'}>
+                              {used.length
+                                ? used.map((tg) => `${t('leakDetection.eeTrajectory.target')} ${tg.index}`).join(', ')
+                                : t('leakDetection.eeTrajectory.spindleUnused')}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      {spindleProblems.map((p) => (
+                        <p key={p} className="flex gap-1.5 text-xs text-amber-800 dark:text-amber-200">
+                          <IconAlertTriangle size={14} className="shrink-0 mt-px" />
+                          {p}
+                        </p>
+                      ))}
+                    </div>
+                  )}
                 </>
               ) : (
                 <p className="text-sm text-slate-500 dark:text-slate-400">

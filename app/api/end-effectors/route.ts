@@ -3,6 +3,7 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import { parse } from 'yaml';
 import { workcellPaths } from '@/lib/server/workcellPaths';
+import { spindleModelOf } from '@/components/leakDetectionWizard/endEffectorManager/multiSpindle';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,18 +22,29 @@ const isDict = (v: unknown): v is Record<string, unknown> => !!v && typeof v ===
 const finite = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 const first = (v: unknown): number | null => finite(Array.isArray(v) ? v[0] : v);
 
-// One-joint tool (ik.solver "r_end_effector"): its link / joint model and how the solver uses the
-// joint, as ee_app's REndEffectorSolver reads them. null for every other tool.
-function chainOf(text: string) {
+// The ros__parameters of a tool file; null when it does not parse.
+function paramsOf(text: string): Record<string, unknown> | null {
   let doc: unknown;
   try {
     doc = parse(text);
   } catch {
     return null;
   }
-  const params = isDict(doc)
-    ? Object.values(doc).map((n) => (isDict(n) ? n.ros__parameters : null)).find(isDict)
-    : null;
+  return isDict(doc) ? Object.values(doc).map((n) => (isDict(n) ? n.ros__parameters : null)).find(isDict) ?? null : null;
+}
+
+// Multi-spindle tool (ik.solver "multi_spindle"): its rigid spindles A..D, as ee_app's
+// MultiSpindleSolver reads them. null for every other tool.
+function spindlesOf(text: string) {
+  const params = paramsOf(text);
+  const model = params ? spindleModelOf(params) : null;
+  return model ? model.spindles : null;
+}
+
+// One-joint tool (ik.solver "r_end_effector"): its link / joint model and how the solver uses the
+// joint, as ee_app's REndEffectorSolver reads them. null for every other tool.
+function chainOf(text: string) {
+  const params = paramsOf(text);
   const ik = params && isDict(params.ik) ? params.ik : null;
   const sp = ik && isDict(ik.solver_params) ? ik.solver_params : null;
   if (!ik || !sp || ik.solver !== 'r_end_effector') return null;
@@ -98,6 +110,7 @@ export async function GET() {
           solver: str(text, 'solver'),
           jointCount: jointNames.split(',').filter((s) => s.trim()).length,
           chain: chainOf(text),
+          spindles: spindlesOf(text),
         };
       })
     );
