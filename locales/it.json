@@ -93,6 +93,7 @@
         "spindleNose": "Naso [mm]",
         "spindleTargets": "Target",
         "spindleUnused": "non usato",
+        "spindleSwitchedTo": "attivato durante la routine",
         "spindleUnits": "Frame tool0. Target: file delle routine di {equipment} (target disabilitati in corsivo).",
         "spindleHint": "Testa multi-mandrino: ogni posizione porta una punta rigida con lunghezza e punto finale fissi. Il file delle routine assegna un mandrino a ogni target, e il suo punto finale è ee_link per tutta la routine. Seleziona un mandrino per evidenziarlo con il suo frame di punta.",
         "spindleNone": "Nessun mandrino valido in questo file.",

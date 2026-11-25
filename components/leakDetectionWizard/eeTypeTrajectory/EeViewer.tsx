@@ -359,6 +359,16 @@ export function EeViewer({ endEffector, placements, pose, models, liveJoints }: 
         });
         tg.segments.forEach((seg) => {
           if (seg.type === 'pause' || seg.type === 'settle') return; // no motion
+          if (seg.type === 'spindle') {
+            // Spindle switch: the flange holds still, the next steps move another spindle's tip.
+            content.add(
+              new THREE.Points(
+                new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...place(pl, seg.points[0]))]),
+                new THREE.PointsMaterial({ color: 0xf59e0b, size: 0.02 })
+              )
+            );
+            return;
+          }
           if (seg.type === 'handover' || seg.type === 'release') {
             // Zero-time markers on the path: scan done / next approach may take over.
             content.add(

@@ -12,6 +12,8 @@ interface RoutineUse {
   index: number;
   enabled: boolean;
   spindle: string | null;
+  // Spindles switched to mid-routine (`spindle` steps).
+  spindleSwitches: string[];
 }
 
 // 3D view of the multi-spindle head in the tool0 frame: each spindle a rigid tip from its nose to
@@ -85,7 +87,12 @@ export function SpindleSection({ id, model, offset }: { id: string; model: Spind
         if (cancelled) return;
         if (data.error) setUsesError(data.error);
         setUses(
-          (data.targets ?? []).map((tg: RoutineUse) => ({ index: tg.index, enabled: tg.enabled !== false, spindle: tg.spindle ?? null }))
+          (data.targets ?? []).map((tg: RoutineUse) => ({
+            index: tg.index,
+            enabled: tg.enabled !== false,
+            spindle: tg.spindle ?? null,
+            spindleSwitches: tg.spindleSwitches ?? [],
+          }))
         );
       })
       .catch((e) => !cancelled && setUsesError(String(e)));
@@ -101,9 +108,9 @@ export function SpindleSection({ id, model, offset }: { id: string; model: Spind
       ? u.enabled
         ? [t('spindleMissing', { target: u.index })]
         : []
-      : names.includes(u.spindle)
-        ? []
-        : [t('spindleUnknown', { target: u.index, spindle: u.spindle, known: names.join(', ') })]
+      : [u.spindle, ...u.spindleSwitches]
+          .filter((sp) => !names.includes(sp))
+          .map((sp) => t('spindleUnknown', { target: u.index, spindle: sp, known: names.join(', ') }))
   );
   const vec = (v: number[], f: (n: number) => number) => v.map(f).join(', ');
 
@@ -152,7 +159,7 @@ export function SpindleSection({ id, model, offset }: { id: string; model: Spind
             </thead>
             <tbody>
               {spindles.map((s) => {
-                const used = (uses ?? []).filter((u) => u.spindle === s.name);
+                const used = (uses ?? []).filter((u) => u.spindle === s.name || u.spindleSwitches.includes(s.name));
                 return (
                   <tr
                     key={s.name}
@@ -171,6 +178,7 @@ export function SpindleSection({ id, model, offset }: { id: string; model: Spind
                           ? used.map((u) => (
                               <span key={u.index} className={`mr-1.5 ${u.enabled ? '' : 'opacity-60 italic'}`}>
                                 {u.index}
+                                {u.spindle !== s.name && <span className="text-[10px] text-slate-400"> ({t('spindleSwitchedTo')})</span>}
                               </span>
                             ))
                           : <span className="text-slate-400 italic">{t('spindleUnused')}</span>}

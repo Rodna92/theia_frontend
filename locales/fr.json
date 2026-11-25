@@ -93,6 +93,7 @@
         "spindleNose": "Nez [mm]",
         "spindleTargets": "Cibles",
         "spindleUnused": "non utilisée",
+        "spindleSwitchedTo": "activée en cours de routine",
         "spindleUnits": "Repère tool0. Cibles : fichier de routines de {equipment} (cibles désactivées en italique).",
         "spindleHint": "Tête multibroche : chaque position porte une pointe rigide de longueur et de point final fixes. Le fichier de routines attribue une broche à chaque cible, et son point final est ee_link pendant toute la routine. Sélectionnez une broche pour la mettre en évidence avec son repère de pointe.",
         "spindleNone": "Aucune broche valide dans ce fichier.",

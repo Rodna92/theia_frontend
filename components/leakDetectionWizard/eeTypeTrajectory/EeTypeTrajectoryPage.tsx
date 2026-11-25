@@ -270,9 +270,9 @@ export function EeTypeTrajectoryPage() {
       if (tg.spindle === null) {
         return tg.enabled === false ? [] : [t('leakDetection.eeTrajectory.spindleMissing', { target: tg.index })];
       }
-      return names.includes(tg.spindle)
-        ? []
-        : [t('leakDetection.eeTrajectory.spindleUnknown', { target: tg.index, spindle: tg.spindle, known: names.join(', ') })];
+      return [tg.spindle, ...(tg.spindleSwitches ?? [])]
+        .filter((sp) => !names.includes(sp))
+        .map((sp) => t('leakDetection.eeTrajectory.spindleUnknown', { target: tg.index, spindle: sp, known: names.join(', ') }));
     });
   }, [ee, targets, t]);
 
@@ -418,7 +418,7 @@ export function EeTypeTrajectoryPage() {
                             className="ml-1.5 px-1 rounded text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300"
                             title={t('leakDetection.eeTrajectory.spindleOf', { spindle: tg.spindle })}
                           >
-                            {tg.spindle}
+                            {[tg.spindle, ...(tg.spindleSwitches ?? [])].join('→')}
                           </span>
                         )}
                       </span>
@@ -499,7 +499,7 @@ export function EeTypeTrajectoryPage() {
                         {t('leakDetection.eeTrajectory.spindles')}
                       </p>
                       {ee.spindles.map((s) => {
-                        const used = targets.filter((tg) => tg.spindle === s.name);
+                        const used = targets.filter((tg) => tg.spindle === s.name || (tg.spindleSwitches ?? []).includes(s.name));
                         return (
                           <div key={s.name} className="flex items-baseline gap-2 text-xs">
                             <span className="w-5 shrink-0 font-bold text-amber-700 dark:text-amber-300">{s.name}</span>

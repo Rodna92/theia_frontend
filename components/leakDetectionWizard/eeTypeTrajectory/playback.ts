@@ -295,7 +295,8 @@ export function buildPlayback(placements: Placement[], chain: JointChain | null 
     const partLabel = part
       ? ` · ${part.n}/${part.of}${part.target !== null ? ` → ${part.target}` : ''}`
       : '';
-    const spindle = entry.placement.target.spindle ?? null;
+    // The running step's spindle (a `spindle` step may have switched it), else the target's.
+    const spindle = entry.seg.spindle ?? entry.placement.target.spindle ?? null;
     return {
       position: place(entry.placement, atParam(entry.seg.points, s)),
       axes: [axis([1, 0, 0]), axis([0, 1, 0]), axis([0, 0, 1])],

@@ -48,6 +48,8 @@ export interface RoutineSegment {
   quat: Quat[];
   // Composed (`segments:`) targets: the part this step belongs to; target = the reused target.
   part?: { n: number; of: number; target: number | null };
+  // Multi-spindle tool: whose tip this step moves (a `spindle` step switches it mid-routine).
+  spindle?: string;
 }
 
 // One part of a composed routine: the target it sweeps and its fixed sub-frame (target-local).
@@ -72,6 +74,8 @@ export interface RoutineTarget {
   parts: RoutinePart[] | null;
   // Multi-spindle tool: the spindle (A, B, ...) whose tip is ee_link for this target; null = none named.
   spindle: string | null;
+  // Spindles switched to mid-routine (`spindle` steps), in order; [] when it never switches.
+  spindleSwitches: string[];
 }
 
 export const ALL_TARGETS = 'all';

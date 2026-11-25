@@ -3,6 +3,7 @@ import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 import { parse } from 'yaml';
 import { workcellPaths } from '@/lib/server/workcellPaths';
+import { spindleModelOf } from '@/components/leakDetectionWizard/endEffectorManager/multiSpindle';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +24,12 @@ interface Segment {
   quat: Quat[];
   // Set on `segments:` targets: which part of the composed routine this step belongs to.
   part?: SegmentPart;
+  // Multi-spindle tool: whose tip this step moves (the target's `spindle:`, then `spindle` steps).
+  spindle?: string;
 }
+
+// tool0 -> tip of each spindle of a multi-spindle tool: tip position and axes (columns), tool0 frame.
+type SpindleGeometry = Map<string, { t: Vec3; axes: [Vec3, Vec3, Vec3] }>;
 
 interface SegmentPart {
   n: number; // 1-based
@@ -251,7 +257,8 @@ function sampleArc(step: Step): { points: Vec3[]; quat: Quat[] } {
 function sample(
   steps: Step[],
   defaults: Record<string, Record<string, unknown>>,
-  start: { p: Vec3; q: Quat }
+  start: { p: Vec3; q: Quat },
+  spindles: { initial: string | null; geometry: SpindleGeometry | null } = { initial: null, geometry: null }
 ): { points: Vec3[]; startToolZ: Vec3 | null; segments: Segment[] } {
   const merged = steps.map((raw) => ({ ...(defaults[raw.type] ?? {}), ...raw }) as Step);
   const frames: SubFrame[] = [];
@@ -275,6 +282,8 @@ function sample(
   let curQ: Quat = start.q;
   // Moves that turn the tool are sampled this finely (uniform in the step parameter).
   const TURN_SAMPLES = 16;
+  // Multi-spindle tool: whose tip the steps move (changed by `spindle` steps).
+  let spindle = spindles.initial;
 
   merged.forEach((step, idx) => {
     const f = frames[idx];
@@ -285,7 +294,7 @@ function sample(
     };
     // The tip direction (toolZ) is the Z axis of each orientation sample.
     const push = (seg: Omit<Segment, 'toolZ'>) => {
-      const full: Segment = { ...seg, toolZ: seg.quat.map(zOf) };
+      const full: Segment = { ...seg, toolZ: seg.quat.map(zOf), ...(spindle ? { spindle } : {}) };
       segments.push(part ? { ...full, part } : full);
     };
     if (step.type === 'arc') {
@@ -354,6 +363,29 @@ function sample(
     } else if (step.type === 'pause' || step.type === 'settle') {
       const duration = step.type === 'pause' ? num('duration_s', 0) : num('timeout_s', 2);
       push({ type: step.type, duration, points: [curP, curP], quat: [curQ, curQ] });
+    } else if (step.type === 'spindle') {
+      // Switch to another spindle's tip with the flange held still (ee_app's SequenceRoutine):
+      // T_newtip = T_oldtip * inverse(T_tool0_old) * T_tool0_new. Without the geometry of both
+      // (unknown spindle, or not a multi-spindle tool) the tip is drawn where it was.
+      const name = String(step.name ?? '');
+      if (!name || name === spindle) return;
+      const from = spindle ? spindles.geometry?.get(spindle) : undefined;
+      const to = spindles.geometry?.get(name);
+      if (from && to) {
+        // R_rel = R_old^T R_new (columns), t_rel = R_old^T (t_new - t_old).
+        const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+        const d: Vec3 = [to.t[0] - from.t[0], to.t[1] - from.t[1], to.t[2] - from.t[2]];
+        const tRel: Vec3 = [dot(from.axes[0], d), dot(from.axes[1], d), dot(from.axes[2], d)];
+        const col = (k: number): Vec3 => [dot(from.axes[0], to.axes[k]), dot(from.axes[1], to.axes[k]), dot(from.axes[2], to.axes[k])];
+        const qRel = qFromAxes(col(0), col(1), col(2));
+        const off = qRotate(curQ, tRel);
+        curP = [curP[0] + off[0], curP[1] + off[1], curP[2] + off[2]];
+        curQ = qMul(curQ, qRel);
+        pts.push(curP);
+      }
+      spindle = name;
+      // Zero-time marker on the path, carrying the new spindle.
+      push({ type: 'spindle', duration: 0, points: [curP, curP], quat: [curQ, curQ] });
     } else if (step.type === 'handover' || step.type === 'release') {
       // Zero-time markers: the scan is done / the next target's approach may take over.
       push({ type: step.type, duration: 0, points: [curP, curP], quat: [curQ, curQ] });
@@ -384,6 +416,20 @@ export async function GET(req: NextRequest) {
     };
     const defaults = doc.defaults ?? {};
     const defs = doc.targets ?? {};
+    // Multi-spindle tool: the spindles' geometry, to re-base the path at a `spindle` step.
+    let geometry: SpindleGeometry | null = null;
+    try {
+      const toolDoc = parse(await fs.readFile(path.join(workcellPaths.endEffectorsDir(), `${endEffector}.yaml`), 'utf8'));
+      const params =
+        toolDoc && typeof toolDoc === 'object'
+          ? (Object.values(toolDoc as Record<string, { ros__parameters?: Record<string, unknown> }>).find((n) => n?.ros__parameters)
+              ?.ros__parameters ?? null)
+          : null;
+      const model = params ? spindleModelOf(params) : null;
+      if (model) geometry = new Map(model.spindles.map((sp) => [sp.name, { t: sp.tip, axes: sp.axes }]));
+    } catch {
+      geometry = null; // no tool file: drawn without re-basing
+    }
     // { use (+ with) } or { steps } -> its step list, placeholders filled in.
     const body = (def: RoutineBody): Step[] => {
       const steps = (def.steps ?? (def.use ? doc.templates?.[def.use] : []) ?? []) as Step[];
@@ -413,11 +459,17 @@ export async function GET(req: NextRequest) {
       const view = doc.approach_views?.[index];
       const startP = view?.offset_fine_m ?? view?.offset_m ?? FALLBACK_START;
       const startRpy = view?.rpy_fine_deg ?? view?.rpy_deg ?? [0, 0, 0];
-      const { points, startToolZ, segments } = sample(resolved, defaults, {
-        p: startP,
-        // q_target * Rz(yaw) * Ry(pitch) * Rx(roll), in target-local axes.
-        q: qRpy(startRpy),
-      });
+      const initialSpindle = def.spindle === undefined || def.spindle === null ? null : String(def.spindle);
+      const { points, startToolZ, segments } = sample(
+        resolved,
+        defaults,
+        {
+          p: startP,
+          // q_target * Rz(yaw) * Ry(pitch) * Rx(roll), in target-local axes.
+          q: qRpy(startRpy),
+        },
+        { initial: initialSpindle, geometry }
+      );
       return {
         index: Number(index),
         template,
@@ -428,7 +480,9 @@ export async function GET(req: NextRequest) {
         // No target_selection = every target enabled (as in ee_app).
         enabled: selection ? selection[index] === true : true,
         // Multi-spindle tool: the spindle whose tip is ee_link for this target (null = not named).
-        spindle: def.spindle === undefined || def.spindle === null ? null : String(def.spindle),
+        spindle: initialSpindle,
+        // Spindles switched to mid-routine (`spindle` steps), in order.
+        spindleSwitches: resolved.filter((st) => st.type === 'spindle' && st.name).map((st) => String(st.name)),
         // Composed targets: per part, the target it sweeps (this target for use / steps parts) and
         // its sub-frame (origin + x, y, z axes), target-local.
         parts: Array.isArray(def.segments)

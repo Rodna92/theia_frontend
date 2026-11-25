@@ -93,6 +93,7 @@
         "spindleNose": "Spindelnase [mm]",
         "spindleTargets": "Ziele",
         "spindleUnused": "nicht verwendet",
+        "spindleSwitchedTo": "während der Routine gewechselt",
         "spindleUnits": "tool0-Frame. Ziele: Routinedatei von {equipment} (deaktivierte Ziele kursiv).",
         "spindleHint": "Mehrspindelkopf: Jede Spindelposition trägt eine starre Spitze mit fester Länge und festem Endpunkt. Die Routinedatei nennt je Ziel eine Spindel; deren Endpunkt ist ee_link für die ganze Routine. Spindel auswählen, um sie und ihren Spitzen-Frame hervorzuheben.",
         "spindleNone": "Keine gültige Spindel in dieser Datei.",

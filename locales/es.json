@@ -93,6 +93,7 @@
         "spindleNose": "Nariz [mm]",
         "spindleTargets": "Objetivos",
         "spindleUnused": "sin uso",
+        "spindleSwitchedTo": "cambiado durante la rutina",
         "spindleUnits": "Marco tool0. Objetivos: archivo de rutinas de {equipment} (objetivos desactivados en cursiva).",
         "spindleHint": "Cabezal multihusillo: cada posición lleva una punta rígida de longitud y punto final fijos. El archivo de rutinas asigna un husillo a cada objetivo, y su punto final es ee_link durante toda la rutina. Selecciona un husillo para resaltarlo con su marco de punta.",
         "spindleNone": "Ningún husillo válido en este archivo.",

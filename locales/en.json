@@ -93,6 +93,7 @@
         "spindleNose": "Nose [mm]",
         "spindleTargets": "Targets",
         "spindleUnused": "not used",
+        "spindleSwitchedTo": "switched to mid-routine",
         "spindleUnits": "tool0 frame. Targets: routine file of {equipment} (disabled targets in italics).",
         "spindleHint": "Multi-spindle head: each spindle position holds a rigid tip with a fixed length and end point. The routine file names one spindle per target, and its end point is ee_link for that whole routine. Select a spindle to highlight it and its tip frame.",
         "spindleNone": "No valid spindle in this file.",
